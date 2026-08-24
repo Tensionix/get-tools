@@ -1,0 +1,12 @@
+# PKMS, notes, and personal knowledge bases.
+# One WinGet package ID per line.
+
+Notion.Notion
+Notion.NotionCalendar
+Obsidian.Obsidian
+Joplin.Joplin
+Evernote.Evernote
+UpNote.UpNote
+Zettlr.Zettlr
+AppFlowy.AppFlowy
+

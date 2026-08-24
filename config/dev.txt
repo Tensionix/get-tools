@@ -1,0 +1,29 @@
+# Developer tools.
+# One WinGet package ID per line.
+
+voidtools.Everything
+WinMerge.WinMerge
+Notepad++.Notepad++
+yt-dlp.yt-dlp
+RHash.RHash
+Git.Git
+Microsoft.VisualStudioCode
+VSCodium.VSCodium
+GitHub.GitHubDesktop
+Axosoft.GitKraken
+Gyan.FFmpeg
+aristocratos.btop4win
+Microsoft.PowerToys
+Ghisler.TotalCommander
+StefansTools.grepWin
+Python.Python.3.12
+Python.Python.3.13
+OpenJS.NodeJS
+DEVCOM.JetBrainsMonoNerdFont
+JetBrains.Toolbox
+JetBrains.IntelliJIDEA.Community
+JetBrains.PyCharm.Community
+JetBrains.WebStorm
+ShareX.ShareX
+FarManager.FarManager
+

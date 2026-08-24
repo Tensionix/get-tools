@@ -1,0 +1,28 @@
+# Browsers, VPN clients, network and messaging.
+# One WinGet package ID per line.
+
+Mozilla.Firefox
+Opera.Opera
+Vivaldi.Vivaldi
+Brave.Brave
+Zen-Team.Zen-Browser
+eloston.ungoogled-chromium
+CentStudio.CentBrowser
+AmneziaVPN.AmneziaVPN
+2dust.v2rayN
+KaringX.Karing
+Happ.Happ
+OpenWhisperSystems.Signal
+Telegram.TelegramDesktop
+Discord.Discord
+Bitwarden.Bitwarden
+KeePassXCTeam.KeePassXC
+Mozilla.Thunderbird
+Zoom.Zoom
+AnyDesk.AnyDesk
+Yandex.Disk
+Rclone.Rclone
+Bdrive.RcloneView
+RcloneUI.RcloneUI
+RClone-Manager.rclone-manager
+

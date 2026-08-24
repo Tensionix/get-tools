@@ -1,0 +1,19 @@
+# Hardware diagnostics and benchmarks.
+# One WinGet package ID per line.
+
+CrystalDewWorld.CrystalDiskInfo
+CrystalDewWorld.CrystalDiskMark
+CPUID.CPU-Z
+TechPowerUp.GPU-Z
+REALiX.HWiNFO
+Maxon.CinebenchR23
+Geeks3D.FurMark.2
+Guru3D.Afterburner
+Wagnardsoft.DisplayDriverUninstaller
+TechPowerUp.NVCleanstall
+CPUID.HWMonitor
+Fastfetch-cli.Fastfetch
+Clement.bottom
+AntibodySoftware.WizTree
+Rufus.Rufus
+

@@ -1,0 +1,34 @@
+# Media tools: images, audio, and video.
+# One WinGet package ID per line. Blank lines split visual sections only.
+
+# Images
+FastStone.Viewer
+KDE.Krita
+GIMP.GIMP
+Inkscape.Inkscape
+ImageMagick.ImageMagick
+IrfanSkiljan.IrfanView
+XnSoft.XnViewMP
+
+# Audio
+PeterPawlowski.foobar2000
+Cockos.REAPER
+Audacity.Audacity
+Ocenaudio.Ocenaudio
+
+# Video
+VideoLAN.VLC
+PaulPacifico.ShutterEncoder
+ch.LosslessCut
+HandBrake.HandBrake
+clsid2.mpc-hc
+MPC-BE.MPC-BE
+mpv.net
+MoritzBunkus.MKVToolNix
+MajorUpdates.SubtitleEdit
+OBSProject.OBSStudio
+BandicamCompany.Bandicam
+BandicamCompany.Bandicut
+MediaArea.MediaInfo
+qBittorrent.qBittorrent
+

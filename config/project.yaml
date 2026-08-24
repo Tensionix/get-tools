@@ -1,0 +1,7 @@
+project:
+  name: "Audion Get"
+  version: "7.0.0-gui"
+
+safety:
+  cleanup_managed_workspace_only: true
+  never_delete_original_inputs: true

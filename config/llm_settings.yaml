@@ -1,0 +1,46 @@
+schema_version: 3
+
+active_provider: openai
+provider_fallback: gemini
+retries_before_fallback: 2
+
+providers:
+  openai:
+    api_key_file: api_key_openai.txt
+    api_key_env: OPENAI_API_KEY
+    service_tier: default
+
+  gemini:
+    api_key_file: api_key_gemini.txt
+    api_key_env: GEMINI_API_KEY
+
+# Model IDs intentionally live outside this static YAML now.
+# Use the GUI model dropdown, favorites, and explicit smoke check.
+# CLI fallback uses config/gui_model_cache.json:
+# latest OK checked model, then first favorite model.
+
+audit:
+  openai:
+    chunk_tokens: 12000
+    overlap_tokens: 1200
+    min_chunks: 4
+    max_retries: 3
+    max_output_tokens: 12000
+    timeout_medium_sec: 420
+    timeout_high_sec: 600
+    reasoning_low: low
+    reasoning_medium: medium
+    reasoning_high: high
+
+  gemini:
+    chunk_tokens: 12000
+    overlap_tokens: 1200
+    max_retries: 4
+
+generation:
+  max_retries: 6
+
+prompts:
+  audit_system: audit_system_prompt.md
+  audit_user: audit_user_prompt.md
+  extraction_ocr: ocr_prompt.md

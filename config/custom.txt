@@ -1,0 +1,3 @@
+# Custom WinGet package IDs installed manually or through Install by ID.
+# One WinGet package ID per line.
+

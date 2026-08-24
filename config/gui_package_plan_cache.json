@@ -1,0 +1,36 @@
+{
+  "updated_at": "2026-06-24T20:21:28Z",
+  "provider": "openai",
+  "model": "gpt-5.4-mini",
+  "prompt_ref": "",
+  "request": "Найди Media Player Classic Black Edition для Windows через WinGet. Ничего не устанавливай на этапе планирования. Сам определи правильный WinGet ID, проверь варианты MPC-BE/MPC Black Edition и предложи точный пакет для установки обычному пользователю.",
+  "summary": "Для Media Player Classic Black Edition в WinGet подходит пакет MPC-BE.MPC-BE. Это отдельный форк MPC-BE, не MPC-HC.",
+  "notes": [
+    "Ничего не устанавливалось; это только план.",
+    "Уже установлен clsid2.mpc-hc, но он не заменяет MPC-BE."
+  ],
+  "packages": [
+    {
+      "name": "MPC-BE",
+      "query": "MPC-BE",
+      "winget_id": "MPC-BE.MPC-BE",
+      "group": "media_video",
+      "action": "install",
+      "reason": "Это точный WinGet ID для MPC-BE (Black Edition) и обычно лучший выбор для обычного пользователя, который ищет именно MPC-BE.",
+      "risk": "Не путать с clsid2.mpc-hc: это другой плеер. Если нужен именно MPC Black Edition, выбирайте этот пакет.",
+      "version": "",
+      "source": "",
+      "validation_status": "validated_exact",
+      "installed": false,
+      "install_command": "winget install --id MPC-BE.MPC-BE -e --source winget --accept-package-agreements --accept-source-agreements --no-upgrade",
+      "candidates": [
+        {
+          "value": "MPC-BE.MPC-BE",
+          "label": "MPC-BE | MPC-BE.MPC-BE",
+          "label_ru": "MPC-BE | MPC-BE.MPC-BE",
+          "name": "MPC-BE"
+        }
+      ]
+    }
+  ]
+}

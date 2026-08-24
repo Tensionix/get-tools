@@ -1,0 +1,1930 @@
+tool:
+  id: audion_get
+  name: "Audion Get"
+  category: "Windows package management"
+  version: "7.0.0-gui"
+
+paths:
+  input: "input"
+  output: "output"
+  logs: "logs"
+  workspace: "workspace"
+  config: "config"
+  release: "release"
+
+ui:
+  title: "Audion Get Tools"
+  host: "127.0.0.1"
+  port: 8088
+  width: 1600
+  height: 900
+  min_width: 1280
+  min_height: 720
+  native: false
+  reload: false
+  open_browser: false
+
+x-package-fields: &package_fields
+  - id: package_profile
+    type: "profile_buttons"
+    label: "Selection profiles"
+    label_ru: "Профили выбора"
+    hint: "Presets only mark checkboxes; you can adjust every package before running."
+    hint_ru: "Профили только отмечают чекбоксы; перед запуском можно поправить каждый пакет."
+    presets:
+      - id: "clear"
+        label: "Clear"
+        label_ru: "Снять всё"
+        values:
+          packages_system: []
+          packages_dev: []
+          packages_ai: []
+          packages_pkms: []
+          packages_office: []
+          packages_media_images: []
+          packages_media_audio: []
+          packages_media_video: []
+          packages_network: []
+          packages_hardware: []
+          packages_msvc: []
+          packages_msvc_legacy: []
+      - id: "minimal"
+        label: "Minimal"
+        label_ru: "Минимум"
+        values:
+          packages_system:
+            - "Microsoft.WindowsTerminal"
+            - "Microsoft.PowerShell"
+            - "7zip.7zip"
+          packages_dev: []
+          packages_ai: []
+          packages_pkms: []
+          packages_office: []
+          packages_media_images: []
+          packages_media_audio: []
+          packages_media_video: []
+          packages_network: []
+          packages_hardware: []
+          packages_msvc:
+            - "Microsoft.VCRedist.2015+.x86"
+            - "Microsoft.VCRedist.2015+.x64"
+          packages_msvc_legacy: []
+      - id: "dev"
+        label: "Dev"
+        label_ru: "Dev"
+        values:
+          packages_system:
+            - "Microsoft.DotNet.DesktopRuntime.8"
+            - "Microsoft.WindowsTerminal"
+            - "Microsoft.PowerShell"
+            - "7zip.7zip"
+          packages_dev:
+            - "voidtools.Everything"
+            - "WinMerge.WinMerge"
+            - "Notepad++.Notepad++"
+            - "yt-dlp.yt-dlp"
+            - "RHash.RHash"
+            - "Git.Git"
+            - "Microsoft.VisualStudioCode"
+            - "VSCodium.VSCodium"
+            - "GitHub.GitHubDesktop"
+            - "Gyan.FFmpeg"
+            - "Microsoft.PowerToys"
+            - "ShareX.ShareX"
+          packages_ai:
+            - "Anthropic.Claude"
+            - "Anthropic.ClaudeCode"
+            - "OpenAI.Codex"
+          packages_pkms: []
+          packages_office: []
+          packages_media_images: []
+          packages_media_audio: []
+          packages_media_video: []
+          packages_network: []
+          packages_hardware: []
+          packages_msvc:
+            - "Microsoft.VCRedist.2015+.x86"
+            - "Microsoft.VCRedist.2015+.x64"
+          packages_msvc_legacy: []
+      - id: "media"
+        label: "Media"
+        label_ru: "Медиа"
+        values:
+          packages_system:
+            - "Microsoft.PowerShell"
+            - "7zip.7zip"
+          packages_dev:
+            - "yt-dlp.yt-dlp"
+            - "Gyan.FFmpeg"
+            - "ShareX.ShareX"
+          packages_ai: []
+          packages_pkms: []
+          packages_office: []
+          packages_media_images:
+            - "FastStone.Viewer"
+            - "KDE.Krita"
+            - "GIMP.GIMP"
+            - "Inkscape.Inkscape"
+            - "ImageMagick.ImageMagick"
+            - "XnSoft.XnViewMP"
+          packages_media_audio:
+            - "PeterPawlowski.foobar2000"
+            - "Cockos.REAPER"
+            - "Audacity.Audacity"
+            - "Ocenaudio.Ocenaudio"
+          packages_media_video:
+            - "VideoLAN.VLC"
+            - "PaulPacifico.ShutterEncoder"
+            - "ch.LosslessCut"
+            - "HandBrake.HandBrake"
+            - "clsid2.mpc-hc"
+            - "MPC-BE.MPC-BE"
+            - "mpv.net"
+            - "MoritzBunkus.MKVToolNix"
+            - "MajorUpdates.SubtitleEdit"
+            - "qBittorrent.qBittorrent"
+          packages_network: []
+          packages_hardware: []
+          packages_msvc:
+            - "Microsoft.VCRedist.2015+.x86"
+            - "Microsoft.VCRedist.2015+.x64"
+          packages_msvc_legacy: []
+      - id: "network"
+        label: "Network"
+        label_ru: "Сеть"
+        values:
+          packages_system:
+            - "Microsoft.PowerShell"
+            - "7zip.7zip"
+          packages_dev: []
+          packages_ai: []
+          packages_pkms: []
+          packages_office: []
+          packages_media_images: []
+          packages_media_audio: []
+          packages_media_video: []
+          packages_network:
+            - "Mozilla.Firefox"
+            - "Opera.Opera"
+            - "Vivaldi.Vivaldi"
+            - "Brave.Brave"
+            - "Zen-Team.Zen-Browser"
+            - "eloston.ungoogled-chromium"
+            - "CentStudio.CentBrowser"
+            - "AmneziaVPN.AmneziaVPN"
+            - "2dust.v2rayN"
+            - "KaringX.Karing"
+            - "Happ.Happ"
+            - "OpenWhisperSystems.Signal"
+            - "Telegram.TelegramDesktop"
+            - "Discord.Discord"
+            - "Bitwarden.Bitwarden"
+            - "Yandex.Disk"
+          packages_hardware: []
+          packages_msvc: []
+          packages_msvc_legacy: []
+
+  - id: packages_system
+    type: "checkboxes"
+    label: "System"
+    label_ru: "Система"
+    default: []
+    options:
+      - value: "windows-feature:NetFx3"
+        label: ".NET Framework 3.5 (Windows feature)"
+        label_ru: ".NET Framework 3.5 (компонент Windows)"
+      - value: "Microsoft.DotNet.DesktopRuntime.6"
+        label: ".NET Desktop Runtime 6"
+        label_ru: ".NET Desktop Runtime 6"
+      - value: "Microsoft.DotNet.DesktopRuntime.8"
+        label: ".NET Desktop Runtime 8"
+        label_ru: ".NET Desktop Runtime 8"
+      - value: "Microsoft.DotNet.DesktopRuntime.10"
+        label: ".NET Desktop Runtime 10"
+        label_ru: ".NET Desktop Runtime 10"
+      - value: "Microsoft.WindowsTerminal"
+        label: "Windows Terminal"
+        label_ru: "Windows Terminal"
+      - value: "Microsoft.PowerShell"
+        label: "PowerShell 7"
+        label_ru: "PowerShell 7"
+      - value: "Eugeny.Tabby"
+        label: "Tabby"
+        label_ru: "Tabby"
+      - value: "7zip.7zip"
+        label: "7-Zip"
+        label_ru: "7-Zip"
+      - value: "Giorgiotani.Peazip"
+        label: "PeaZip"
+        label_ru: "PeaZip"
+      - value: "RARLab.WinRAR"
+        label: "WinRAR"
+        label_ru: "WinRAR"
+      - value: "Microsoft.Sysinternals.ProcessExplorer"
+        label: "Process Explorer"
+        label_ru: "Process Explorer"
+      - value: "Microsoft.Sysinternals.Autoruns"
+        label: "Autoruns"
+        label_ru: "Autoruns"
+      - value: "CodeSector.TeraCopy"
+        label: "TeraCopy"
+        label_ru: "TeraCopy"
+
+  - id: packages_dev
+    type: "checkboxes"
+    label: "Developer tools"
+    label_ru: "Разработка"
+    default: []
+    options:
+      - value: "voidtools.Everything"
+        label: "Everything"
+        label_ru: "Everything"
+      - value: "WinMerge.WinMerge"
+        label: "WinMerge"
+        label_ru: "WinMerge"
+      - value: "Notepad++.Notepad++"
+        label: "Notepad++"
+        label_ru: "Notepad++"
+      - value: "yt-dlp.yt-dlp"
+        label: "yt-dlp"
+        label_ru: "yt-dlp"
+      - value: "RHash.RHash"
+        label: "RHash"
+        label_ru: "RHash"
+      - value: "Git.Git"
+        label: "Git"
+        label_ru: "Git"
+      - value: "Microsoft.VisualStudioCode"
+        label: "Visual Studio Code"
+        label_ru: "Visual Studio Code"
+      - value: "VSCodium.VSCodium"
+        label: "VSCodium"
+        label_ru: "VSCodium"
+      - value: "GitHub.GitHubDesktop"
+        label: "GitHub Desktop"
+        label_ru: "GitHub Desktop"
+      - value: "Axosoft.GitKraken"
+        label: "GitKraken"
+        label_ru: "GitKraken"
+      - value: "Gyan.FFmpeg"
+        label: "FFmpeg"
+        label_ru: "FFmpeg"
+      - value: "aristocratos.btop4win"
+        label: "btop4win"
+        label_ru: "btop4win"
+      - value: "Microsoft.PowerToys"
+        label: "PowerToys"
+        label_ru: "PowerToys"
+      - value: "Ghisler.TotalCommander"
+        label: "Total Commander"
+        label_ru: "Total Commander"
+      - value: "FarManager.FarManager"
+        label: "Far Manager"
+        label_ru: "Far Manager"
+      - value: "StefansTools.grepWin"
+        label: "grepWin"
+        label_ru: "grepWin"
+      - value: "Python.Python.3.12"
+        label: "Python 3.12"
+        label_ru: "Python 3.12"
+      - value: "Python.Python.3.13"
+        label: "Python 3.13"
+        label_ru: "Python 3.13"
+      - value: "OpenJS.NodeJS"
+        label: "Node.js"
+        label_ru: "Node.js"
+      - value: "DEVCOM.JetBrainsMonoNerdFont"
+        label: "JetBrains Mono Nerd Font"
+        label_ru: "JetBrains Mono Nerd Font"
+      - value: "JetBrains.Toolbox"
+        label: "JetBrains Toolbox"
+        label_ru: "JetBrains Toolbox"
+      - value: "JetBrains.IntelliJIDEA.Community"
+        label: "IntelliJ IDEA Community"
+        label_ru: "IntelliJ IDEA Community"
+      - value: "JetBrains.PyCharm.Community"
+        label: "PyCharm Community"
+        label_ru: "PyCharm Community"
+      - value: "JetBrains.WebStorm"
+        label: "WebStorm"
+        label_ru: "WebStorm"
+      - value: "ShareX.ShareX"
+        label: "ShareX"
+        label_ru: "ShareX"
+
+  - id: packages_ai
+    type: "checkboxes"
+    label: "AI"
+    label_ru: "AI"
+    default: []
+    options:
+      - value: "Anthropic.Claude"
+        label: "Claude"
+        label_ru: "Claude"
+      - value: "Anthropic.ClaudeCode"
+        label: "Claude Code"
+        label_ru: "Claude Code"
+      - value: "OpenAI.Codex"
+        label: "OpenAI Codex"
+        label_ru: "OpenAI Codex"
+
+  - id: packages_pkms
+    type: "checkboxes"
+    label: "PKMS and notes"
+    label_ru: "PKMS и заметки"
+    default: []
+    options:
+      - value: "Notion.Notion"
+        label: "Notion"
+        label_ru: "Notion"
+      - value: "Notion.NotionCalendar"
+        label: "Notion Calendar"
+        label_ru: "Notion Calendar"
+      - value: "Obsidian.Obsidian"
+        label: "Obsidian"
+        label_ru: "Obsidian"
+      - value: "Joplin.Joplin"
+        label: "Joplin"
+        label_ru: "Joplin"
+      - value: "Evernote.Evernote"
+        label: "Evernote"
+        label_ru: "Evernote"
+      - value: "UpNote.UpNote"
+        label: "UpNote"
+        label_ru: "UpNote"
+      - value: "Zettlr.Zettlr"
+        label: "Zettlr"
+        label_ru: "Zettlr"
+      - value: "AppFlowy.AppFlowy"
+        label: "AppFlowy"
+        label_ru: "AppFlowy"
+
+  - id: packages_office
+    type: "checkboxes"
+    label: "Office and documents"
+    label_ru: "Office и документы"
+    default: []
+    options:
+      - value: "Calibre.Calibre"
+        label: "Calibre"
+        label_ru: "Calibre"
+      - value: "TheDocumentFoundation.LibreOffice"
+        label: "LibreOffice / soffice"
+        label_ru: "LibreOffice / soffice"
+      - value: "Adobe.Acrobat.Reader.64-bit"
+        label: "Acrobat Reader"
+        label_ru: "Acrobat Reader"
+      - value: "SumatraPDF.SumatraPDF"
+        label: "SumatraPDF"
+        label_ru: "SumatraPDF"
+
+  - id: packages_media_images
+    type: "checkboxes"
+    label: "Media: images"
+    label_ru: "Медиа: изображения"
+    default: []
+    options:
+      - value: "FastStone.Viewer"
+        label: "FastStone Viewer"
+        label_ru: "FastStone Viewer"
+      - value: "KDE.Krita"
+        label: "Krita"
+        label_ru: "Krita"
+      - value: "GIMP.GIMP"
+        label: "GIMP"
+        label_ru: "GIMP"
+      - value: "Inkscape.Inkscape"
+        label: "Inkscape"
+        label_ru: "Inkscape"
+      - value: "ImageMagick.ImageMagick"
+        label: "ImageMagick"
+        label_ru: "ImageMagick"
+      - value: "IrfanSkiljan.IrfanView"
+        label: "IrfanView"
+        label_ru: "IrfanView"
+      - value: "XnSoft.XnViewMP"
+        label: "XnView MP"
+        label_ru: "XnView MP"
+
+  - id: packages_media_audio
+    type: "checkboxes"
+    label: "Media: audio"
+    label_ru: "Медиа: звук"
+    default: []
+    options:
+      - value: "PeterPawlowski.foobar2000"
+        label: "foobar2000"
+        label_ru: "foobar2000"
+      - value: "Cockos.REAPER"
+        label: "REAPER"
+        label_ru: "REAPER"
+      - value: "Audacity.Audacity"
+        label: "Audacity"
+        label_ru: "Audacity"
+      - value: "Ocenaudio.Ocenaudio"
+        label: "Ocenaudio"
+        label_ru: "Ocenaudio"
+
+  - id: packages_media_video
+    type: "checkboxes"
+    label: "Media: video"
+    label_ru: "Медиа: видео"
+    default: []
+    options:
+      - value: "VideoLAN.VLC"
+        label: "VLC"
+        label_ru: "VLC"
+      - value: "PaulPacifico.ShutterEncoder"
+        label: "Shutter Encoder"
+        label_ru: "Shutter Encoder"
+      - value: "ch.LosslessCut"
+        label: "LosslessCut"
+        label_ru: "LosslessCut"
+      - value: "HandBrake.HandBrake"
+        label: "HandBrake"
+        label_ru: "HandBrake"
+      - value: "clsid2.mpc-hc"
+        label: "MPC-HC"
+        label_ru: "MPC-HC"
+      - value: "MPC-BE.MPC-BE"
+        label: "MPC-BE"
+        label_ru: "MPC-BE"
+      - value: "mpv.net"
+        label: "mpv.net"
+        label_ru: "mpv.net"
+      - value: "MoritzBunkus.MKVToolNix"
+        label: "MKVToolNix"
+        label_ru: "MKVToolNix"
+      - value: "MajorUpdates.SubtitleEdit"
+        label: "Subtitle Edit"
+        label_ru: "Subtitle Edit"
+      - value: "OBSProject.OBSStudio"
+        label: "OBS Studio"
+        label_ru: "OBS Studio"
+      - value: "BandicamCompany.Bandicam"
+        label: "Bandicam"
+        label_ru: "Bandicam"
+      - value: "BandicamCompany.Bandicut"
+        label: "Bandicut"
+        label_ru: "Bandicut"
+      - value: "MediaArea.MediaInfo"
+        label: "MediaInfo"
+        label_ru: "MediaInfo"
+      - value: "qBittorrent.qBittorrent"
+        label: "qBittorrent"
+        label_ru: "qBittorrent"
+
+  - id: packages_network
+    type: "checkboxes"
+    label: "Browsers, VPN, messaging"
+    label_ru: "Браузеры, VPN, связь"
+    default: []
+    options:
+      - value: "Mozilla.Firefox"
+        label: "Firefox"
+        label_ru: "Firefox"
+      - value: "Opera.Opera"
+        label: "Opera"
+        label_ru: "Opera"
+      - value: "Vivaldi.Vivaldi"
+        label: "Vivaldi"
+        label_ru: "Vivaldi"
+      - value: "Brave.Brave"
+        label: "Brave"
+        label_ru: "Brave"
+      - value: "Zen-Team.Zen-Browser"
+        label: "Zen Browser"
+        label_ru: "Zen Browser"
+      - value: "eloston.ungoogled-chromium"
+        label: "Ungoogled Chromium"
+        label_ru: "Ungoogled Chromium"
+      - value: "CentStudio.CentBrowser"
+        label: "Cent Browser"
+        label_ru: "Cent Browser"
+      - value: "AmneziaVPN.AmneziaVPN"
+        label: "AmneziaVPN"
+        label_ru: "AmneziaVPN"
+      - value: "2dust.v2rayN"
+        label: "v2rayN"
+        label_ru: "v2rayN"
+      - value: "KaringX.Karing"
+        label: "Karing"
+        label_ru: "Karing"
+      - value: "Happ.Happ"
+        label: "Happ"
+        label_ru: "Happ"
+      - value: "OpenWhisperSystems.Signal"
+        label: "Signal"
+        label_ru: "Signal"
+      - value: "Telegram.TelegramDesktop"
+        label: "Telegram Desktop"
+        label_ru: "Telegram Desktop"
+      - value: "Discord.Discord"
+        label: "Discord"
+        label_ru: "Discord"
+      - value: "Bitwarden.Bitwarden"
+        label: "Bitwarden"
+        label_ru: "Bitwarden"
+      - value: "KeePassXCTeam.KeePassXC"
+        label: "KeePassXC"
+        label_ru: "KeePassXC"
+      - value: "Mozilla.Thunderbird"
+        label: "Thunderbird"
+        label_ru: "Thunderbird"
+      - value: "Zoom.Zoom"
+        label: "Zoom"
+        label_ru: "Zoom"
+      - value: "AnyDesk.AnyDesk"
+        label: "AnyDesk"
+        label_ru: "AnyDesk"
+      - value: "Yandex.Disk"
+        label: "Yandex Disk"
+        label_ru: "Yandex Disk"
+      - value: "Rclone.Rclone"
+        label: "Rclone"
+        label_ru: "Rclone"
+      - value: "Bdrive.RcloneView"
+        label: "RcloneView"
+        label_ru: "RcloneView"
+      - value: "RcloneUI.RcloneUI"
+        label: "Rclone UI"
+        label_ru: "Rclone UI"
+      - value: "RClone-Manager.rclone-manager"
+        label: "RClone Manager"
+        label_ru: "RClone Manager"
+
+  - id: packages_hardware
+    type: "checkboxes"
+    label: "Hardware and service tools"
+    label_ru: "Железо и утилиты"
+    default: []
+    options:
+      - value: "CrystalDewWorld.CrystalDiskInfo"
+        label: "CrystalDiskInfo"
+        label_ru: "CrystalDiskInfo"
+      - value: "CrystalDewWorld.CrystalDiskMark"
+        label: "CrystalDiskMark"
+        label_ru: "CrystalDiskMark"
+      - value: "CPUID.CPU-Z"
+        label: "CPU-Z"
+        label_ru: "CPU-Z"
+      - value: "TechPowerUp.GPU-Z"
+        label: "GPU-Z"
+        label_ru: "GPU-Z"
+      - value: "REALiX.HWiNFO"
+        label: "HWiNFO"
+        label_ru: "HWiNFO"
+      - value: "Maxon.CinebenchR23"
+        label: "Cinebench R23"
+        label_ru: "Cinebench R23"
+      - value: "Geeks3D.FurMark.2"
+        label: "FurMark 2"
+        label_ru: "FurMark 2"
+      - value: "Guru3D.Afterburner"
+        label: "MSI Afterburner"
+        label_ru: "MSI Afterburner"
+      - value: "Wagnardsoft.DisplayDriverUninstaller"
+        label: "Display Driver Uninstaller (DDU)"
+        label_ru: "Display Driver Uninstaller (DDU)"
+      - value: "TechPowerUp.NVCleanstall"
+        label: "NVCleanstall"
+        label_ru: "NVCleanstall"
+      - value: "CPUID.HWMonitor"
+        label: "HWMonitor"
+        label_ru: "HWMonitor"
+      - value: "Fastfetch-cli.Fastfetch"
+        label: "fastfetch"
+        label_ru: "fastfetch"
+      - value: "Clement.bottom"
+        label: "bottom"
+        label_ru: "bottom"
+      - value: "AntibodySoftware.WizTree"
+        label: "WizTree"
+        label_ru: "WizTree"
+      - value: "Rufus.Rufus"
+        label: "Rufus"
+        label_ru: "Rufus"
+
+  - id: packages_msvc
+    type: "checkboxes"
+    label: "MSVC runtime (2015+)"
+    label_ru: "MSVC рантайм (2015+)"
+    hint: "For a modern system this is the only runtime that matters. For the whole 2005-2013 family use the TechPowerUp or abbodi1406 all-in-one bundle in Classic scripts: it also covers 2012, which WinGet does not have."
+    hint_ru: "Для современной системы это единственный нужный рантайм. Всё семейство 2005-2013 удобнее ставить набором TechPowerUp или abbodi1406 в «Классических скриптах»: там есть и 2012, которого в WinGet нет вовсе."
+    tooltip: "Official Microsoft packages for the 2015+ (v14) runtime, x86 and x64."
+    tooltip_ru: "Официальные пакеты Microsoft для рантайма 2015+ (v14), x86 и x64."
+    default: []
+    options:
+      - value: "Microsoft.VCRedist.2015+.x86"
+        label: "MSVC 2015+ x86"
+        label_ru: "MSVC 2015+ x86"
+      - value: "Microsoft.VCRedist.2015+.x64"
+        label: "MSVC 2015+ x64"
+        label_ru: "MSVC 2015+ x64"
+
+  - id: packages_msvc_legacy
+    type: "checkboxes"
+    label: "Advanced: MSVC 2005-2013"
+    label_ru: "Advanced: MSVC 2005-2013"
+    hint: "Official Microsoft packages, one per year and architecture. Recommended instead: the all-in-one bundles from TechPowerUp or abbodi1406 in Classic scripts - one pass, and they include 2012, which has no WinGet package."
+    hint_ru: "Официальные пакеты Microsoft, по одному на год и разрядность. Рекомендуем вместо них all-in-one наборы TechPowerUp или abbodi1406 в «Классических скриптах»: одним заходом и вместе с 2012, для которого пакета в WinGet не существует."
+    tooltip: "Legacy runtimes for old software. WinGet manifests here are frozen at the final vendor build, so they never report an update."
+    tooltip_ru: "Старые рантаймы для древнего софта. Манифесты WinGet здесь заморожены на финальной сборке вендора, поэтому обновления по ним не приходят никогда."
+    default: []
+    options:
+      - value: "Microsoft.VCRedist.2013.x86"
+        label: "MSVC 2013 x86"
+        label_ru: "MSVC 2013 x86"
+      - value: "Microsoft.VCRedist.2013.x64"
+        label: "MSVC 2013 x64"
+        label_ru: "MSVC 2013 x64"
+      - value: "Microsoft.VCRedist.2010.x86"
+        label: "MSVC 2010 x86"
+        label_ru: "MSVC 2010 x86"
+      - value: "Microsoft.VCRedist.2010.x64"
+        label: "MSVC 2010 x64"
+        label_ru: "MSVC 2010 x64"
+      - value: "Microsoft.VCRedist.2008.x86"
+        label: "MSVC 2008 x86"
+        label_ru: "MSVC 2008 x86"
+      - value: "Microsoft.VCRedist.2008.x64"
+        label: "MSVC 2008 x64"
+        label_ru: "MSVC 2008 x64"
+      - value: "Microsoft.VCRedist.2005.x86"
+        label: "MSVC 2005 x86"
+        label_ru: "MSVC 2005 x86"
+
+x-pin-fields: &pin_fields
+  - id: packages_pins
+    type: "checkboxes"
+    label: "pins.txt"
+    label_ru: "pins.txt"
+    hint: "IDs already listed in config\\pins.txt. Keep them at the top and run to apply missing blocking pins."
+    hint_ru: "ID, уже записанные в config\\pins.txt. Они всегда сверху; запуск применит недостающие blocking-пины."
+    default: []
+    options_source: "system_core.services.winget_service:pins_config_options"
+    cache_seconds: 20
+    grid_min_px: 260
+  - id: packages_installed_pins
+    type: "checkboxes"
+    label: "Installed packages"
+    label_ru: "Установленные пакеты"
+    hint: "Select installed IDs to append them to config\\pins.txt and apply blocking pins in one run."
+    hint_ru: "Отметьте установленные ID, чтобы добавить их в config\\pins.txt и сразу поставить blocking-pin."
+    default: []
+    options_source: "system_core.services.winget_service:installed_pin_candidate_options"
+    cache_seconds: 20
+    grid_min_px: 260
+
+x-ai-llm-fields: &ai_llm_fields
+  - id: provider
+    section: "provider"
+    type: "radio"
+    label: "Model family"
+    label_ru: "Семейство моделей"
+    tooltip: "Choose which LLM provider is used for package planning and model cache controls."
+    tooltip_ru: "Выберите провайдера LLM для сборки плана пакетов и управления кэшем моделей."
+    default: "openai"
+    span: "full"
+    options:
+      - value: "openai"
+        label: "OpenAI"
+        label_ru: "OpenAI"
+      - value: "gemini"
+        label: "Gemini"
+        label_ru: "Gemini"
+  - id: openai_api_key_ref
+    section: "provider"
+    type: "select"
+    label: "OpenAI API key"
+    label_ru: "Ключ OpenAI"
+    tooltip: "Select an OpenAI key reference from config or cache. Key material is not written into the GUI cache."
+    tooltip_ru: "Выберите ссылку на OpenAI key из config или кэша. Сам ключ не записывается в GUI-кэш."
+    default: ""
+    searchable: true
+    options_source: "system_core.services.winget_ai_service:openai_api_key_options"
+    cache_seconds: 30
+  - id: openai_model
+    section: "provider"
+    type: "select"
+    label: "OpenAI model"
+    label_ru: "Модель OpenAI"
+    tooltip: "Pick a cached or API-discovered OpenAI model for the package plan."
+    tooltip_ru: "Выберите кэшированную или найденную через API модель OpenAI для сборки плана."
+    default: ""
+    searchable: true
+    options_source: "system_core.services.winget_ai_service:openai_model_options"
+    cache_seconds: 3600
+  - id: openai_model_override
+    section: "provider"
+    type: "text"
+    label: "OpenAI model override"
+    label_ru: "Модель OpenAI вручную"
+    tooltip: "Optional manual model ID. Use it when the model is valid but not yet present in the cache."
+    tooltip_ru: "Необязательный ручной ID модели. Полезно, если модель уже доступна, но ещё не попала в кэш."
+    default: ""
+  - id: openai_reasoning
+    section: "provider"
+    type: "radio"
+    label: "OpenAI reasoning"
+    label_ru: "Глубина OpenAI"
+    tooltip: "Controls reasoning effort for supported OpenAI models: faster answers or deeper planning."
+    tooltip_ru: "Управляет усилием reasoning у поддерживаемых OpenAI-моделей: быстрее ответ или глубже планирование."
+    default: "low"
+    span: "full"
+    options:
+      - value: "low"
+        label: "Fast"
+        label_ru: "Быстро"
+      - value: "medium"
+        label: "Balanced"
+        label_ru: "Баланс"
+      - value: "high"
+        label: "Deep"
+        label_ru: "Глубже"
+  - id: gemini_api_key_ref
+    section: "provider"
+    type: "select"
+    label: "Gemini API key"
+    label_ru: "Ключ Gemini"
+    tooltip: "Select a Gemini key reference from config or cache. Key material is not written into the GUI cache."
+    tooltip_ru: "Выберите ссылку на Gemini key из config или кэша. Сам ключ не записывается в GUI-кэш."
+    default: ""
+    searchable: true
+    options_source: "system_core.services.winget_ai_service:gemini_api_key_options"
+    cache_seconds: 30
+  - id: gemini_model
+    section: "provider"
+    type: "select"
+    label: "Gemini model"
+    label_ru: "Модель Gemini"
+    tooltip: "Pick a cached or API-discovered Gemini model for the package plan."
+    tooltip_ru: "Выберите кэшированную или найденную через API модель Gemini для сборки плана."
+    default: ""
+    searchable: true
+    options_source: "system_core.services.winget_ai_service:gemini_model_options"
+    cache_seconds: 3600
+  - id: gemini_model_override
+    section: "provider"
+    type: "text"
+    label: "Gemini model override"
+    label_ru: "Модель Gemini вручную"
+    tooltip: "Optional manual Gemini model ID. Use it when the model is valid but not yet present in the cache."
+    tooltip_ru: "Необязательный ручной ID модели Gemini. Полезно, если модель уже доступна, но ещё не попала в кэш."
+    default: ""
+  - id: ai_prompt_ref
+    section: "prompt"
+    type: "select"
+    label: "Instruction template"
+    label_ru: "Шаблон инструкции"
+    tooltip: "Saved behavior template for the AI planner. It loads text into the AI planner instruction field; selecting it does not scan or install packages."
+    tooltip_ru: "Сохранённый шаблон поведения AI. Он загружает текст в поле «Инструкция AI-планировщика»; сам выбор не сканирует и не устанавливает пакеты."
+    default: ""
+    searchable: true
+    span: "full"
+    options_source: "system_core.services.winget_ai_service:ai_package_prompt_options"
+    cache_seconds: 20
+  - id: ai_prompt
+    section: "prompt"
+    type: "markdown_editor"
+    label: "AI planner instruction"
+    label_ru: "Инструкция AI-планировщика"
+    tooltip: "Rules for how the AI should reason and format the plan: propose options first, validate WinGet IDs, mention risks, and avoid installing at this step."
+    tooltip_ru: "Правила, как AI должен думать и оформлять план: сначала предложить варианты, проверить WinGet ID, назвать риски и ничего не устанавливать на этом шаге."
+    editor_language: "Markdown"
+    line_wrapping: true
+    default: |
+      Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.
+    span: "full"
+  - id: ai_prompt_label
+    section: "prompt"
+    type: "text"
+    label: "Prompt label"
+    label_ru: "Название prompt"
+    tooltip: "Human-readable name used when saving the current prompt to cache."
+    tooltip_ru: "Понятное имя, с которым текущий prompt будет сохранён в кэш."
+    default: ""
+  - id: ai_prompt_note
+    section: "prompt"
+    type: "text"
+    label: "Prompt note"
+    label_ru: "Заметка prompt"
+    tooltip: "Optional note for why this prompt exists or what scenario it is tuned for."
+    tooltip_ru: "Необязательная заметка: для чего этот prompt и под какой сценарий он настроен."
+    default: ""
+  - id: llm_max_output_tokens
+    section: "generation"
+    type: "number"
+    label: "LLM max output"
+    label_ru: "Макс. вывод LLM"
+    tooltip: "Upper bound for LLM response size. Increase for large package plans, reduce for short answers."
+    tooltip_ru: "Верхняя граница размера ответа LLM. Увеличивайте для больших планов, уменьшайте для коротких ответов."
+    default: 5000
+    min: 1000
+    max: 30000
+    step: 1000
+  - id: llm_max_retries
+    section: "generation"
+    type: "number"
+    label: "LLM retries"
+    label_ru: "Повторы LLM"
+    tooltip: "How many times to retry a failed LLM request before stopping the operation."
+    tooltip_ru: "Сколько раз повторять неудачный запрос к LLM перед остановкой операции."
+    default: 2
+    min: 0
+    max: 10
+    step: 1
+  - id: llm_timeout_sec
+    section: "generation"
+    type: "number"
+    label: "LLM timeout"
+    label_ru: "Таймаут LLM"
+    tooltip: "Maximum wait time for a single LLM request, in seconds."
+    tooltip_ru: "Максимальное ожидание одного запроса к LLM, в секундах."
+    default: 240
+    min: 30
+    max: 900
+    step: 30
+
+operations: []
+
+operation_groups:
+  - id: install_selected_packages
+    title: "Install selected"
+    title_ru: "Установить выбранные"
+    description: "Scan the system, show only missing packages, and install checked IDs without Y/N/Q prompts."
+    description_ru: "Просканировать систему, показать только отсутствующие пакеты и установить отмеченные ID без консольных Y/N/Q."
+    service: "system_core.services.winget_service:run_selected_packages"
+    kind: "dangerous"
+    parameters:
+      package_action: "install"
+    fields: *package_fields
+
+  - id: preview_available_updates
+    title: "Preview updates"
+    title_ru: "Предпросмотр обновлений"
+    description: "Show the current WinGet update list as Name | ID | current -> available and write a report."
+    description_ru: "Показать текущий список обновлений WinGet как Name | ID | current -> available и записать отчёт."
+    service: "system_core.services.winget_service:preview_available_updates"
+    kind: "safe"
+
+  - id: update_all_available_packages
+    title: "Update all available"
+    title_ru: "Обновить всё доступное"
+    description: "Run winget upgrade scan and update every package with an available update."
+    description_ru: "Просканировать winget upgrade и обновить все пакеты, для которых есть обновление."
+    service: "system_core.services.winget_service:update_all_available_packages"
+    kind: "dangerous"
+
+  - id: update_app_installer
+    title: "Update WinGet"
+    title_ru: "Обновить WinGet"
+    description: "Update WinGet itself. Restart Audion Get Tools afterwards."
+    description_ru: "Обновить сам WinGet. После обновления перезапустите Audion Get Tools."
+    tooltip: "WinGet ships inside the Microsoft App Installer package and replaces itself while it runs, so it is updated alone, outside the package checkboxes. Restart Audion Get Tools after it finishes."
+    tooltip_ru: "WinGet поставляется пакетом Microsoft App Installer и подменяет сам себя во время работы, поэтому обновляется отдельно, вне чекбоксов пакетов. После завершения перезапустите Audion Get Tools."
+    service: "system_core.services.winget_service:update_app_installer"
+    kind: "dangerous"
+
+  - id: update_selected_packages
+    title: "Update selected"
+    title_ru: "Обновить выбранные"
+    description: "Show available updates by project groups and update only checked IDs."
+    description_ru: "Показать доступные обновления по группам проекта и обновить только отмеченные ID."
+    service: "system_core.services.winget_service:run_selected_packages"
+    kind: "dangerous"
+    parameters:
+      package_action: "update"
+    fields: *package_fields
+
+  - id: update_available_packages
+    title: "Update available"
+    title_ru: "Обновить доступные"
+    description: "Load currently available updates from winget upgrade and update only checked items."
+    description_ru: "Загрузить доступные обновления через winget upgrade и обновить только отмеченные."
+    service: "system_core.services.winget_service:update_available_packages"
+    kind: "dangerous"
+    fields:
+      - id: packages_available_updates
+        type: "checkboxes"
+        label: "Available updates"
+        label_ru: "Доступные обновления"
+        default: []
+        options_source: "system_core.services.winget_service:available_update_options"
+        cache_seconds: 20
+
+  - id: pin_selected_packages
+    title: "Pin selected"
+    title_ru: "Закрепить выбранные"
+    description: "Show pins.txt first, add checked installed IDs to it, and apply blocking WinGet pins."
+    description_ru: "Показать pins.txt сверху, добавить отмеченные установленные ID в него и поставить blocking-пины."
+    service: "system_core.services.winget_service:pin_selected_packages"
+    kind: "dangerous"
+    fields: *pin_fields
+
+  - id: single_package
+    title: "Install / uninstall by ID"
+    title_ru: "Установка, удаление по ID"
+    description: "Search, install typed IDs, and uninstall installed WinGet IDs."
+    description_ru: "Поиск, установка введённых ID и удаление установленных WinGet ID."
+    children:
+      - id: search_winget
+        title: "Search"
+        title_ru: "Поиск"
+        description: "Search the WinGet registry by text."
+        description_ru: "Поиск в реестре WinGet по тексту."
+        service: "system_core.services.winget_service:search_winget"
+        kind: "safe"
+        fields:
+          - id: query
+            type: "text"
+            label: "Search query"
+            label_ru: "Что искать"
+            default: ""
+            placeholder: "PowerShell"
+
+      - id: add_package_to_list
+        title: "Add ID to list"
+        title_ru: "Добавить ID в список"
+        description: "Add an exact WinGet ID from search results to a config list and the matching GUI checkbox group."
+        description_ru: "Добавить точный WinGet ID из результатов поиска в config-список и соответствующую группу чекбоксов GUI."
+        service: "system_core.services.winget_service:add_package_to_list"
+        kind: "safe"
+        fields:
+          - id: package_id
+            type: "text"
+            label: "Package ID"
+            label_ru: "WinGet ID"
+            default: ""
+            placeholder: "Microsoft.PowerShell"
+          - id: package_label
+            type: "text"
+            label: "Checkbox label"
+            label_ru: "Название в чекбоксе"
+            hint: "Optional. If empty, the ID is used as the label."
+            hint_ru: "Необязательно. Если пусто, в чекбоксе будет сам ID."
+            default: ""
+            placeholder: "PowerShell 7"
+          - id: target_list
+            type: "select"
+            label: "Target list"
+            label_ru: "Список"
+            default: "custom"
+            options:
+              - value: "system"
+                label: "System"
+                label_ru: "Система"
+              - value: "dev"
+                label: "Developer tools"
+                label_ru: "Разработка"
+              - value: "ai"
+                label: "AI"
+                label_ru: "AI"
+              - value: "pkms"
+                label: "PKMS and notes"
+                label_ru: "PKMS и заметки"
+              - value: "office"
+                label: "Office and documents"
+                label_ru: "Office и документы"
+              - value: "media_images"
+                label: "Media: images"
+                label_ru: "Медиа: изображения"
+              - value: "media_audio"
+                label: "Media: audio"
+                label_ru: "Медиа: звук"
+              - value: "media_video"
+                label: "Media: video"
+                label_ru: "Медиа: видео"
+              - value: "network"
+                label: "Browsers, VPN, messaging"
+                label_ru: "Браузеры, VPN, связь"
+              - value: "hardware"
+                label: "Hardware and service tools"
+                label_ru: "Железо и утилиты"
+              - value: "custom"
+                label: "Custom list only"
+                label_ru: "Custom, только список"
+              - value: "pins"
+                label: "Pins list only"
+                label_ru: "Пины, только список"
+
+      - id: install_package_by_id
+        title: "Install by ID"
+        title_ru: "Установить по ID"
+        description: "Install any exact WinGet package ID typed into the field."
+        description_ru: "Установить любой точный WinGet ID из поля ввода."
+        service: "system_core.services.winget_service:install_package_by_id"
+        kind: "dangerous"
+        fields:
+          - id: package_id
+            type: "text"
+            label: "Package ID"
+            label_ru: "WinGet ID"
+            default: ""
+            placeholder: "Microsoft.PowerShell"
+
+      - id: uninstall_package_by_id
+        title: "Uninstall by ID"
+        title_ru: "Удалить по ID"
+        description: "Uninstall one exact WinGet package ID typed into the field. Protected system/runtime IDs require an extra checkbox."
+        description_ru: "Удалить один точный WinGet ID из поля ввода. Защищённые системные/рантайм ID требуют отдельного флажка."
+        service: "system_core.services.winget_service:uninstall_package_by_id"
+        kind: "dangerous"
+        fields:
+          - id: package_id
+            type: "text"
+            label: "Package ID"
+            label_ru: "WinGet ID"
+            default: ""
+            placeholder: "Mozilla.Firefox"
+          - id: confirm_protected_uninstall_by_id
+            type: "checkbox"
+            label: "Allow protected system/runtime removal"
+            label_ru: "Разрешить удаление защищённых системных/рантайм ID"
+            hint: "Required for App Installer, Terminal, PowerShell, MSVC/.NET/WindowsAppRuntime and similar shared dependencies."
+            hint_ru: "Нужно для App Installer, Terminal, PowerShell, MSVC/.NET/WindowsAppRuntime и похожих общих зависимостей."
+            default: false
+
+      - id: uninstall_selected_installed_packages
+        title: "Uninstall selected IDs"
+        title_ru: "Удалить выбранные ID"
+        description: "Load installed WinGet packages into thematic blocks and uninstall checked IDs. Protected system/runtime IDs require an extra checkbox."
+        description_ru: "Найти установленные WinGet-пакеты, разложить по группам и удалить отмеченные ID. Защищённые системные/рантайм ID требуют отдельного флажка."
+        service: "system_core.services.winget_service:uninstall_selected_installed_packages"
+        kind: "dangerous"
+        fields:
+          - id: confirm_protected_uninstall_selected
+            type: "checkbox"
+            label: "Allow protected system/runtime removal"
+            label_ru: "Разрешить удаление защищённых системных/рантайм ID"
+            hint: "Required for App Installer, Terminal, PowerShell, MSVC/.NET/WindowsAppRuntime and similar shared dependencies. Protected options are labeled in the lists."
+            hint_ru: "Нужно для App Installer, Terminal, PowerShell, MSVC/.NET/WindowsAppRuntime и похожих общих зависимостей. Защищённые пункты подписаны в списках."
+            default: false
+          - id: uninstall_system
+            type: "checkboxes"
+            label: "System"
+            label_ru: "Система"
+            hint: "Runtimes, terminals, and archivers. Leave unchecked unless you really mean to remove them."
+            hint_ru: "Рантаймы, терминалы и архиваторы. Не отмечайте лишнее: эти пакеты могут быть нужны другим сценариям."
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_system_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_dev
+            type: "checkboxes"
+            label: "Developer tools"
+            label_ru: "Разработка"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_dev_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_ai
+            type: "checkboxes"
+            label: "AI"
+            label_ru: "AI"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_ai_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_pkms
+            type: "checkboxes"
+            label: "PKMS and notes"
+            label_ru: "PKMS и заметки"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_pkms_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_office
+            type: "checkboxes"
+            label: "Office and documents"
+            label_ru: "Office и документы"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_office_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_media_images
+            type: "checkboxes"
+            label: "Media: images"
+            label_ru: "Медиа: изображения"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_media_images_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_media_audio
+            type: "checkboxes"
+            label: "Media: audio"
+            label_ru: "Медиа: звук"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_media_audio_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_media_video
+            type: "checkboxes"
+            label: "Media: video"
+            label_ru: "Медиа: видео"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_media_video_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_network
+            type: "checkboxes"
+            label: "Browsers, VPN, messaging"
+            label_ru: "Браузеры, VPN, связь"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_network_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_hardware
+            type: "checkboxes"
+            label: "Hardware and service tools"
+            label_ru: "Железо и утилиты"
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_hardware_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_msvc
+            type: "checkboxes"
+            label: "MSVC runtimes"
+            label_ru: "MSVC рантаймы"
+            hint: "Every year and architecture in one block on purpose: the clean way to deal with this zoo is to take the whole family out and put it back from an all-in-one bundle in Classic scripts. Visual C++ runtimes are shared dependencies, so applications will break until the bundle is installed."
+            hint_ru: "Все годы и разрядности в одном блоке намеренно: этот зоопарк лечится сносом всего семейства и установкой начисто из all-in-one набора в «Классических скриптах». Рантаймы Visual C++ — общие зависимости, поэтому до установки набора часть программ работать не будет."
+            tooltip: "One bundle can leave several Programs and Features rows (bundle plus Minimum/Additional Runtime). Check the result with Check MSVC runtimes in Service procedures."
+            tooltip_ru: "Один набор может оставить несколько записей в «Программах и компонентах» (сам набор плюс Minimum/Additional Runtime). Проверить результат — «Проверить рантаймы MSVC» в «Служебных процедурах»."
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_msvc_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_custom
+            type: "checkboxes"
+            label: "Custom"
+            label_ru: "Custom / пользовательские"
+            hint: "IDs installed through Install by ID or added to config\\custom.txt."
+            hint_ru: "ID, установленные через «Установить по ID» или добавленные в config\\custom.txt."
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_custom_options"
+            cache_seconds: 20
+            grid_min_px: 260
+          - id: uninstall_other
+            type: "checkboxes"
+            label: "Other installed"
+            label_ru: "Прочее установленное"
+            hint: "Installed IDs that are not in project groups or Custom. Review carefully before uninstalling."
+            hint_ru: "Установленные ID вне групп проекта и Custom. Перед удалением проверьте особенно внимательно."
+            default: []
+            options_source: "system_core.services.winget_service:installed_uninstall_other_options"
+            cache_seconds: 20
+            grid_min_px: 260
+
+  - id: ai_package_planner
+    title: "AI Package Planner"
+    title_ru: "AI Package Planner"
+    description: "Ask an LLM for package suggestions, validate IDs with WinGet, then execute only selected exact IDs."
+    description_ru: "Запросить предложения у LLM, проверить ID через WinGet и запускать только выбранные точные ID."
+    tooltip: "AI installer is available only when the selected provider API key is configured."
+    tooltip_ru: "AI-установщик доступен только при наличии API-ключа выбранного провайдера."
+    children:
+      - id: ai_llm_planning
+        title: "LLM planning"
+        title_ru: "LLM-планирование"
+        description: "Provider, model, key and prompt controls for package planning."
+        description_ru: "Провайдер, модель, ключ и prompt для планирования пакетов."
+        fields: *ai_llm_fields
+        children:
+          - id: ai_plan_packages
+            title: "Build plan"
+            title_ru: "Собрать план"
+            description: "Ask the selected LLM for suggestions and validate candidate IDs with WinGet search."
+            description_ru: "Запросить предложения у выбранной LLM и проверить кандидаты через WinGet search."
+            service: "system_core.services.winget_ai_service:run_ai_package_planner"
+            kind: "safe"
+            fields:
+              - id: package_request
+                section: "request"
+                type: "textarea"
+                label: "AI task"
+                label_ru: "Задача для AI"
+                tooltip: "What to find or prepare right now: an app name, a software stack, or a user task. Required for building an AI plan."
+                tooltip_ru: "Что нужно найти или подготовить сейчас: название программы, набор софта или пользовательская задача. Это обязательное поле для сборки AI-плана."
+                default: "Подготовь Windows-машину для Dev/Media: Git, VS Code, Python, FFmpeg, OBS, HandBrake, LosslessCut, 7-Zip."
+                rows: 3
+                span: "full"
+              - id: include_installed_scan
+                section: "generation"
+                type: "checkbox"
+                label: "Scan installed IDs"
+                label_ru: "Сканировать установленные ID"
+                tooltip: "Before planning, read installed WinGet IDs so the LLM can avoid suggesting what is already present."
+                tooltip_ru: "Перед планированием прочитать установленные WinGet ID, чтобы LLM не предлагала уже установленное."
+                default: true
+                span: "half"
+              - id: include_known_packages
+                section: "generation"
+                type: "checkbox"
+                label: "Send Audion known package groups"
+                label_ru: "Передать известные группы Audion"
+                tooltip: "Give the LLM Audion's curated package groups as context for better suggestions."
+                tooltip_ru: "Передать LLM кураторские группы пакетов Audion как контекст для более точных предложений."
+                default: true
+                span: "half"
+              - id: search_limit
+                section: "generation"
+                type: "number"
+                label: "Search candidates"
+                label_ru: "Кандидатов поиска"
+                tooltip: "Maximum WinGet search candidates collected per proposed package."
+                tooltip_ru: "Сколько кандидатов WinGet search собирать для каждого предложенного пакета."
+                default: 5
+                min: 1
+                max: 20
+                step: 1
+
+          - id: ai_check_model
+            title: "Check model"
+            title_ru: "Проверить модель"
+            description: "Send one tiny request and cache selected model status."
+            description_ru: "Отправить короткий запрос и сохранить статус выбранной модели."
+            service: "system_core.services.winget_ai_service:run_ai_package_control"
+            kind: "safe"
+            parameters:
+              mode: "check_model"
+
+          - id: ai_pin_api_key
+            title: "Favorite API key"
+            title_ru: "Закрепить API key"
+            description: "Save selected provider key reference as a favorite. Does not store key material in cache."
+            description_ru: "Закрепить ссылку на ключ провайдера. Сам ключ в кэш не записывается."
+            service: "system_core.services.winget_ai_service:run_ai_package_control"
+            kind: "safe"
+            parameters:
+              mode: "pin_api_key"
+
+          - id: ai_pin_model
+            title: "Favorite model"
+            title_ru: "Закрепить модель"
+            description: "Save selected provider model as a favorite."
+            description_ru: "Закрепить выбранную модель провайдера."
+            service: "system_core.services.winget_ai_service:run_ai_package_control"
+            kind: "safe"
+            parameters:
+              mode: "pin_model"
+
+          - id: ai_save_prompt
+            title: "Save prompt"
+            title_ru: "Сохранить prompt"
+            description: "Save the prompt editor text to package prompt cache."
+            description_ru: "Сохранить текст редактора в кэш package prompt."
+            service: "system_core.services.winget_ai_service:run_ai_package_control"
+            kind: "safe"
+            parameters:
+              mode: "save_prompt"
+
+      - id: ai_winget_actions
+        title: "WinGet actions"
+        title_ru: "WinGet-действия"
+        description: "Search, add and execute exact IDs after review."
+        description_ru: "Поиск, добавление и запуск точных ID после проверки."
+        children:
+          - id: ai_search_winget
+            title: "Search WinGet"
+            title_ru: "Поиск WinGet"
+            description: "Search WinGet by text or exact ID and write a report."
+            description_ru: "Найти пакеты WinGet по тексту или точному ID и записать отчёт."
+            service: "system_core.services.winget_ai_service:search_winget_request"
+            kind: "safe"
+            fields:
+              - id: search_query
+                section: "request"
+                type: "text"
+                label: "Search query"
+                label_ru: "Что искать"
+                tooltip: "Search WinGet by app name, vendor, task, or exact package ID."
+                tooltip_ru: "Искать в WinGet по названию, издателю, задаче или точному package ID."
+                default: ""
+                placeholder: "OBS Studio"
+                span: "full"
+              - id: exact_id_search
+                section: "options"
+                type: "checkbox"
+                label: "Exact ID search"
+                label_ru: "Искать точный ID"
+                tooltip: "Treat the query as an exact WinGet ID and prefer exact matches."
+                tooltip_ru: "Считать запрос точным WinGet ID и предпочитать точные совпадения."
+                default: false
+              - id: search_limit
+                section: "options"
+                type: "number"
+                label: "Result limit"
+                label_ru: "Лимит результатов"
+                tooltip: "Maximum number of WinGet search results written to the report."
+                tooltip_ru: "Максимальное число результатов WinGet search, которые попадут в отчёт."
+                default: 20
+                min: 1
+                max: 100
+                step: 1
+
+          - id: ai_run_selected_plan_packages
+            title: "Run selected from last AI plan"
+            title_ru: "Запустить выбранное из AI-плана"
+            description: "Install, update, pin or check exact validated IDs from the last AI plan cache."
+            description_ru: "Установить, обновить, закрепить или проверить точные ID из последнего AI-плана."
+            service: "system_core.services.winget_ai_service:run_selected_ai_plan_packages"
+            kind: "dangerous"
+            fields:
+              - id: package_action
+                section: "plan"
+                type: "select"
+                label: "Action"
+                label_ru: "Действие"
+                tooltip: "Choose what to do with the exact IDs selected from the last AI plan."
+                tooltip_ru: "Выберите, что сделать с точными ID, отмеченными в последнем AI-плане."
+                default: "install"
+                options:
+                  - value: "install"
+                    label: "Install missing"
+                    label_ru: "Установить отсутствующие"
+                  - value: "update"
+                    label: "Update installed"
+                    label_ru: "Обновить установленные"
+                  - value: "pin"
+                    label: "Pin installed"
+                    label_ru: "Закрепить установленные"
+                  - value: "check"
+                    label: "Check installed"
+                    label_ru: "Проверить наличие"
+                  - value: "uninstall"
+                    label: "Uninstall selected"
+                    label_ru: "Удалить выбранные"
+              - id: packages_ai_plan
+                section: "plan"
+                type: "checkboxes"
+                label: "Last AI plan exact IDs"
+                label_ru: "Точные ID последнего AI-плана"
+                tooltip: "Select only reviewed exact IDs from the last generated plan. Dangerous actions still use Audion confirmation flow."
+                tooltip_ru: "Отмечайте только проверенные точные ID из последнего плана. Опасные действия всё равно идут через подтверждение Audion."
+                default: []
+                min_selected: 1
+                options_source: "system_core.services.winget_ai_service:ai_plan_package_options"
+                cache_seconds: 5
+                grid_min_px: 300
+
+          - id: ai_add_exact_package_to_list
+            title: "Add exact ID to list"
+            title_ru: "Добавить точный ID в список"
+            description: "Add a reviewed exact WinGet ID to a config list and GUI group."
+            description_ru: "Добавить проверенный точный WinGet ID в config-список и группу GUI."
+            service: "system_core.services.winget_ai_service:add_exact_package_to_list"
+            kind: "safe"
+            fields:
+              - id: package_id
+                section: "package"
+                type: "text"
+                label: "Package ID"
+                label_ru: "WinGet ID"
+                tooltip: "Exact WinGet package ID to add, install, update or remove. Example: Microsoft.PowerShell."
+                tooltip_ru: "Точный WinGet package ID для добавления, установки, обновления или удаления. Например: Microsoft.PowerShell."
+                default: ""
+                placeholder: "Microsoft.PowerShell"
+              - id: package_label
+                section: "package"
+                type: "text"
+                label: "Checkbox label"
+                label_ru: "Название в чекбоксе"
+                tooltip: "Optional friendly label for the GUI checkbox. If empty, the exact ID is used."
+                tooltip_ru: "Необязательное понятное имя для чекбокса GUI. Если пусто, будет использован точный ID."
+                default: ""
+                placeholder: "PowerShell 7"
+              - id: target_list
+                section: "package"
+                type: "select"
+                label: "Target list"
+                label_ru: "Список"
+                tooltip: "Choose which Audion config list and GUI group should receive the reviewed package ID."
+                tooltip_ru: "Выберите, в какой config-список и GUI-группу Audion добавить проверенный package ID."
+                default: "custom"
+                options:
+                  - value: "system"
+                    label: "System"
+                    label_ru: "Система"
+                  - value: "dev"
+                    label: "Developer tools"
+                    label_ru: "Разработка"
+                  - value: "ai"
+                    label: "AI"
+                    label_ru: "AI"
+                  - value: "pkms"
+                    label: "PKMS and notes"
+                    label_ru: "PKMS и заметки"
+                  - value: "office"
+                    label: "Office and documents"
+                    label_ru: "Office и документы"
+                  - value: "media_images"
+                    label: "Media: images"
+                    label_ru: "Медиа: изображения"
+                  - value: "media_audio"
+                    label: "Media: audio"
+                    label_ru: "Медиа: звук"
+                  - value: "media_video"
+                    label: "Media: video"
+                    label_ru: "Медиа: видео"
+                  - value: "network"
+                    label: "Browsers, VPN, messaging"
+                    label_ru: "Браузеры, VPN, связь"
+                  - value: "hardware"
+                    label: "Hardware and service tools"
+                    label_ru: "Железо и утилиты"
+                  - value: "custom"
+                    label: "Custom list only"
+                    label_ru: "Custom, только список"
+                  - value: "pins"
+                    label: "Pins list only"
+                    label_ru: "Пины, только список"
+
+          - id: ai_install_exact_package
+            title: "Install exact ID"
+            title_ru: "Установить точный ID"
+            description: "Install one reviewed exact WinGet ID through the existing Audion install path."
+            description_ru: "Установить один проверенный точный WinGet ID через существующий путь Audion."
+            service: "system_core.services.winget_ai_service:install_exact_package"
+            kind: "dangerous"
+            fields:
+              - id: package_id
+                section: "package"
+                type: "text"
+                label: "Package ID"
+                label_ru: "WinGet ID"
+                tooltip: "Exact WinGet ID to install through Audion's existing protected install path."
+                tooltip_ru: "Точный WinGet ID для установки через существующий защищённый путь Audion."
+                default: ""
+                placeholder: "Microsoft.PowerShell"
+
+          - id: ai_update_exact_package
+            title: "Update exact ID"
+            title_ru: "Обновить точный ID"
+            description: "Update one reviewed exact WinGet ID through the existing Audion update path."
+            description_ru: "Обновить один проверенный точный WinGet ID через существующий путь Audion."
+            service: "system_core.services.winget_ai_service:update_exact_package"
+            kind: "dangerous"
+            fields:
+              - id: package_id
+                section: "package"
+                type: "text"
+                label: "Package ID"
+                label_ru: "WinGet ID"
+                tooltip: "Exact installed WinGet ID to update through Audion's existing update path."
+                tooltip_ru: "Точный установленный WinGet ID для обновления через существующий путь Audion."
+                default: ""
+                placeholder: "Microsoft.PowerShell"
+
+          - id: ai_uninstall_exact_package
+            title: "Uninstall exact ID"
+            title_ru: "Удалить точный ID"
+            description: "Uninstall one reviewed exact WinGet ID through the existing protected Audion uninstall path."
+            description_ru: "Удалить один проверенный точный WinGet ID через существующий защищённый путь Audion."
+            service: "system_core.services.winget_ai_service:uninstall_exact_package"
+            kind: "dangerous"
+            fields:
+              - id: package_id
+                section: "package"
+                type: "text"
+                label: "Package ID"
+                label_ru: "WinGet ID"
+                tooltip: "Exact installed WinGet ID to uninstall. Protected system/runtime IDs require the separate force checkbox in the protected flow."
+                tooltip_ru: "Точный установленный WinGet ID для удаления. Защищённые системные/runtime ID требуют отдельного force-флажка в защищённом сценарии."
+                default: ""
+                placeholder: "Microsoft.PowerShell"
+
+  - id: portable
+    title: "Portable"
+    title_ru: "Portable"
+    description: "Download portable browser archives into output and build or update Google Chrome Portable."
+    description_ru: "Скачать portable-архивы браузеров в output и собрать или обновить Google Chrome Portable."
+    tooltip: "Portable mode writes ready archives to the selected output folder and does not install browsers into Windows."
+    tooltip_ru: "Portable-режим кладёт готовые архивы в выбранную папку output и не устанавливает браузеры в Windows."
+    children:
+      - id: portable_install_google_chrome_web
+        title: "Google Chrome (web installer)"
+        title_ru: "Google Chrome (веб-установщик)"
+        description: "Download the Google Chrome web installer for this system language and architecture, then install it silently."
+        description_ru: "Скачать веб-установщик Google Chrome под язык и разрядность системы и установить его без вопросов."
+        tooltip: "The ~12 MB web installer picks the locale and the x64/ARM64 build itself at install time, so it always matches the current system. This is a normal Windows install, not a portable build."
+        tooltip_ru: "Веб-установщик (~12 МБ) сам подбирает локаль и сборку x64/ARM64 в момент установки, поэтому всегда соответствует текущей системе. Это обычная установка в Windows, а не portable-сборка."
+        service: "system_core.services.portable_browser_service:install_google_chrome_web"
+        kind: "dangerous"
+
+      - id: portable_download_google_chrome_web
+        title: "Google Chrome (download only)"
+        title_ru: "Google Chrome (только скачать)"
+        description: "Download the Google Chrome web installer into the portable archives folder without installing it."
+        description_ru: "Скачать веб-установщик Google Chrome в папку portable-архивов, ничего не устанавливая."
+        tooltip: "Same ~12 MB web installer, saved to output\\Portable\\_archives\\ChromeSetup.exe and left there."
+        tooltip_ru: "Тот же веб-установщик (~12 МБ), сохраняется в output\\Portable\\_archives\\ChromeSetup.exe и остаётся там."
+        service: "system_core.services.portable_browser_service:download_google_chrome_web"
+        kind: "safe"
+
+      - id: portable_install_7zip
+        title: "Check / install portable 7-Zip"
+        title_ru: "Проверить / установить portable 7-Zip"
+        description: "Check Tools\\7zip\\bin\\7za.exe and run install\\Install-Portable-7Zip.cmd when it is missing."
+        description_ru: "Проверить Tools\\7zip\\bin\\7za.exe и запустить install\\Install-Portable-7Zip.cmd, если 7-Zip отсутствует."
+        service: "system_core.services.portable_browser_service:install_portable_7zip"
+        kind: "dangerous"
+
+      - id: portable_download_browsers
+        title: "Download portable browsers"
+        title_ru: "Скачать portable-браузеры"
+        description: "Download selected portable browser packages and place ready ZIP/SFX artifacts into output\\Portable."
+        description_ru: "Скачать выбранные portable-браузеры и положить готовые ZIP/SFX-артефакты в output\\Portable."
+        service: "system_core.services.portable_browser_service:download_portable_browsers"
+        kind: "safe"
+        fields:
+          - id: portable_browsers
+            type: "checkboxes"
+            label: "Portable browsers"
+            label_ru: "Portable-браузеры"
+            tooltip: "Choose which portable browser packages to download. Cent Browser is kept as its official portable SFX."
+            tooltip_ru: "Выберите portable-браузеры для скачивания. Cent Browser сохраняется как официальный portable SFX."
+            default:
+              - "ungoogled_chromium_portable"
+              - "zen_browser_portable"
+              - "cent_browser_portable"
+            min_selected: 1
+            grid_min_px: 300
+            options:
+              - value: "ungoogled_chromium_portable"
+                label: "Ungoogled Chromium Portable"
+                label_ru: "Ungoogled Chromium Portable"
+              - value: "zen_browser_portable"
+                label: "Zen Browser Portable"
+                label_ru: "Zen Browser Portable"
+              - value: "cent_browser_portable"
+                label: "Cent Browser Portable x64"
+                label_ru: "Cent Browser Portable x64"
+          - id: keep_temp
+            type: "checkbox"
+            label: "Keep temp"
+            label_ru: "Сохранить temp"
+            tooltip: "Leave output\\Portable\\_tmp after the operation for inspection or manual packaging checks."
+            tooltip_ru: "Оставить output\\Portable\\_tmp после операции для проверки распаковки или ручного контроля упаковки."
+            default: false
+            span: "half"
+
+      - id: portable_build_google_chrome
+        title: "Build Google Chrome Portable"
+        title_ru: "Собрать Google Chrome Portable"
+        description: "Download Chrome++ and Google Chrome standalone, place Chrome-bin contents into App, and publish output\\Portable\\Google Chrome Portable. Archive only when enabled."
+        description_ru: "Скачать Chrome++ и Google Chrome standalone, положить содержимое Chrome-bin в App и опубликовать output\\Portable\\Google Chrome Portable. Архивировать только если включено."
+        service: "system_core.services.portable_browser_service:build_google_chrome_portable"
+        kind: "safe"
+        parameters:
+          chrome_download_url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
+        fields:
+          - id: chrome_source_preset
+            type: "profile_buttons"
+            label: "Chrome source"
+            label_ru: "Источник Chrome"
+            tooltip: "Quickly restore the official Google Chrome standalone x64 installer URL."
+            tooltip_ru: "Быстро вернуть официальную ссылку Google Chrome standalone x64."
+            presets:
+              - id: "chrome_standalone_x64"
+                label: "Standalone x64"
+                label_ru: "Standalone x64"
+                tooltip: "Official Google stable standalone installer. Usually this URL does not need to be changed."
+                tooltip_ru: "Официальный стабильный standalone-установщик Google. Обычно эту ссылку менять не нужно."
+                values:
+                  chrome_download_url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
+          - id: chrome_download_url
+            type: "text"
+            label: "Chrome download URL"
+            label_ru: "Ссылка Chrome"
+            tooltip: "Direct URL to the Google Chrome standalone installer that contains Chrome.7z. Change only when Google moves the payload or you want a custom source."
+            tooltip_ru: "Прямая ссылка на standalone-установщик Google Chrome, внутри которого ожидается Chrome.7z. Меняйте только если Google перенёс payload или нужен свой источник."
+            default: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
+            span: "full"
+          - id: chrome_plus_arch
+            type: "select"
+            label: "Chrome++ arch"
+            label_ru: "Архитектура Chrome++"
+            tooltip: "Which Chrome++ wrapper folder to use from the Chrome++ archive. The Chrome runtime URL must match the selected architecture."
+            tooltip_ru: "Какую папку оболочки Chrome++ взять из архива Chrome++. URL рантайма Chrome должен соответствовать выбранной архитектуре."
+            default: "x64"
+            span: "half"
+            options:
+              - value: "x64"
+                label: "x64"
+                label_ru: "x64"
+              - value: "x86"
+                label: "x86"
+                label_ru: "x86"
+              - value: "arm64"
+                label: "ARM64"
+                label_ru: "ARM64"
+          - id: package_archive
+            type: "checkbox"
+            label: "Pack archive"
+            label_ru: "Упаковать в архив"
+            tooltip: "When disabled, publish a ready-to-use Google Chrome Portable folder. When enabled, also package it as ZIP or 7Z."
+            tooltip_ru: "Если выключено, публикуется готовая папка Google Chrome Portable. Если включено, результат упаковывается в ZIP или 7Z."
+            default: false
+            span: "half"
+          - id: archive_format
+            type: "select"
+            label: "Archive format"
+            label_ru: "Формат архива"
+            tooltip: "Archive format used only when Pack archive is enabled."
+            tooltip_ru: "Формат используется только если включено «Упаковать в архив»."
+            default: "zip"
+            span: "half"
+            options:
+              - value: "zip"
+                label: "ZIP"
+                label_ru: "ZIP"
+              - value: "7z"
+                label: "7Z"
+                label_ru: "7Z"
+          - id: keep_temp
+            type: "checkbox"
+            label: "Keep temp"
+            label_ru: "Сохранить temp"
+            tooltip: "Leave output\\Portable\\_tmp after the operation for inspection or manual packaging checks."
+            tooltip_ru: "Оставить output\\Portable\\_tmp после операции для проверки распаковки или ручного контроля упаковки."
+            default: false
+            span: "half"
+
+      - id: portable_update_google_chrome
+        title: "Update Google Chrome Portable"
+        title_ru: "Обновить Google Chrome Portable"
+        description: "Copy Google Chrome Portable from the selected input folder, clear only App, preserve Data and Cache, then publish the updated folder. Archive only when enabled."
+        description_ru: "Скопировать Google Chrome Portable из выбранного input, очистить только App, сохранить Data и Cache, затем опубликовать обновлённую папку. Архивировать только если включено."
+        service: "system_core.services.portable_browser_service:update_google_chrome_portable"
+        kind: "safe"
+        parameters:
+          chrome_download_url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
+        fields:
+          - id: chrome_source_preset
+            type: "profile_buttons"
+            label: "Chrome source"
+            label_ru: "Источник Chrome"
+            tooltip: "Quickly restore the official Google Chrome standalone x64 installer URL."
+            tooltip_ru: "Быстро вернуть официальную ссылку Google Chrome standalone x64."
+            presets:
+              - id: "chrome_standalone_x64"
+                label: "Standalone x64"
+                label_ru: "Standalone x64"
+                tooltip: "Official Google stable standalone installer. Usually this URL does not need to be changed."
+                tooltip_ru: "Официальный стабильный standalone-установщик Google. Обычно эту ссылку менять не нужно."
+                values:
+                  chrome_download_url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
+          - id: chrome_download_url
+            type: "text"
+            label: "Chrome download URL"
+            label_ru: "Ссылка Chrome"
+            tooltip: "Direct URL to the Google Chrome standalone installer that contains Chrome.7z. Change only when Google moves the payload or you want a custom source."
+            tooltip_ru: "Прямая ссылка на standalone-установщик Google Chrome, внутри которого ожидается Chrome.7z. Меняйте только если Google перенёс payload или нужен свой источник."
+            default: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
+            span: "full"
+          - id: chrome_plus_arch
+            type: "select"
+            label: "Chrome++ arch"
+            label_ru: "Архитектура Chrome++"
+            tooltip: "Which Chrome++ wrapper folder to use from the Chrome++ archive. The Chrome runtime URL must match the selected architecture."
+            tooltip_ru: "Какую папку оболочки Chrome++ взять из архива Chrome++. URL рантайма Chrome должен соответствовать выбранной архитектуре."
+            default: "x64"
+            span: "half"
+            options:
+              - value: "x64"
+                label: "x64"
+                label_ru: "x64"
+              - value: "x86"
+                label: "x86"
+                label_ru: "x86"
+              - value: "arm64"
+                label: "ARM64"
+                label_ru: "ARM64"
+          - id: package_archive
+            type: "checkbox"
+            label: "Pack archive"
+            label_ru: "Упаковать в архив"
+            tooltip: "When disabled, publish a ready-to-use Google Chrome Portable folder. When enabled, also package it as ZIP or 7Z."
+            tooltip_ru: "Если выключено, публикуется готовая папка Google Chrome Portable. Если включено, результат упаковывается в ZIP или 7Z."
+            default: false
+            span: "half"
+          - id: archive_format
+            type: "select"
+            label: "Archive format"
+            label_ru: "Формат архива"
+            tooltip: "Archive format used only when Pack archive is enabled."
+            tooltip_ru: "Формат используется только если включено «Упаковать в архив»."
+            default: "zip"
+            span: "half"
+            options:
+              - value: "zip"
+                label: "ZIP"
+                label_ru: "ZIP"
+              - value: "7z"
+                label: "7Z"
+                label_ru: "7Z"
+          - id: keep_temp
+            type: "checkbox"
+            label: "Keep temp"
+            label_ru: "Сохранить temp"
+            tooltip: "Leave output\\Portable\\_tmp after the operation for inspection or manual packaging checks."
+            tooltip_ru: "Оставить output\\Portable\\_tmp после операции для проверки распаковки или ручного контроля упаковки."
+            default: false
+            span: "half"
+
+  - id: import_export
+    title: "Import / export"
+    title_ru: "Импорт / экспорт"
+    description: "WinGet JSON import and export with GUI fields."
+    description_ru: "WinGet JSON импорт и экспорт через поля GUI."
+    children:
+      - id: export_winget
+        title: "Export JSON"
+        title_ru: "Экспорт JSON"
+        description: "Export installed WinGet packages to output."
+        description_ru: "Экспортировать установленные WinGet-пакеты в output."
+        service: "system_core.services.winget_service:export_winget"
+        kind: "safe"
+        fields:
+          - id: export_path
+            type: "text"
+            label: "Export path"
+            label_ru: "Файл экспорта"
+            default: "output\\winget-export.json"
+          - id: include_versions
+            type: "checkbox"
+            label: "Include versions"
+            label_ru: "Включить версии"
+            default: true
+
+      - id: import_winget
+        title: "Import JSON"
+        title_ru: "Импорт JSON"
+        description: "Import packages from a WinGet export file."
+        description_ru: "Импортировать пакеты из файла WinGet export."
+        service: "system_core.services.winget_service:import_winget"
+        kind: "dangerous"
+        fields:
+          - id: import_path
+            type: "text"
+            label: "Import path"
+            label_ru: "Файл импорта"
+            default: "input\\winget-export.json"
+          - id: ignore_versions
+            type: "checkbox"
+            label: "Ignore versions"
+            label_ru: "Игнорировать версии"
+            default: false
+          - id: no_upgrade
+            type: "checkbox"
+            label: "Do not upgrade installed packages"
+            label_ru: "Не обновлять уже установленные"
+            default: false
+          - id: ignore_unavailable
+            type: "checkbox"
+            label: "Ignore unavailable packages"
+            label_ru: "Игнорировать недоступные"
+            default: true
+
+  - id: classic_scripts
+    title: "Classic scripts"
+    title_ru: "Классические скрипты"
+    description: "Compatibility commands that run existing project CMD scripts."
+    description_ru: "Совместимые команды, запускающие существующие CMD-скрипты проекта."
+    children:
+      - id: update_winget_self
+        title: "Update WinGet (script)"
+        title_ru: "Обновить WinGet (скрипт)"
+        description: "Run the existing Microsoft App Installer update script."
+        description_ru: "Запустить существующий скрипт обновления Microsoft App Installer."
+        service: "system_core.services.winget_service:update_winget_self"
+        kind: "dangerous"
+
+      - id: download_msvc_all_in_one
+        title: "MSVC All-in-One (TechPowerUp)"
+        title_ru: "MSVC All-in-One (TechPowerUp)"
+        description: "Download the Visual C++ Runtimes All-in-One package and unpack it; nothing is installed."
+        description_ru: "Скачать пакет Visual C++ Runtimes All-in-One и распаковать его; ничего не устанавливается."
+        tooltip: "One archive with every VC++ runtime from 2005 to 2015+, x86 and x64, plus its own install_all.bat. Resolved through the TechPowerUp mirror flow at click time because the file URL is signed and expires."
+        tooltip_ru: "Один архив со всеми рантаймами VC++ от 2005 до 2015+, x86 и x64, вместе с собственным install_all.bat. Ссылка подписана и живёт недолго, поэтому она добывается через зеркала TechPowerUp в момент нажатия."
+        service: "system_core.services.vcredist_service:download_msvc_all_in_one"
+        kind: "safe"
+        parameters:
+          page_url: "https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/"
+
+      - id: download_msvc_aio_abbodi
+        title: "MSVC AIO (abbodi1406)"
+        title_ru: "MSVC AIO (abbodi1406)"
+        description: "Download the latest VisualCppRedist_AIO x86+x64 release; nothing is installed."
+        description_ru: "Скачать свежий выпуск VisualCppRedist_AIO x86+x64; ничего не устанавливается."
+        tooltip: "One self-contained executable that installs every VC++ runtime from 2005 to v14, including 2012, which WinGet does not carry. Silent switch is /ai and it needs elevation, so Audion Get Tools only downloads it."
+        tooltip_ru: "Один самодостаточный исполняемый файл, ставящий все рантаймы VC++ от 2005 до v14, включая 2012, которого в WinGet нет вовсе. Тихий ключ — /ai, нужны права администратора, поэтому Audion Get Tools только скачивает его."
+        service: "system_core.services.vcredist_service:download_msvc_aio_abbodi"
+        kind: "safe"
+        parameters:
+          aio_variant: "x86_x64"
+          page_url: "https://github.com/abbodi1406/vcredist/releases/latest"
+
+      - id: install_msvc_all_in_one
+        title: "Install MSVC All-in-One (TechPowerUp)"
+        title_ru: "Установить MSVC All-in-One (TechPowerUp)"
+        description: "Download the TechPowerUp bundle and run install_all.bat: every VC++ runtime from 2005 to v14, x86 and x64."
+        description_ru: "Скачать набор TechPowerUp и запустить install_all.bat: все рантаймы VC++ от 2005 до v14, x86 и x64."
+        tooltip: "A third-party script installs ten vendor packages one after another with /passive /norestart. Administrator rights are required; progress windows are normal. The registry state before and after is written to the log."
+        tooltip_ru: "Сторонний скрипт ставит подряд десять пакетов от производителя с ключами /passive /norestart. Нужны права администратора, окна прогресса — это нормально. Состояние реестра до и после пишется в лог."
+        service: "system_core.services.vcredist_service:install_msvc_all_in_one"
+        kind: "dangerous"
+
+      - id: install_msvc_aio_abbodi
+        title: "Install MSVC AIO (abbodi1406)"
+        title_ru: "Установить MSVC AIO (abbodi1406)"
+        description: "Download VisualCppRedist_AIO and run it silently with /ai: every VC++ runtime including 2012."
+        description_ru: "Скачать VisualCppRedist_AIO и запустить тихо с ключом /ai: все рантаймы VC++, включая 2012."
+        tooltip: "One third-party executable installs the whole family without questions. Administrator rights are required. The registry state before and after is written to the log, because the installer's own exit code says little."
+        tooltip_ru: "Один сторонний исполняемый файл ставит всё семейство без вопросов. Нужны права администратора. Состояние реестра до и после пишется в лог, потому что собственный код возврата установщика мало о чём говорит."
+        service: "system_core.services.vcredist_service:install_msvc_aio_abbodi"
+        kind: "dangerous"
+        parameters:
+          aio_variant: "x86_x64"
+
+      - id: install_msvc_2015_script
+        title: "Install MSVC 2015+"
+        title_ru: "MSVC 2015+"
+        description: "Run Install-Audion-MSVC-2015+.cmd."
+        description_ru: "Запустить Install-Audion-MSVC-2015+.cmd."
+        service: "system_core.services.winget_service:run_cmd_operation"
+        kind: "dangerous"
+        parameters:
+          script: "system_core\\winget\\install_apps\\Install-Audion-MSVC-2015+.cmd"
+
+      - id: install_msvc_legacy_script
+        title: "Install MSVC Legacy"
+        title_ru: "MSVC Legacy"
+        description: "Run Install-Audion-MSVC.cmd."
+        description_ru: "Запустить Install-Audion-MSVC.cmd."
+        service: "system_core.services.winget_service:run_cmd_operation"
+        kind: "dangerous"
+        parameters:
+          script: "system_core\\winget\\install_apps\\Install-Audion-MSVC.cmd"
+
+      - id: update_msvc_2015_script
+        title: "Update MSVC 2015+"
+        title_ru: "Обновить MSVC 2015+"
+        description: "Run Update-Audion-MSVC-2015+.cmd."
+        description_ru: "Запустить Update-Audion-MSVC-2015+.cmd."
+        service: "system_core.services.winget_service:run_cmd_operation"
+        kind: "dangerous"
+        parameters:
+          script: "system_core\\winget\\install_apps\\Update-Audion-MSVC-2015+.cmd"
+
+maintenance_operations:
+  - id: health_doctor
+    title: "Health / Doctor"
+    title_ru: "Health / Doctor"
+    description: "Check WinGet availability, sources, installed/update counts, and run the GUI doctor."
+    description_ru: "Проверить доступность WinGet, источники, количество установленных/обновлений и запустить GUI doctor."
+    service: "system_core.services.winget_service:health_doctor"
+    kind: "safe"
+
+  - id: check_msvc_runtimes
+    title: "Check MSVC runtimes"
+    title_ru: "Проверить рантаймы MSVC"
+    description: "Read the real Visual C++ runtime versions from the registry, compare the 2015+ family with WinGet, and list every ARP entry."
+    description_ru: "Прочитать реальные версии рантаймов Visual C++ из реестра, сравнить семейство 2015+ с WinGet и перечислить все записи в «Программах и компонентах»."
+    tooltip: "Only VC\\Runtimes\\<arch> is trusted for versions; the ARP display name has been renamed twice and one bundle leaves several rows. 2012 has no WinGet package and is reported honestly as such."
+    tooltip_ru: "Версии берутся только из VC\\Runtimes\\<arch>: имя в ARP переименовывали дважды, и один набор оставляет несколько записей. У 2012 нет пакета в WinGet, и это пишется прямо."
+    service: "system_core.services.vcredist_service:check_msvc_runtimes"
+    kind: "safe"
+
+  - id: check_selected_packages
+    title: "Check installed IDs"
+    title_ru: "Проверить наличие ID"
+    description: "Diagnostic check: run winget list for checked package IDs without installing or updating them."
+    description_ru: "Диагностика: проверить отмеченные ID через winget list без установки и обновления."
+    service: "system_core.services.winget_service:check_selected_packages"
+    kind: "safe"
+    fields: *package_fields
+
+  - id: validate_config_lists
+    title: "Validate lists"
+    title_ru: "Проверить списки"
+    description: "Count package lines and report duplicates in config lists."
+    description_ru: "Посчитать пакеты и показать дубли в config-списках."
+    service: "system_core.services.winget_service:validate_config_lists"
+    kind: "safe"
+
+  - id: cleanup_input_output
+    title: "Clear I/O"
+    title_ru: "Очистить I/O"
+    description: "Delete files inside managed input and output folders."
+    description_ru: "Удалить файлы внутри управляемых папок input и output."
+    service: "system_core.services.winget_service:cleanup_input_output"
+    kind: "dangerous"
+
+  - id: cleanup_logs
+    title: "Clear logs"
+    title_ru: "Очистить логи"
+    description: "Delete old files inside the managed logs folder while preserving the current operation log."
+    description_ru: "Удалить старые файлы внутри управляемой папки logs, не трогая лог текущей операции."
+    service: "system_core.services.winget_service:cleanup_logs"
+    kind: "dangerous"

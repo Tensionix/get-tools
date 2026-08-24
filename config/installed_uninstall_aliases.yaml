@@ -1,0 +1,16 @@
+# Installed-package IDs and patterns used only for GUI uninstall grouping.
+# Keep canonical install/update IDs in the text lists and tool_manifest.yaml.
+# ARP/MSIX dependency records can differ from installable WinGet package IDs.
+
+groups:
+  packages_system:
+    - 'Microsoft.WindowsAppRuntime.*'
+    - 'Microsoft.UI.Xaml.*'
+    - 'Microsoft.DotNet.NativeRuntime.*'
+    - 'Microsoft.VCLibs.*'
+    - 'Microsoft.WSL'
+    - 'ARP\Machine\X86\Microsoft Edge'
+  packages_dev:
+    - 'MSIX\WinMerge_*'
+  packages_network:
+    - 'ARP\User\X64\Discord'

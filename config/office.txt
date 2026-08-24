@@ -1,0 +1,7 @@
+# Office, documents, and reading tools.
+# One WinGet package ID per line.
+
+Calibre.Calibre
+TheDocumentFoundation.LibreOffice
+Adobe.Acrobat.Reader.64-bit
+SumatraPDF.SumatraPDF

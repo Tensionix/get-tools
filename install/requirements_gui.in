@@ -1,0 +1,15 @@
+# Project dependencies
+# Add project-specific packages above the GUI layer.
+openai
+google-genai
+google-auth
+
+# GUI layer
+nicegui
+pyyaml
+rich
+tqdm
+setuptools
+wheel
+packaging
+pywebview

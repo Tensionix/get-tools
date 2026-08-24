@@ -1,0 +1,60 @@
+@echo off
+setlocal EnableExtensions
+chcp 65001 >nul
+set "EXIT_RC=0"
+
+rem Messages and comments are intentionally kept in English.
+
+where winget >nul 2>nul
+if errorlevel 1 (
+    echo [ERROR] winget was not found in PATH.
+    echo [INFO] Update App Installer from Microsoft Store and try again.
+    set "EXIT_RC=1"
+    goto :end
+)
+
+echo ================================================================
+echo AUDION Python 3.12 UPDATE
+echo ================================================================
+echo [INFO] This script handles Python 3.12 only.
+echo [INFO] It uses interactive update mode without --silent.
+echo [INFO] If Python 3.12 is not installed, it will be skipped.
+echo.
+
+
+winget upgrade --id Python.Python.3.12 -e --source winget --accept-source-agreements --accept-package-agreements
+set "RC=%ERRORLEVEL%"
+
+if "%RC%"=="0" (
+    echo [OK] Python 3.12 processed successfully.
+    goto :end
+)
+
+if "%RC%"=="2" (
+    echo [CANCELLED] Python 3.12 update was cancelled.
+    goto :end
+)
+
+if "%RC%"=="-1978335136" (
+    echo [INFO] No update available for Python 3.12.
+    goto :end
+)
+
+if "%RC%"=="-1978335189" (
+    echo [INFO] No update available for Python 3.12.
+    goto :end
+)
+
+if "%RC%"=="-1978335212" (
+    echo [INFO] No update available or no installed match for Python 3.12.
+    goto :end
+)
+
+echo [WARN] Python 3.12 update returned errorlevel %RC%.
+set "EXIT_RC=%RC%"
+
+:end
+echo.
+echo [INFO] Press any key to close this window.
+if not defined AUDION_NO_PAUSE pause
+endlocal & exit /b %EXIT_RC%

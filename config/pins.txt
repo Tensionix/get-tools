@@ -1,0 +1,5 @@
+# Packages to pin with: winget pin add --blocking
+
+Nvidia.CUDA
+PaulPacifico.ShutterEncoder
+FastStone.Viewer

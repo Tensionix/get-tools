@@ -1,0 +1,17 @@
+# System runtimes, terminals, and archivers.
+# One WinGet package ID per line.
+
+Microsoft.DotNet.DesktopRuntime.6
+Microsoft.DotNet.DesktopRuntime.8
+Microsoft.DotNet.DesktopRuntime.10
+Microsoft.AppInstaller
+Microsoft.WindowsTerminal
+Microsoft.PowerShell
+Eugeny.Tabby
+7zip.7zip
+Giorgiotani.Peazip
+RARLab.WinRAR
+Microsoft.Sysinternals.ProcessExplorer
+Microsoft.Sysinternals.Autoruns
+CodeSector.TeraCopy
+

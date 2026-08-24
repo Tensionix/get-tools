@@ -1,0 +1,9 @@
+{
+  "history": [
+    "Write-Host \"cwd = $PWD\""
+  ],
+  "pinned": [],
+  "last": "Write-Host \"cwd = $PWD\"",
+  "shell": "pwsh",
+  "cwd": "."
+}
