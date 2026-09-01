@@ -32,23 +32,9 @@ call :MK "%ROOT%\install\download"
 call :MK "%ROOT%\licenses"
 call :MK "%ROOT%\config"
 
-call :KEEP "%ROOT%\logs"
-call :KEEP "%ROOT%\._runtime"
-call :KEEP "%ROOT%\report"
-call :KEEP "%ROOT%\workspace"
-call :KEEP "%ROOT%\release"
-call :KEEP "%ROOT%\runtime"
-call :KEEP "%ROOT%\wheelhouse"
-call :KEEP "%ROOT%\system_core\winget"
-call :KEEP "%ROOT%\system_core\powershell"
-call :KEEP "%ROOT%\install\download"
-call :KEEP "%ROOT%\licenses"
 
 exit /b 0
 
 :MK
 if not exist "%~1\" mkdir "%~1" >nul 2>nul
-goto :eof
-
-:KEEP
 goto :eof
