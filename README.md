@@ -8,14 +8,14 @@
   <a href="https://github.com/Tensionix/get-tools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Tensionix/get-tools?style=flat-square&color=5fd08a&logo=apache&logoColor=white&cacheSeconds=3600"></a>
 </p>
 
-**Version 2.12.1** · 2026-09-01 · 205.9 MB
+**Version 2.12.1** · 2026-09-01 · 7.8 MB
 
-- [Direct download](https://dl.audion.dev/get-tools/2.12.1/Audion_Get_Tools_v2.12.1_Full.zip) — unmetered, no rate limits
+- [Direct download](https://dl.audion.dev/get-tools/2.12.1/Audion_Get_Tools_v2.12.1.zip) — unmetered, no rate limits
 - [Project page](https://audion.dev/downloads/get-tools) — every version and how to install
 
 <p align="center"><img src="docs/screenshot.png" alt="The program window" width="560"></p>
 
-`SHA-256: 6b8e8f1d20569eba9e8d14304b97c380732630dd019f9a899a1b9ff5bda579fc`
+`SHA-256: 46f48ad7a2dfadbd69cd815474214557b60649eb4914fc4d3e63680c48e2a008`
 
 ---
 
