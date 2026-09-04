@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 import argparse
+import re
 import asyncio
 import atexit
 import ctypes
@@ -343,6 +344,7 @@ ROOT_COMMAND_PRIORITY = {
     "update_available_packages": 50,
     "uninstall_selected_installed_packages": 55,
     "single_package": 60,
+    "vendor_downloads": 70,
     "pin_selected_packages": 80,
     "import_export": 90,
     "classic_scripts": 100,
@@ -2149,6 +2151,11 @@ def attach_tooltip(element: Any, text: str) -> Any:
 
 
 def field_default(field: dict[str, Any]) -> Any:
+    # `default_ru` / `default_en`: a default that follows the interface language
+    # (the language of a Windows image is the natural case).
+    localized = field.get(f"default_{settings.language}")
+    if localized is not None:
+        return localized
     if "default" in field:
         return field["default"]
     kind = str(field.get("type", field.get("kind", "text"))).lower()
@@ -2260,13 +2267,39 @@ def dynamic_option_source(field: dict[str, Any]) -> str:
     return ""
 
 
+def dynamic_option_key(field: dict[str, Any], values: dict[str, Any] | None = None) -> str:
+    """Cache key of a dynamic list: the source plus the values it depends on.
+
+    One source serves every vendor, so the list has to be cached per selection.
+    Otherwise a fetch started on one tab lands its result under the other tab,
+    and the Windows section shows DaVinci releases until the next refresh.
+    """
+    source = dynamic_option_source(field)
+    if not source:
+        return ""
+    depends_on = field.get("depends_on") or []
+    if isinstance(depends_on, str):
+        depends_on = [depends_on]
+    if not depends_on:
+        return source
+    values = pending_field_values() if values is None else values
+    fingerprint = json.dumps(
+        {str(key): values.get(str(key)) for key in depends_on},
+        sort_keys=True,
+        default=str,
+        ensure_ascii=False,
+    )
+    return f"{source}|{fingerprint}"
+
+
 def refresh_dynamic_options(field: dict[str, Any]) -> None:
     source = dynamic_option_source(field)
     if source:
-        dynamic_option_cache.pop(source, None)
+        clear_dynamic_option_cache(source)
     key = field_id(field)
     if key:
         state.setdefault("field_values", {}).pop(key, None)
+        dynamic_defaults_applied.difference_update({marker for marker in dynamic_defaults_applied if marker.startswith(f"{key}|")})
     command_tree.refresh()
 
 
@@ -2295,6 +2328,54 @@ def ai_provider_for_field(field: dict[str, Any]) -> str:
     return ai_provider_for_key(field_id(field))
 
 
+def invalidate_dependent_options(key: str) -> bool:
+    """Forget the option lists that declare `depends_on: [key]` and their picks.
+
+    A version list depends on the product and the platform: change either and
+    the old entries would point at another product's builds.
+    """
+    pending = active_field_node()
+    if not isinstance(pending, CommandNode) or not key:
+        return False
+    changed = False
+    values = state.setdefault("field_values", {})
+    for field in pending.fields:
+        depends_on = field.get("depends_on") or []
+        if isinstance(depends_on, str):
+            depends_on = [depends_on]
+        if key not in [str(item) for item in depends_on]:
+            continue
+        source = dynamic_option_source(field)
+        if source:
+            clear_dynamic_option_cache(source)
+        values.pop(field_id(field), None)
+        changed = True
+    return changed
+
+
+def field_drives_visibility(key: str) -> bool:
+    """True when another field of the active form shows or hides on this key's value."""
+    pending = active_field_node()
+    if not isinstance(pending, CommandNode) or not key:
+        return False
+    for field in pending.fields:
+        condition = field.get("visible_when")
+        if isinstance(condition, dict) and key in {str(item) for item in condition}:
+            return True
+    return False
+
+
+def checkbox_change_handler(key: str):
+    """A plain checkbox stores its value; the form re-renders only when another field depends on it."""
+
+    def handler(event: Any) -> None:
+        set_field_value(key, bool(getattr(event, "value", False)))
+        if field_drives_visibility(key):
+            command_tree.refresh()
+
+    return handler
+
+
 def select_change_handler(field: dict[str, Any]):
     def handler(event: Any) -> None:
         key = field_id(field)
@@ -2306,6 +2387,9 @@ def select_change_handler(field: dict[str, Any]):
             return
         if key == "ai_prompt_ref":
             load_ai_prompt_ref(value)
+            command_tree.refresh()
+            return
+        if invalidate_dependent_options(key):
             command_tree.refresh()
 
     return handler
@@ -2524,13 +2608,14 @@ def resolve_dynamic_options(source: str, values: dict[str, Any] | None = None) -
     return options
 
 
-async def resolve_dynamic_options_background(source: str, values: dict[str, Any] | None = None) -> None:
+async def resolve_dynamic_options_background(source: str, values: dict[str, Any] | None = None, cache_key: str = "") -> None:
+    cache_key = cache_key or source
     try:
         options = await run.io_bound(resolve_dynamic_options, source, values)
     except Exception as exc:
         options = _dynamic_option_error(exc)
-    dynamic_option_cache[source] = (time.monotonic(), options)
-    dynamic_option_tasks.discard(source)
+    dynamic_option_cache[cache_key] = (time.monotonic(), options)
+    dynamic_option_tasks.discard(cache_key)
     try:
         command_tree.refresh()
     except RuntimeError as exc:
@@ -2539,20 +2624,48 @@ async def resolve_dynamic_options_background(source: str, values: dict[str, Any]
             raise
 
 
-def schedule_dynamic_options(source: str) -> None:
-    if source in dynamic_option_tasks:
+def active_field_node() -> CommandNode | None:
+    """The node whose fields are on screen: the pending command, or the level's parent when it carries the form."""
+    pending = state.get("pending_command")
+    if isinstance(pending, CommandNode):
+        return pending
+    trail, _nodes = current_command_level()
+    parent = trail[-1] if trail else None
+    return parent if isinstance(parent, CommandNode) and parent.fields else None
+
+
+def pending_field_values() -> dict[str, Any]:
+    """Every field of the active node with its default, overlaid by what the person changed.
+
+    An option source that depends on another field must see that field even
+    before anyone touched it, otherwise the first list is built for no product.
+    """
+    values: dict[str, Any] = {}
+    pending = active_field_node()
+    if isinstance(pending, CommandNode):
+        for field in pending.fields:
+            key = field_id(field)
+            if key:
+                values[key] = field_default(field)
+    values.update(state.get("field_values", {}))
+    return values
+
+
+def schedule_dynamic_options(source: str, cache_key: str = "") -> None:
+    cache_key = cache_key or source
+    if cache_key in dynamic_option_tasks:
         return
-    dynamic_option_tasks.add(source)
-    values = dict(state.get("field_values", {}))
+    dynamic_option_tasks.add(cache_key)
+    values = pending_field_values()
     try:
-        asyncio.get_running_loop().create_task(resolve_dynamic_options_background(source, values))
+        asyncio.get_running_loop().create_task(resolve_dynamic_options_background(source, values, cache_key))
     except RuntimeError:
         try:
             options = resolve_dynamic_options(source, values)
         except Exception as exc:
             options = _dynamic_option_error(exc)
-        dynamic_option_cache[source] = (time.monotonic(), options)
-        dynamic_option_tasks.discard(source)
+        dynamic_option_cache[cache_key] = (time.monotonic(), options)
+        dynamic_option_tasks.discard(cache_key)
 
 
 def apply_preset(preset: dict[str, Any]) -> None:
@@ -2562,13 +2675,238 @@ def apply_preset(preset: dict[str, Any]) -> None:
     field_values = state.setdefault("field_values", {})
     for key, value in values.items():
         field_values[str(key)] = value
+    touched = set(values)
+    # `remove` / `add` work on list fields relative to what is ticked now, so a
+    # button can switch one group off without touching the rest of the list.
+    pending = active_field_node()
+    defaults = {field_id(field): field_default(field) for field in (pending.fields if pending else ())}
+    for verb in ("remove", "add"):
+        changes = preset.get(verb)
+        if not isinstance(changes, dict):
+            continue
+        for key, items in changes.items():
+            current = list(field_values.get(str(key), defaults.get(str(key), [])) or [])
+            wanted = [str(item) for item in (items if isinstance(items, list) else [items])]
+            if verb == "remove":
+                current = [item for item in current if str(item) not in wanted]
+            else:
+                current.extend(item for item in wanted if item not in current)
+            field_values[str(key)] = current
+            touched.add(str(key))
+    picks = preset.get("pick")
+    if isinstance(picks, dict) and pending is not None:
+        for key, rule in picks.items():
+            field = next((item for item in pending.fields if field_id(item) == str(key)), None)
+            if field is None:
+                continue
+            field_values[str(key)] = pick_options(field, str(rule))
+            touched.add(str(key))
+    # `toggle` flips a switch: pressed once it sets the value, pressed again it
+    # goes back to the default. The Portable button of the version cards.
+    toggles = preset.get("toggle")
+    if isinstance(toggles, dict):
+        # A card list that follows the switch re-ticks the same versions by their
+        # other file: 'Portable' on turns installer ticks into portable ticks, off
+        # turns them back; versions without a portable build drop out. The maps
+        # come from the list as it is now: once the switch flips, the list is a
+        # different one and is not loaded yet.
+        followers: list[tuple[dict[str, Any], dict[str, dict[str, Any]]]] = []
+        for field in (pending.fields if pending else ()):
+            depends_on = field.get("depends_on") or []
+            if not any(str(key) in {str(item) for item in (depends_on if isinstance(depends_on, list) else [depends_on])} for key in toggles):
+                continue
+            by_value = {str(option.get("value")): option for option in field_options(field) if isinstance(option, dict)}
+            if any("portable_id" in option for option in by_value.values()):
+                followers.append((field, by_value))
+        for key, wanted in toggles.items():
+            current = field_values.get(str(key), defaults.get(str(key)))
+            field_values[str(key)] = defaults.get(str(key), False) if str(current) == str(wanted) else wanted
+            touched.add(str(key))
+        switched_on = any(str(field_values.get(str(key))) == str(wanted) for key, wanted in toggles.items())
+        # The re-ticked lists are set after the invalidation below, which drops every dependent list.
+        carried: dict[str, list[str]] = {}
+        for field, by_value in followers:
+            current_list = field_values.get(field_id(field), [])
+            remapped: list[str] = []
+            for item in (current_list if isinstance(current_list, list) else []):
+                option = by_value.get(str(item))
+                if option is None:
+                    continue
+                target = str(option.get("portable_id") or "") if switched_on else str(option.get("installer_id") or option.get("portable_id") or "")
+                if target and target not in remapped:
+                    remapped.append(target)
+            carried[field_id(field)] = remapped
+    # A preset changes several switches at once; lists that depend on them start over too.
+    for key in touched:
+        invalidate_dependent_options(str(key))
+    if isinstance(toggles, dict):
+        field_values.update(carried)
     command_tree.refresh()
+
+
+TOGGLE_BUTTON_KINDS = {"toggle_buttons", "toggles", "group_toggles"}
+TAB_KINDS = {"tabs", "tab_strip", "section_tabs"}
+BETA_LABEL = re.compile(r"\b(beta|preview|insider|rs_prerelease)\b", re.IGNORECASE)
+
+
+def field_kind(field: dict[str, Any]) -> str:
+    return str(field.get("type", field.get("kind", "text"))).lower()
+
+
+def tab_click_handler(field: dict[str, Any], value: Any):
+    def handler() -> None:
+        key = field_id(field)
+        set_field_value(key, value)
+        invalidate_dependent_options(key)
+        command_tree.refresh()
+
+    return handler
+
+
+def render_tab_strip(field: dict[str, Any]) -> None:
+    """A tab strip: plain headings in a row, the active one underlined in the switch colour."""
+    value = current_field_value(field)
+    strip = ui.element("div").classes("audion-tab-strip")
+    with strip:
+        for option in field_options(field):
+            if not isinstance(option, dict):
+                continue
+            option_value = option.get("value", option.get("id"))
+            active = str(option_value) == str(value)
+            button = ui.button(
+                preset_label(option),
+                on_click=tab_click_handler(field, option_value),
+            ).props("dense flat no-caps no-wrap").classes("audion-tab" + (" audion-tab-active" if active else ""))
+            accent = str(option.get("accent") or "").strip()
+            if accent:
+                # a brand colour: the caption is tinted with it, the active underline is painted in it
+                button.classes("audion-tab-branded").style(f"--audion-tab-accent: {accent}")
+            option_tip = option.get("tooltip_ru" if settings.language == "ru" else "tooltip")
+            if option_tip:
+                attach_tooltip(button, str(option_tip))
+    tooltip = field_tooltip(field)
+    if tooltip:
+        attach_tooltip(strip, tooltip)
+
+
+def pick_options(field: dict[str, Any], rule: str) -> list[Any]:
+    """`pick: {versions: latest_stable}` chooses cards by rule instead of by hand.
+
+    latest = the first card, latest_stable = the first that is not a beta or
+    insider build, golden = every card marked with a star, all / none.
+    """
+    options = [
+        option for option in field_options(field)
+        if isinstance(option, dict) and str(option.get("value", "")).strip()
+    ]
+
+    def text(option: dict[str, Any]) -> str:
+        return str(option.get("label") or option.get("label_ru") or "")
+
+    if rule == "none":
+        return []
+    if rule == "all":
+        return [option["value"] for option in options]
+    if rule == "latest":
+        return [options[0]["value"]] if options else []
+    if rule == "latest_stable":
+        for option in options:
+            if not BETA_LABEL.search(text(option)):
+                return [option["value"]]
+        return []
+    if rule == "golden":
+        return [option["value"] for option in options if "★" in text(option)]
+    return []
+
+
+def toggle_option_apps(option: dict[str, Any]) -> list[str]:
+    apps = option.get("apps", option.get("items", []))
+    return [str(item) for item in (apps if isinstance(apps, list) else [apps]) if str(item)]
+
+
+def toggle_option_pressed(field: dict[str, Any], option: dict[str, Any]) -> bool:
+    """A toggle button is pressed while its whole group is in the target list.
+
+    A `flag` option is the mirror of a boolean field (Edge: pressed means the
+    'without Edge' box is clear), so the two controls can never disagree.
+    """
+    values = pending_field_values()
+    flag = str(option.get("flag") or "").strip()
+    if flag:
+        return not bool(values.get(flag))
+    current = {str(item) for item in (values.get(str(field.get("target") or "")) or [])}
+    apps = toggle_option_apps(option)
+    return bool(apps) and all(app in current for app in apps)
+
+
+def toggle_option(field: dict[str, Any], option: dict[str, Any]) -> None:
+    pressed = toggle_option_pressed(field, option)
+    flag = str(option.get("flag") or "").strip()
+    if flag:
+        set_field_value(flag, pressed)
+        invalidate_dependent_options(flag)
+    else:
+        target = str(field.get("target") or "").strip()
+        if not target:
+            return
+        current = [str(item) for item in (pending_field_values().get(target) or [])]
+        apps = toggle_option_apps(option)
+        if pressed:
+            current = [item for item in current if item not in apps]
+        else:
+            current.extend(app for app in apps if app not in current)
+        set_field_value(target, current)
+        invalidate_dependent_options(target)
+    command_tree.refresh()
+
+
+def toggle_click_handler(field: dict[str, Any], option: dict[str, Any]):
+    def handler() -> None:
+        toggle_option(field, option)
+
+    return handler
 
 
 def preset_label(preset: dict[str, Any]) -> str:
     if settings.language == "ru" and preset.get("label_ru"):
         return str(preset["label_ru"])
     return str(preset.get("label") or preset.get("title") or preset.get("id") or "Preset")
+
+
+def preset_is_active(preset: dict[str, Any]) -> bool:
+    """A preset with plain `values` lights up while every field it sets holds that value.
+
+    Lists compare as sets, so the order of ticks does not matter. Presets that
+    pick or remove relative to the current state have no single 'active' shape.
+    """
+    if preset.get("remove") or preset.get("add"):
+        return False
+    current = pending_field_values()
+    picks = preset.get("pick")
+    if isinstance(picks, dict) and picks:
+        # A rule button is lit while the cards match what the rule would tick right now.
+        pending = active_field_node()
+        for key, rule in picks.items():
+            field = next((item for item in (pending.fields if pending else ()) if field_id(item) == str(key)), None)
+            if field is None:
+                return False
+            wanted = {str(item) for item in pick_options(field, str(rule))}
+            actual = current.get(str(key))
+            actual_set = {str(item) for item in actual} if isinstance(actual, list) else set()
+            if actual_set != wanted or (not wanted and str(rule) != "none"):
+                return False
+        return True
+    values = preset.get("values") or preset.get("toggle")
+    if not isinstance(values, dict) or not values:
+        return False
+    for key, wanted in values.items():
+        actual = current.get(str(key))
+        if isinstance(wanted, list):
+            if not isinstance(actual, list) or {str(item) for item in actual} != {str(item) for item in wanted}:
+                return False
+        elif str(actual) != str(wanted):
+            return False
+    return True
 
 
 def preset_click_handler(preset: dict[str, Any]):
@@ -2578,6 +2916,25 @@ def preset_click_handler(preset: dict[str, Any]):
     return handler
 
 
+dynamic_defaults_applied: set[str] = set()
+
+
+def apply_dynamic_defaults(field: dict[str, Any], cache_key: str, options: list[Any]) -> None:
+    """A dynamic list may flag options `default: true`; they are ticked once, when the list first shows.
+
+    Static lists carry their defaults in the manifest; a list built at run time
+    (this machine's drivers) only knows them once it has been built.
+    """
+    key = field_id(field)
+    marker = f"{key}|{cache_key}"
+    if not key or marker in dynamic_defaults_applied:
+        return
+    dynamic_defaults_applied.add(marker)
+    defaults = [option.get("value") for option in options if isinstance(option, dict) and option.get("default") and str(option.get("value", "")).strip()]
+    if defaults:
+        state.setdefault("field_values", {})[key] = defaults
+
+
 def load_dynamic_options(field: dict[str, Any]) -> list[Any]:
     source = dynamic_option_source(field)
     if not source:
@@ -2585,11 +2942,13 @@ def load_dynamic_options(field: dict[str, Any]) -> list[Any]:
 
     cache_seconds = float(field.get("cache_seconds", 45) or 0)
     now = time.monotonic()
-    cached = dynamic_option_cache.get(source)
+    cache_key = dynamic_option_key(field)
+    cached = dynamic_option_cache.get(cache_key)
     if cached and cache_seconds > 0 and now - cached[0] < cache_seconds:
+        apply_dynamic_defaults(field, cache_key, cached[1])
         return cached[1]
 
-    schedule_dynamic_options(source)
+    schedule_dynamic_options(source, cache_key)
     return cached[1] if cached else _dynamic_option_loading(field, source)
 
 
@@ -2731,6 +3090,8 @@ def checkbox_grid_min_px(field: dict[str, Any]) -> int:
         width = min(380, width + PACKAGE_CARD_ACTIONS_PX)
     if any(package_id and package_archive_type(package_id) for package_id in package_ids):
         width = min(390, width + PACKAGE_CARD_ARCHIVE_PX)
+    if any(isinstance(option, dict) and "portable_id" in option for option in field_options(field)):
+        width = min(390, width + PACKAGE_CARD_ACTIONS_PX)
     return width
 
 
@@ -2766,7 +3127,21 @@ def package_checkbox_tone(field: dict[str, Any], option_key: Any, option_text: s
 
 
 def checkbox_card_classes(field: dict[str, Any], option_key: Any, option_text: str) -> str:
-    tone = package_checkbox_tone(field, option_key, option_text)
+    # A field may name its tone outright (`tone: video`); otherwise the option text decides.
+    # Marks in the caption win over both: a keeper goes gold, the newest release green,
+    # a beta or preview amber, so the kind of a version is visible before its number is read.
+    text = str(option_text)
+    if "★" in text:
+        tone = "gold"
+    elif re.search(r"\blatest\b", text):
+        tone = "latest"
+    elif re.search(r"\b(beta|preview|insider|rs_prerelease)\b", text, re.IGNORECASE):
+        tone = "beta"
+    elif str(field.get("card_actions") or "").strip() == "vendor":
+        # Ordinary versions stay quiet: no ring colour, no tint, so the marked ones carry the meaning.
+        tone = str(field.get("tone") or "").strip().lower() or "plain"
+    else:
+        tone = str(field.get("tone") or "").strip().lower() or package_checkbox_tone(field, option_key, option_text)
     return f"audion-checkbox-card audion-package-tone-{tone}"
 
 
@@ -2861,7 +3236,93 @@ def package_page_click_handler(package_id: str):
     return handler
 
 
-def package_card_actions(field: dict[str, Any], option_key: Any) -> None:
+def vendor_build_operation(child_id: str, download_id: str) -> Operation | None:
+    """The vendor node's child, run for one build instead of the ticked ones."""
+    node = find_command_descendant(active_field_node(), child_id)
+    if node is None:
+        return None
+    operation = operation_from_pending_command(node)
+    parameters = dict(operation.parameters)
+    parameters["vendor_versions"] = [str(download_id)]
+    return node.to_operation(parameters)
+
+
+def vendor_card_click_handler(child_id: str, download_id: str):
+    async def handler(_event: Any = None) -> None:
+        operation = vendor_build_operation(child_id, download_id)
+        if operation is None:
+            safe_notify(tr("no_options"), "warning")
+            return
+        await start_operation(operation)
+        command_tree.refresh()
+
+    return handler
+
+
+def vendor_build_is_portable(option_text: str) -> bool:
+    """A portable build is named so on its card: 'portable', 'standalone' or a zip archive in the file kind."""
+    return bool(re.search(r"\b(portable|standalone|zip)\b", str(option_text or ""), re.IGNORECASE))
+
+
+def vendor_card_files(field: dict[str, Any], option_key: Any) -> tuple[str, str] | None:
+    """`(installer_id, portable_id)` of a card whose list names its files, else None."""
+    wanted = str(option_key or "").strip()
+    for option in field_options(field):
+        if isinstance(option, dict) and str(option.get("value", "")).strip() == wanted and "portable_id" in option:
+            return str(option.get("installer_id") or ""), str(option.get("portable_id") or "")
+    return None
+
+
+def vendor_card_actions(field: dict[str, Any], option_key: Any, option_text: str = "") -> None:
+    """The buttons on a version card: fetch, and only print the link.
+
+    A list that names its files (TechPowerUp) lays the buttons out in three
+    fixed columns, installer | portable | link, an empty slot where a version
+    has no such file, so every card reads the same: green arrow left, crimson
+    archive in the middle. A list that does not gets one arrow, crimson when
+    the card itself is a portable build.
+    """
+    download_id = str(option_key or "").strip()
+    if not download_id:
+        return
+    download_node = find_command_descendant(active_field_node(), "vendor_download")
+    blocked = node_gate_message(download_node) if download_node is not None else ""
+    files = vendor_card_files(field, option_key)
+    vendor_suffix = "_uupdump" if str(pending_field_values().get("vendor") or "") == "uupdump" else ""
+
+    def fetch_button(file_id: str, portable: bool) -> None:
+        if not file_id:
+            ui.element("div").classes("audion-package-icon-slot")
+            return
+        button = ui.button(
+            icon="archive" if portable else "file_download",
+            on_click=vendor_card_click_handler("vendor_download", file_id),
+        ).props("dense flat round unelevated").classes(
+            "audion-package-icon-button " + ("audion-package-icon-archive" if portable else "audion-package-icon-download")
+        )
+        if blocked:
+            button.props("disable")
+            attach_tooltip(button, blocked)
+        else:
+            attach_tooltip(button, tr("vendor_download_hint_portable" if portable else f"vendor_download_hint{vendor_suffix}"))
+
+    with ui.row().classes("audion-package-card-actions items-center flex-nowrap"):
+        if files is not None:
+            installer_id, portable_id = files
+            fetch_button(installer_id, False)
+            fetch_button(portable_id, True)
+        else:
+            fetch_button(download_id, vendor_build_is_portable(option_text))
+        link_button = ui.button(
+            icon="link",
+            on_click=vendor_card_click_handler("vendor_link", download_id),
+        ).props("dense flat round unelevated").classes(
+            "audion-package-icon-button audion-package-icon-page"
+        )
+        attach_tooltip(link_button, tr(f"vendor_link_hint{vendor_suffix}"))
+
+
+def package_card_actions(field: dict[str, Any], option_key: Any, option_text: str = "") -> None:
     """Small buttons inside the package card: the file, the archive, the page.
 
     They live in the card so the group keeps following its package through every
@@ -2869,6 +3330,9 @@ def package_card_actions(field: dict[str, Any], option_key: Any) -> None:
     click never toggles the selection. The archive button appears only for the
     packages WinGet really has an archive for.
     """
+    if str(field.get("card_actions") or "").strip() == "vendor":
+        vendor_card_actions(field, option_key, option_text)
+        return
     package_id = package_card_option_id(field, option_key)
     if not package_id:
         return
@@ -2932,6 +3396,8 @@ def set_checkbox_window_filter_value(value: Any) -> None:
 def field_uses_local_checkbox_filter(field: dict[str, Any]) -> bool:
     key = field_id(field)
     source = str(field.get("options_source") or field.get("source") or "")
+    if bool_field_option(field, "filter", False):
+        return True
     return key == "uninstall_other" or source.endswith(":installed_uninstall_other_options")
 
 
@@ -3096,6 +3562,9 @@ def field_container_classes(field: dict[str, Any]) -> str:
         "quarter": "audion-field audion-field-span-3",
         "25%": "audion-field audion-field-span-3",
         "3": "audion-field audion-field-span-3",
+        "7": "audion-field audion-field-span-7",
+        "5": "audion-field audion-field-span-5",
+        "8": "audion-field audion-field-span-8",
     }
     if span in span_classes:
         return span_classes[span]
@@ -3105,6 +3574,8 @@ def field_container_classes(field: dict[str, Any]) -> str:
     if kind in {"textarea", "multiline", "path", "file", "folder"} or kind in MARKDOWN_EDITOR_KINDS:
         return "audion-field audion-field-wide"
     if kind in {"preset_buttons", "presets", "profile_buttons", "profiles"}:
+        return "audion-field audion-field-wide"
+    if kind in TOGGLE_BUTTON_KINDS:
         return "audion-field audion-field-wide"
     if kind in {"checkbox", "bool", "boolean", "toggle"}:
         return "audion-field audion-control-field"
@@ -3146,7 +3617,13 @@ def field_section_title(section_id: str) -> str:
         "generation": "section_generation",
         "plan": "section_plan",
         "package": "section_package",
+        "vendor": "section_vendor",
+        "build": "section_build",
+        "apps": "section_apps",
+        "versions": "section_versions",
+        "drivers": "section_drivers",
         "options": "section_options",
+        "registration": "section_registration",
         "parameters": "parameters",
     }
     if normalized in known:
@@ -3155,7 +3632,9 @@ def field_section_title(section_id: str) -> str:
 
 
 def grouped_fields(fields: list[dict[str, Any]]) -> list[tuple[str, list[dict[str, Any]]]]:
-    order = ["request", "provider", "prompt", "generation", "plan", "package", "options"]
+    # Options go above the build and the version list: a checkbox at the bottom of a
+    # long form is the one nobody sees.
+    order = ["request", "provider", "prompt", "generation", "plan", "package", "vendor", "options", "build", "apps", "drivers", "versions", "registration"]
     groups: dict[str, list[dict[str, Any]]] = {}
     for field in fields:
         groups.setdefault(field_section_id(field), []).append(field)
@@ -3164,9 +3643,48 @@ def grouped_fields(fields: list[dict[str, Any]]) -> list[tuple[str, list[dict[st
     return ordered
 
 
+def field_is_visible(field: dict[str, Any]) -> bool:
+    """`visible_when: {key: value | [values]}` hides a field until every named field matches.
+
+    One form can serve several vendors this way: the vendor switch is a field,
+    and each vendor's own controls appear only while it is the one selected.
+    """
+    # `hidden: true` keeps a field in the form's values without drawing it: another
+    # control owns it on screen (the Edge toggle drives the skip-Edge flag).
+    if bool(field.get("hidden", False)):
+        return False
+    values = pending_field_values()
+    # `hidden_when: {key: value | [values]}` hides a field while every named field matches:
+    # the version cards leave the Windows tab's other pages, the zip switches leave Windows.
+    hidden = field.get("hidden_when")
+    if isinstance(hidden, dict) and hidden:
+        if all(
+            any(str(values.get(str(key))) == str(item) for item in (wanted if isinstance(wanted, list) else [wanted]))
+            for key, wanted in hidden.items()
+        ):
+            return False
+    condition = field.get("visible_when")
+    if not isinstance(condition, dict) or not condition:
+        return True
+    for key, wanted in condition.items():
+        current = values.get(str(key))
+        accepted = wanted if isinstance(wanted, list) else [wanted]
+        if not any(str(current) == str(item) for item in accepted):
+            return False
+    return True
+
+
 def render_fields_grid(fields: list[dict[str, Any]]) -> None:
+    fields = [field for field in fields if field_is_visible(field)]
     if not fields:
         return
+    tab_fields = [field for field in fields if field_kind(field) in TAB_KINDS]
+    if tab_fields:
+        for field in tab_fields:
+            render_tab_strip(field)
+        fields = [field for field in fields if field_kind(field) not in TAB_KINDS]
+        if not fields:
+            return
     if not any(field_has_explicit_section(field) for field in fields):
         with ui.element("div").classes("audion-fields-grid audion-parameters-block"):
             for field in fields:
@@ -3200,16 +3718,41 @@ def render_field(field: dict[str, Any]) -> None:
             presets = field.get("presets", field.get("options", []))
             if not isinstance(presets, list):
                 presets = []
+            # A row with a heading is a block of its own: the heading sits above,
+            # like a radio group's, and the macro buttons are centred under it.
+            attach_tooltip(ui.label(label).classes("audion-field-label"), tooltip)
             with ui.row().classes("audion-profile-row w-full items-center gap-2"):
-                ui.label(label).classes("audion-field-label audion-profile-label mb-0")
                 for preset in presets:
-                    if not isinstance(preset, dict):
+                    if not isinstance(preset, dict) or not field_is_visible(preset):
                         continue
                     button = ui.button(
                         preset_label(preset),
                         on_click=preset_click_handler(preset),
-                    ).props("dense flat no-wrap").classes("audion-action rounded-lg")
+                    ).props("dense flat no-wrap").classes(
+                        "audion-action rounded-lg" + (" audion-toggle-on" if preset_is_active(preset) else "")
+                    )
                     attach_tooltip(button, str(preset.get("tooltip_ru" if settings.language == "ru" else "tooltip") or preset.get("hint_ru" if settings.language == "ru" else "hint") or preset_label(preset)))
+            return
+
+        if kind in TAB_KINDS:
+            render_tab_strip(field)
+            return
+
+        if kind in TOGGLE_BUTTON_KINDS:
+            attach_tooltip(ui.label(label).classes("audion-field-label"), tooltip)
+            with ui.element("div").classes("audion-toggle-grid"):
+                for option in field_options(field):
+                    if not isinstance(option, dict):
+                        continue
+                    pressed = toggle_option_pressed(field, option)
+                    classes = "audion-action audion-toggle rounded-lg" + (" audion-toggle-on" if pressed else "")
+                    button = ui.button(
+                        preset_label(option),
+                        on_click=toggle_click_handler(field, option),
+                    ).props("dense flat no-wrap").classes(classes)
+                    attach_tooltip(button, str(option.get("tooltip_ru" if settings.language == "ru" else "tooltip") or preset_label(option)))
+            if hint:
+                ui.label(hint).classes("audion-field-hint")
             return
 
         if kind in {"select", "choice", "format"}:
@@ -3263,6 +3806,9 @@ def render_field(field: dict[str, Any]) -> None:
                 value=value,
                 on_change=select_change_handler(field),
             ).props("dense inline").classes("audion-choice-row")
+            if field.get("grid_min_px"):
+                # Wider switches: eight long names wrap into two readable rows instead of one crushed line.
+                radio_control.style(f"grid-template-columns: repeat(auto-fit, minmax({checkbox_grid_min_px(field)}px, 1fr))")
             register_field_control(key, radio_control)
             attach_tooltip(radio_control, tooltip)
             if hint:
@@ -3302,7 +3848,7 @@ def render_field(field: dict[str, Any]) -> None:
                     checkbox = ui.checkbox(
                         label,
                         value=bool(value),
-                        on_change=lambda event, item_key=key: set_field_value(item_key, bool(event.value)),
+                        on_change=checkbox_change_handler(key),
                     ).props("dense").classes("audion-single-checkbox")
                 register_field_control(key, checkbox)
                 attach_tooltip(checkbox, " — ".join(part for part in (tooltip, hint) if part) or label)
@@ -3312,9 +3858,11 @@ def render_field(field: dict[str, Any]) -> None:
             return
 
         if is_checkbox_group(field):
-            selected = set(value if isinstance(value, list) else [])
             controls: dict[Any, Any] = {}
             options = checkbox_options(field)
+            # the option list may have just applied its own defaults; read the value after it
+            value = current_field_value(field)
+            selected = set(value if isinstance(value, list) else [])
             window_filter_query = checkbox_window_filter_value()
             local_filter_query = checkbox_filter_value(key) if field_uses_local_checkbox_filter(field) else ""
             visible_options = filter_checkbox_options(
@@ -3401,10 +3949,10 @@ def render_field(field: dict[str, Any]) -> None:
                                 ).props("dense")
                                 checkbox.tooltip(str(option_text))
                                 controls[option_key] = checkbox
-                                package_card_actions(field, option_key)
+                                package_card_actions(field, option_key, str(option_text))
             if hint:
                 ui.label(hint).classes("audion-field-hint")
-            loading_placeholder = bool(source) and source in dynamic_option_tasks and not has_selectable_options
+            loading_placeholder = bool(source) and dynamic_option_key(field) in dynamic_option_tasks and not has_selectable_options
             if not loading_placeholder:
                 sync_checkboxes()
             return
@@ -3475,9 +4023,13 @@ def operation_from_pending_command(node: CommandNode) -> Operation:
 
 
 def validate_pending_fields(node: CommandNode) -> bool:
+    # An action that ignores the ticked list (installing a tool, say) declares
+    # `validate_fields: false` and runs even with nothing selected.
+    if dict(node.parameters or {}).get("validate_fields", True) is False:
+        return True
     values = state.setdefault("field_values", {})
     for field in node.fields:
-        if not is_checkbox_group(field):
+        if not is_checkbox_group(field) or not field_is_visible(field):
             continue
         min_selected = int(field.get("min_selected", 0) or 0)
         if min_selected <= 0:
@@ -3512,6 +4064,33 @@ def child_inherits_parent_fields(parent: CommandNode, child: CommandNode) -> boo
     return bool(parent_signature) and child_signature[: len(parent_signature)] == parent_signature
 
 
+def node_is_visible(node: CommandNode) -> bool:
+    """A child action may carry `visible_when` in its parameters, like a field does."""
+    condition = dict(node.parameters or {}).get("visible_when")
+    if not isinstance(condition, dict) or not condition:
+        return True
+    return field_is_visible({"visible_when": condition})
+
+
+def node_gate_message(node: CommandNode) -> str:
+    """Why the action is disabled right now, or '' when it may run.
+
+    `gate: "module:function"` in the parameters names a function that gets the
+    current field values and answers with a label key or '' - for example the
+    Windows build that must not start until the ADK is installed.
+    """
+    source = str(dict(node.parameters or {}).get("gate") or "").strip()
+    if ":" not in source:
+        return ""
+    try:
+        module_name, function_name = source.split(":", 1)
+        gate = getattr(importlib.import_module(module_name), function_name)
+        key = str(gate(pending_field_values()) or "").strip()
+    except Exception as exc:  # noqa: BLE001 - a broken gate must not hide the button silently
+        return f"{exc.__class__.__name__}: {exc}"
+    return tr(key) if key else ""
+
+
 def inline_child_actions(parent: CommandNode | None, children: list[CommandNode]) -> list[tuple[CommandNode, str]]:
     if parent is None or not parent.fields:
         return []
@@ -3520,6 +4099,8 @@ def inline_child_actions(parent: CommandNode | None, children: list[CommandNode]
     for child in children:
         if child.children or not child_inherits_parent_fields(parent, child):
             continue
+        if not node_is_visible(child):
+            continue
         mode = "run" if field_signature(child.fields) == parent_signature else "open"
         actions.append((child, mode))
     return actions
@@ -3527,10 +4108,15 @@ def inline_child_actions(parent: CommandNode | None, children: list[CommandNode]
 
 def render_inline_child_action(node: CommandNode, mode: str) -> None:
     handler = run_pending_click_handler(node) if mode == "run" else command_click_handler(node)
+    blocked = node_gate_message(node)
     button = ui.button(
         node.display_title(settings.language),
         on_click=handler,
     ).props("dense flat no-wrap no-caps").classes("audion-action audion-inline-action rounded-lg")
+    if blocked:
+        button.props("disable")
+        button.tooltip(blocked)
+        return
     description = node.display_description(settings.language)
     if description:
         button.tooltip(description)
@@ -3618,6 +4204,7 @@ COMMAND_ACTION_VERBS: tuple[tuple[str, str], ...] = (
     ("export", "run_export"),
     ("import", "run_import"),
     ("add", "run_add"),
+    ("link", "run_link"),
     ("download", "run_download"),
     ("cleanup", "run_clean"),
     ("clear", "run_clean"),
@@ -3984,7 +4571,26 @@ def render_app_installer_action() -> None:
         )
 
 
-def command_nav_row(trail: list[CommandNode], pending: CommandNode | None) -> None:
+def node_is_primary(node: CommandNode) -> bool:
+    return bool(dict(node.parameters or {}).get("primary"))
+
+
+def render_nav_action(node: CommandNode, mode: str, *, primary: bool) -> None:
+    """A child action in the navigation row: the primary one amber on the right, the rest in the middle."""
+    handler = run_pending_click_handler(node) if mode == "run" else command_click_handler(node)
+    classes = "audion-action audion-nav-primary rounded-lg" if primary else "audion-action audion-nav-secondary rounded-lg"
+    button = ui.button(node.display_title(settings.language), on_click=handler).props("dense flat no-wrap no-caps").classes(classes)
+    blocked = node_gate_message(node)
+    if blocked:
+        button.props("disable")
+        button.tooltip(blocked)
+        return
+    description = node.display_description(settings.language)
+    if description:
+        button.tooltip(description)
+
+
+def command_nav_row(trail: list[CommandNode], pending: CommandNode | None, actions: list[tuple[CommandNode, str]] | None = None) -> None:
     can_go_back = pending is not None or bool(trail)
     if pending is not None:
         title = pending.display_title(settings.language)
@@ -4034,6 +4640,15 @@ def command_nav_row(trail: list[CommandNode], pending: CommandNode | None) -> No
                 on_click=go_back_command,
             ).props("dense flat no-wrap").classes("audion-action w-28 rounded-lg")
         ui.label(title).classes("min-w-0 flex-1 truncate text-sm text-gray-400")
+        if actions:
+            # Every action sits on the right, secondaries flush against the primary one,
+            # so the window title keeps the whole middle of the row instead of being cut.
+            for node, mode in actions:
+                if not node_is_primary(node):
+                    render_nav_action(node, mode, primary=False)
+            for node, mode in actions:
+                if node_is_primary(node):
+                    render_nav_action(node, mode, primary=True)
         if (
             pending is None
             and trail
@@ -4058,7 +4673,12 @@ def command_tree() -> None:
     trail, nodes = current_command_level()
     pending = state.get("pending_command")
     parent = trail[-1] if trail else None
-    command_nav_row(trail, pending)
+    # A level whose parent carries the form shows its actions in the navigation row,
+    # next to Back, so the run button is in sight without scrolling past the form.
+    nav_actions: list[tuple[CommandNode, str]] = []
+    if pending is None and parent is not None and parent.fields and any(field_has_explicit_section(field) for field in parent.fields):
+        nav_actions = inline_child_actions(parent, nodes)
+    command_nav_row(trail, pending, nav_actions)
 
     if pending is not None:
         if pending.id in UPDATE_WINDOW_COMMAND_IDS:
@@ -4081,13 +4701,14 @@ def command_tree() -> None:
     inline_actions = inline_child_actions(parent, nodes)
     if parent is not None and parent.fields and any(field_has_explicit_section(field) for field in parent.fields):
         parent_checkbox_fields = checkbox_fields(parent)
-        render_parameters_header(parent_checkbox_fields)
-        render_fields_grid(list(parent.fields))
-        render_inline_action_row(inline_actions)
+        if not dict(parent.parameters or {}).get("hide_window_filter"):
+            render_parameters_header(parent_checkbox_fields)
+        with ui.element("div").classes(f"audion-form-pane audion-form-{parent.id}"):
+            render_fields_grid(list(parent.fields))
         rendered_inline_ids = {node.id for node, _mode in inline_actions}
         render_child_window_commands(
             parent,
-            [node for node in nodes if node.id not in rendered_inline_ids],
+            [node for node in nodes if node.id not in rendered_inline_ids and node_is_visible(node)],
         )
         return
 

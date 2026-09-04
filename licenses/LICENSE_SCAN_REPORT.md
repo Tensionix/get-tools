@@ -1,13 +1,13 @@
 # Audion Build Licenses Scan Report
 
 - Project: **Audion Get Tools** (`audion-get-tools`)
-- Run: `20260901T043452Z_audion-get-tools_9b006b57`
+- Run: `20260904T022848Z_audion-get-tools_7d996f01`
 - Project root: `S:\Release\Audion Get Tools`
 - Scan root: `S:\Release\Audion Get Tools`
 - Output: `S:\Release\Audion Get Tools\licenses`
 - Status: **PASS**
-- Components: 81
-- Bundled: 81
+- Components: 83
+- Bundled: 83
 - Optional runtime: 0
 
 ## Issues
@@ -25,7 +25,7 @@ No issues detected.
 | aiosignal | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.4.0 | 1.4.0 |
 | annotated-doc | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.0.5 | 0.0.5 |
 | annotated-types | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.8.0 | 0.8.0 |
-| anyio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.14.2 | 4.14.2 |
+| anyio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.15.0 | 4.15.0 |
 | attrs | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.1.0 | 26.1.0 |
 | bidict | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.24.1 | 0.24.1 |
 | bottle | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.13.4 | 0.13.4 |
@@ -41,8 +41,8 @@ No issues detected.
 | fastapi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.141.1 | 0.141.1 |
 | frozenlist | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.8.0 | 1.8.0 |
 | fzf | `UNCHANGED` | bundled | bundled |
-| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.57.0 | 2.57.0 |
-| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.21.0 | 2.21.0 |
+| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.57.0 | 2.57.1 |
+| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.22.0 | 2.22.0 |
 | h11 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.16.0 | 0.16.0 |
 | httpcore | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.0.9 | 1.0.9 |
 | httpcore2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.12.0 | 2.12.0 |
@@ -60,11 +60,13 @@ No issues detected.
 | mdurl | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.1.2 | 0.1.2 |
 | multidict | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 6.7.1 | 6.7.1 |
 | nicegui | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.16.0 | 3.16.0 |
-| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.6.0 | 3.6.0 |
+| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.8.0 | 3.8.0 |
 | orjson | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.12.0 | 3.12.0 |
 | packaging | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.3 | 26.3 |
+| pip | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.2.1 | 26.2.1 |
 | PowerShell | `UNCHANGED` | portable | portable |
 | propcache | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.5.2 | 0.5.2 |
+| proxy_tools | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.1.0 | 0.1.0 |
 | pyasn1 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.6.4 | 0.6.4 |
 | pyasn1_modules | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.2 | 0.4.2 |
 | pycparser | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.0 | 3.0 |

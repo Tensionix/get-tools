@@ -1,0 +1,52 @@
+# NVIDIA driver marks shown in the Vendor Downloads version list.
+# Edit freely: the file is read every time the versions are listed.
+
+# The chip generations in your own machines. "My cards" in the driver list
+# shows only the versions published for every one of them, so one driver
+# file serves them all. Names as in the Chip generation switch.
+my_generations:
+  - "GTX 16"
+  - "RTX 40"
+  - "RTX 50"
+
+# Versions the community treats as keepers. They get a star and a gold card.
+golden:
+  - "566.36"
+  - "581.57"
+  - "596.36"
+
+# FFmpeg nv-codec-headers (NVENC / NVDEC): the oldest driver each SDK generation
+# accepts. A driver is marked with the newest SDK it satisfies, so a build of
+# FFmpeg made against those headers is known to work with it.
+nvenc_sdk:
+  "13.1": "610.0"
+  "13.0": "570.0"
+  "12.2": "551.76"
+  "12.1": "531.61"
+  "12.0": "522.25"
+  "11.1": "471.41"
+
+# FFmpeg builds as Audion Media Tools ships them, by the driver each needs
+# (9.0.1 and 8.1 on n13.1.15.0 headers want 610; 8.0.1 and 7.1.1 on n13.0.19.0
+# want 570; 7.1 on n12.2.72.0 wants 551.76). A driver is marked with the
+# newest FFmpeg build that runs hardware encoding on it.
+ffmpeg_builds:
+  "9.0.1": "610.0"
+  "8.0.1": "570.0"
+  "7.1": "551.76"
+
+# CUDA Toolkit: the oldest Windows driver each toolkit release needs. A driver
+# runs every toolkit up to the newest one it satisfies (CUDA is backwards
+# compatible), so a driver is marked "CUDA <= X". A program built on CUDA 12.6
+# is happy with any driver from 560.76 on; a driver older than that is not.
+cuda_min_driver:
+  "13.0": "580.88"
+  "12.8": "570.65"
+  "12.6": "560.76"
+  "12.5": "555.85"
+  "12.4": "551.61"
+  "12.3": "545.84"
+  "12.2": "536.25"
+  "12.1": "531.14"
+  "12.0": "527.41"
+  "11.8": "452.39"
