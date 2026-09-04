@@ -23,7 +23,7 @@ An **Audion** tool, published by [Tensionix](https://github.com/Tensionix).
 <!-- /audion:release -->
 
 
-[Русский](docs/README_RU.md) · [User Guide](docs/USER_GUIDE_EN.md)
+[Русский](Docs/README_RU.md) · [User Guide](Docs/USER_GUIDE_EN.md)
 
 **Contents**
 
@@ -237,7 +237,7 @@ and a Russian version.
 
 ## Next
 
-* [User Guide](docs/USER_GUIDE_EN.md) — step by step, plus the reference of every control.
+* [User Guide](Docs/USER_GUIDE_EN.md) — step by step, plus the reference of every control.
 
 ---
 
