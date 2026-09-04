@@ -129,16 +129,13 @@ products below, then version cards with dates; each can be downloaded or just
 linked. Downloads resume after a break, zips are unpacked, a lone root folder
 in the archive is dropped.
 
-- **Blackmagic Design**: DaVinci Resolve and Resolve Studio, Fusion, Blackmagic
-  RAW, Desktop Video, Camera Setup and the rest of the catalog, 45 products.
-  Studio comes without registration; the free Resolve only through the form,
-  which is in the window.
-- **Affinity**: the unified Affinity 3 (exe, msix, dmg) and Photo, Designer,
-  Publisher 2.
-- **NVIDIA**: Game Ready and Studio drivers by chip generation, `My cards` for
-  one driver across every card in the house; each version carries its NVENC
-  SDK, the compatible FFmpeg, the CUDA ceiling and ★ "golden" marks. Plus the
-  NVIDIA App, Broadcast, CUDA Toolkit and the three DLSS libraries.
+- **Windows through UUP dump**: any Windows 11 or 10 build from Microsoft's
+  catalog with the cumulative update inside, the ISO built on the spot. Image
+  kind Business, Consumer or Pro only; a Store app set (Minimal, Work,
+  Everything) and the ballast group buttons; without the Edge browser, while
+  the Edge WebView2 runtime is untouched and stays for apps; this machine's
+  drivers embed into the image through `input`. The build runs in `UUP` at the root of the program's drive, the image
+  lands in the destination folder.
 - **TechPowerUp**: the site's catalog with the whole version history of every
   entry, by section. Drivers: AMD Radeon and Ryzen chipset, Intel graphics,
   Wi-Fi, Bluetooth, Ethernet and NPU, Qualcomm Snapdragon X. Utilities: DDU,
@@ -153,13 +150,16 @@ in the archive is dropped.
   the whole list to portable files. Some of these utilities are in the WinGet
   catalog too: there they install into the system, here any version comes as a
   file.
-- **Windows through UUP dump**: any Windows 11 or 10 build from Microsoft's
-  catalog with the cumulative update inside, the ISO built on the spot. Image
-  kind Business, Consumer or Pro only; a Store app set (Minimal, Work,
-  Everything) and the ballast group buttons; without the Edge browser, while
-  the Edge WebView2 runtime is untouched and stays for apps; this machine's
-  drivers embed into the image through `input`. The build runs in `UUP` at the root of the program's drive, the image
-  lands in the destination folder.
+- **NVIDIA**: Game Ready and Studio drivers by chip generation, `My cards` for
+  one driver across every card in the house; each version carries its NVENC
+  SDK, the compatible FFmpeg, the CUDA ceiling and ★ "golden" marks. Plus the
+  NVIDIA App, Broadcast, CUDA Toolkit and the three DLSS libraries.
+- **Blackmagic Design**: DaVinci Resolve and Resolve Studio, Fusion, Blackmagic
+  RAW, Desktop Video, Camera Setup and the rest of the catalog, 45 products.
+  Studio comes without registration; the free Resolve only through the form,
+  which is in the window.
+- **Affinity**: the unified Affinity 3 (exe, msix, dmg) and Photo, Designer,
+  Publisher 2.
 
 More: [user guide](USER_GUIDE_EN.md#vendor-downloads), the composition tables
 below in the [technical reference](#windows-install-sets).

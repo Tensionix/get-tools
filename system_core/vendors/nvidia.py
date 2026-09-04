@@ -126,13 +126,20 @@ def _default_http(method: str, url: str, body: str | None, headers: dict[str, st
     request.add_header("User-Agent", USER_AGENT)
     for key, value in headers.items():
         request.add_header(key, value)
-    try:
-        with urlopen(request, timeout=60) as response:
-            return int(response.status), response.read().decode("utf-8", "replace")
-    except HTTPError as exc:
-        return int(exc.code), ""
-    except URLError as exc:
-        raise RuntimeError(f"NVIDIA request failed: {exc.reason}") from exc
+    # The driver service (AjaxDriverService) answers in seconds most of the
+    # day and stalls past a minute now and then; 'My cards' asks it three
+    # times in a row, so one stall used to empty the whole list. One retry.
+    last_error: Exception | None = None
+    for _attempt in range(2):
+        try:
+            with urlopen(request, timeout=60) as response:
+                return int(response.status), response.read().decode("utf-8", "replace")
+        except HTTPError as exc:
+            return int(exc.code), ""
+        except (URLError, TimeoutError, OSError) as exc:
+            last_error = exc
+    reason = getattr(last_error, "reason", None) or last_error
+    raise RuntimeError(f"NVIDIA request failed twice: {reason}. Refresh the list to try again.") from last_error
 
 
 def _default_tpu_resolve(slug: str, file_id: str) -> str:

@@ -88,7 +88,8 @@ class VendorProvider(Protocol):
         """
 
 
-VENDOR_IDS: tuple[str, ...] = ("blackmagic", "affinity", "nvidia", "techpowerup", "uupdump")
+# The order of the tabs, left to right; the first one is the tab the window opens on.
+VENDOR_IDS: tuple[str, ...] = ("uupdump", "techpowerup", "nvidia", "blackmagic", "affinity")
 
 
 def get_provider(vendor_id: str) -> VendorProvider:

@@ -858,10 +858,23 @@
             align-items: center;
           }
           .audion-profile-row .audion-action {
-            flex: 0 1 200px;
-            min-width: 150px;
+            flex: 0 1 150px;
+            min-width: 96px;
+            min-height: 26px !important;
+            height: 26px !important;
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+            font-size: 11px !important;
             border-color: var(--audion-control-ring) !important;
             justify-content: center;
+          }
+          /* The caption element carries its own 13px rule, so the small size is
+             repeated on it: five macro buttons then fit one row of the pane. */
+          .audion-profile-row .audion-action .q-btn__content,
+          .audion-profile-row .audion-action .q-btn__content > span {
+            font-size: 11px !important;
+            line-height: 1.1 !important;
+            white-space: nowrap;
           }
           /* Toggle buttons: ring only while off, the switch colour with white text while on. */
           .audion-toggle-grid {
@@ -1213,20 +1226,33 @@
             flex: 0 0 auto;
             gap: 6px !important;
           }
-          .audion-portable-source-badge {
+          /* The Chrome source switches look like every other switch of the
+             program: a ringed button with grey text, the chosen one in the
+             switch colour with white text. No ovals. */
+          .q-btn.audion-action.audion-portable-source-badge {
             min-height: 26px !important;
             height: 26px !important;
             padding: 0 12px !important;
-            color: #d8dde2 !important;
-            background: rgba(105, 63, 18, 0.28) !important;
-            border: 1px solid rgba(182, 112, 38, 0.48) !important;
-            border-radius: 999px !important;
+            font-size: 11px !important;
+            color: var(--audion-secondary-text) !important;
+            background: var(--audion-control-chip) !important;
+            border: 1px solid var(--audion-control-ring) !important;
+            border-radius: var(--border-radius-md) !important;
           }
-          .audion-portable-source-badge:hover,
-          .audion-portable-source-badge-active {
-            color: #eef1f3 !important;
-            background: rgba(132, 78, 22, 0.48) !important;
-            border-color: rgba(214, 138, 48, 0.72) !important;
+          .q-btn.audion-action.audion-portable-source-badge .q-btn__content,
+          .q-btn.audion-action.audion-portable-source-badge .q-btn__content > span {
+            color: inherit !important;
+            font-size: 11px !important;
+          }
+          .q-btn.audion-action.audion-portable-source-badge:hover {
+            background: var(--audion-control-chip-hover) !important;
+            border-color: var(--audion-input-border-hover) !important;
+          }
+          .q-btn.audion-action.audion-portable-source-badge-active,
+          .q-btn.audion-action.audion-portable-source-badge-active:hover {
+            color: #ffffff !important;
+            background: var(--audion-choice-accent) !important;
+            border-color: color-mix(in srgb, var(--audion-choice-accent) 60%, #ffffff) !important;
           }
           .audion-portable-url-input {
             flex: 0 1 520px;
@@ -1249,6 +1275,8 @@
           }
           .audion-portable-pane .audion-fields-grid {
             gap: 8px 10px;
+            /* selects are taller than the check chips: centre the row, do not top-align it */
+            align-items: center;
           }
           .audion-portable-pane .audion-checkbox-block {
             padding-top: 2px;

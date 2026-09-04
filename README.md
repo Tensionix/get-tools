@@ -8,294 +8,385 @@
   <a href="https://github.com/Tensionix/get-tools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Tensionix/get-tools?style=flat-square&color=5fd08a&logo=apache&logoColor=white&cacheSeconds=3600"></a>
 </p>
 
-**Version 2.15.1** · 2026-09-04 · 10.0 MB
+**Version 2.15.1** · 2026-09-04 · 208.4 MB
 
-- [Direct download](https://dl.audion.dev/get-tools/2.15.1/Audion_Get_Tools_v2.15.1.zip) — unmetered, no rate limits
+- [Direct download](https://audion.dev/get/get-tools/2.15.1/Audion_Get_Tools_v2.15.1_Full.zip) — unmetered, no rate limits
 - [Project page](https://audion.dev/downloads/get-tools) — every version and how to install
 
 <p align="center"><img src="docs/screenshot.png" alt="The program window" width="560"></p>
 
-`SHA-256: 117a302f238c9b0f2fe37f7169573c8b044df2619cef309ef7a988f2c2e8c4bc`
+`SHA-256: 7e76f3285102bfb27e710709268258fb43fffdffa0587d9b0c0c68d7ef185398`
 
 ---
 
 An **Audion** tool, published by [Tensionix](https://github.com/Tensionix).
 <!-- /audion:release -->
 
+Portable CMD/PowerShell tooling for installing, updating, checking, exporting, and importing WinGet packages on Audion workstations.
 
-[Русский](Docs/README_RU.md) · [User Guide](Docs/USER_GUIDE_EN.md)
 
-**Contents**
 
-- [Why It Exists](#why-it-exists)
-- [What It Does](#what-it-does)
-  - [WinGet sets: the catalog by groups](#winget-sets-the-catalog-by-groups)
-  - [Install, update, pin, remove](#install-update-pin-remove)
-  - [Download without installing: installer or portable, fresh from the authors](#download-without-installing-installer-or-portable-fresh-from-the-authors)
-  - [Search and work by ID](#search-and-work-by-id)
-  - [AI Package Planner](#ai-package-planner)
-  - [Portable browsers](#portable-browsers)
-  - [Vendor Downloads](#vendor-downloads)
-  - [Visual C++ runtimes](#visual-c-runtimes)
-  - [Import and export](#import-and-export)
-  - [Service procedures](#service-procedures)
-  - [The workbench](#the-workbench)
-- [Principles](#principles)
-- [Next](#next)
-- [Technical Reference](#technical-reference)
-  - [Running](#running)
-  - [Sets](#sets)
-  - [How the downloads section is built](#how-the-downloads-section-is-built)
+Main entry point: `Launcher-Audion-Get.cmd`.
 
-Install, update, check, export and import sets of programs through the Windows
-package manager. Next to it: installers straight from the vendors, Windows
-images with the updates already inside, and package planning with an LLM.
+GUI entry point: `launcher_gui.cmd`.
 
-## Why It Exists
+Use `Launcher-Audion-Get-RU.cmd` for Russian UI text.
 
-A new machine means half a day of installing programs one by one. Reinstalling
-the system means the same again, and half the programs are remembered only later,
-when they turn out to be needed.
 
-Windows can install packages by itself, from a command. But the list of what to
-install still has to be kept in your head.
 
-This program keeps it for you: package sets live as lists, and a machine is
-brought up with one command. And whatever WinGet lacks, or hands out in the
-wrong version, it takes from the vendor directly.
+## Current Model
 
-## What It Does
 
-One window: the list of operations on the left, the log and a terminal on the
-right. Every operation is a form of switches and cards with a single run button
-at the bottom. Every caption and tooltip exists in English and Russian, the
-language flips with a button in the header. One paragraph per ability below,
-the details are behind the links into the user guide.
 
-### WinGet sets: the catalog by groups
+- The old `common` / `extended` split is retired.
 
-The catalog is 126 packages in twelve blocks: System, Developer tools, AI, PKMS
-and notes, Office and documents, Media (images, audio, video), Browsers, VPN and
-communication, Hardware and utilities, MSVC runtimes and the legacy MSVC
-2005–2013. A block is a grid of cards with checkboxes; the list has a filter by
-name and ID, `Select block` and `Clear block` buttons, and the profile row on
-top (Minimal, Dev, Media, Network) ticks a typical set in one press, after which
-any card can be changed. The ticks can be saved to YAML and loaded on another
-machine.
+- Bulk install and update flows use thematic lists.
 
-Every block is a plain list of IDs in the configuration. Your own program is
-added as a line, or with `Add ID to list` straight from the search window.
+- Every list run is controlled with `Y/N/Q`; `Enter` means `Yes`.
 
-### Install, update, pin, remove
+- The GUI replaces console confirmation with explicit checkbox groups and runs only selected WinGet IDs.
 
-`Install selected` scans the system first, shows only what is missing and then
-installs the ticked IDs without the Y/N prompts, with live progress in the log.
-`Update selected`, `Update available` and `Update all available` work from the
-`winget upgrade` list; `Preview updates` only shows it as "name, ID, current,
-available". `Pin selected` keeps `config\pins.txt`: ticked packages get a
-blocking pin and stop updating until you unpin them. `Remove selected IDs` shows
-what is installed by the same blocks; system and runtime IDs are protected by an
-extra checkbox. `Update WinGet` updates the manager itself.
+- Installed package selectors use `Program name | ID` so uninstall remains readable and exact.
 
-### Download without installing: installer or portable, fresh from the authors
+- GUI batch uninstall mirrors the thematic groups and adds `Custom` plus `Other installed`.
 
-Every card carries three small buttons, and that is half the point of the
-program. The green arrow downloads the installer into `output\Downloads`
-without running it. The crimson box downloads the zip or standalone build into
-`output\Portable`, the one that needs no installation; 29 programs of the
-catalog have it, Notepad++, Everything, OBS Studio, VLC, Telegram, FFmpeg,
-Node.js, MKVToolNix, Audacity, Sysinternals, Rufus, yt-dlp, SumatraPDF, Rclone
-among them, and it shows only where such a build really exists. The blue arrow
-opens the download page in the browser: the GitHub releases, the TechPowerUp
-page or the vendor's site, to pick a build yourself — another architecture, an
-older version.
+- Some uninstallers open UAC or their own confirmation UI; the GUI waits for the user's choice, verifies with `winget list --id <ID> -e`, and continues the batch.
 
-The files come straight from the authors, not from someone's mirror: for
-projects on GitHub the program reads the latest release and picks the right
-file among the assets itself, x64 and portable first; for the rest, the vendor's
-page. So the newest version lands in `output` even when the WinGet catalog lags:
-Tabby and RClone Manager are taken from the releases page before they reach the
-catalog, and the installer and the portable build are always the same version.
-More: [user guide](docs/USER_GUIDE_EN.md#downloading-without-installing).
+- The GUI has a draggable splitter between the command pane and the live terminal; the terminal width is remembered.
 
-### Search and work by ID
+- Launchers keep the terminal open with `pause`, then return to their own menu.
 
-For programs outside the catalog: `winget search` by name from the program's
-window, install and remove by a typed ID, add a found ID into one of the catalog
-blocks so that next time it is a card.
+- Cancelling FZF with `Esc` returns to the menu without an error.
 
-### AI Package Planner
+- Script folders live under `system_core\winget\`.
 
-Describe the task in words, "a video editor's workstation with Resolve and
-FFmpeg", and an LLM (OpenAI or Gemini) proposes packages. Every candidate is
-checked through `winget search`, only exact IDs make it into the plan, and only
-those you tick get installed. Keys and models live on the `Models` tab,
-instruction templates are pinned and reused. Installation goes the usual
-protected way; the LLM runs nothing. More:
-[user guide](docs/USER_GUIDE_EN.md#ai-package-planner).
+- The MSVC launcher only exposes the proven flows: install MSVC Legacy, install MSVC 2015+, update MSVC 2015+ x86/x64.
 
-### Portable browsers
 
-Portable browser archives into `output\Portable` (Ungoogled Chromium, Zen, Cent
-and others), the Google Chrome web installer without running it, a portable
-7-Zip. Separately: building and updating Google Chrome Portable on the Chrome++
-wrapper from the official standalone installer, with an architecture choice and
-packing into ZIP or 7Z.
 
-### Vendor Downloads
+## Structure
 
-A second source next to WinGet: the vendors' own catalogs with every version
-they ever published, not just the current one. Tabs at the top, platforms and
-products below, then version cards with dates; each can be downloaded or just
-linked. Downloads resume after a break, zips are unpacked, a lone root folder
-in the archive is dropped.
 
-- **Blackmagic Design**: DaVinci Resolve and Resolve Studio, Fusion, Blackmagic
-  RAW, Desktop Video, Camera Setup and the rest of the catalog, 45 products.
-  Studio comes without registration; the free Resolve only through the form,
-  which is in the window.
-- **Affinity**: the unified Affinity 3 (exe, msix, dmg) and Photo, Designer,
-  Publisher 2.
-- **NVIDIA**: Game Ready and Studio drivers by chip generation, `My cards` for
-  one driver across every card in the house; each version carries its NVENC
-  SDK, the compatible FFmpeg, the CUDA ceiling and ★ "golden" marks. Plus the
-  NVIDIA App, Broadcast, CUDA Toolkit and the three DLSS libraries.
-- **TechPowerUp**: the site's catalog with the whole version history of every
-  entry, by section. Drivers: AMD Radeon and Ryzen chipset, Intel graphics,
-  Wi-Fi, Bluetooth, Ethernet and NPU, Qualcomm Snapdragon X. Utilities: DDU,
-  NVCleanstall, NVIDIA Profile Inspector, ThrottleStop, DRAM Calculator, Samsung
-  Magician, Visual C++ Runtimes AIO, MemTest64. Monitoring: GPU-Z, CPU-Z,
-  AIDA64, ZenTimings, Real Temp. Benchmarks: 3DMark, PCMark 10, Cinebench,
-  FurMark, Prime95, Unigine, GravityMark, Linpack Xtreme, ATTO. Video BIOS:
-  NVFlash, AMDVBFlash. The file comes from TechPowerUp's own signed link. A
-  version is one card with two arrows, like the WinGet cards: the green one
-  fetches the installer, the crimson archive icon fetches the portable build of
-  the same version, which runs without installation; the Portable button turns
-  the whole list to portable files. Some of these utilities are in the WinGet
-  catalog too: there they install into the system, here any version comes as a
-  file.
-- **Windows through UUP dump**: any Windows 11 or 10 build from Microsoft's
-  catalog with the cumulative update inside, the ISO built on the spot. Image
-  kind Business, Consumer or Pro only; a Store app set (Minimal, Work,
-  Everything) and the ballast group buttons; without the Edge browser, while
-  the Edge WebView2 runtime is untouched and stays for apps; this machine's
-  drivers embed into the image through `input`. The build runs in `UUP` at the root of the program's drive, the image
-  lands in the destination folder.
 
-More: [user guide](docs/USER_GUIDE_EN.md#vendor-downloads), the composition tables
-below in the [technical reference](#windows-install-sets).
+```text
 
-### Visual C++ runtimes
+Audion-Get\
 
-The MSVC 2015+ block in the catalog, the legacy 2005–2013 as a separate block,
-and two All-in-One bundles (TechPowerUp and abbodi1406) that install every
-runtime in one pass, including 2012, which WinGet does not have at all.
-`Check MSVC runtimes` shows what is installed and what is available. The
-project's classic CMD scripts are available as buttons. More:
-[user guide](docs/USER_GUIDE_EN.md#visual-c-runtime-bundles-msvc).
+  Launcher-Audion-Get.cmd
 
-### Import and export
+  launcher_gui.cmd
 
-`winget export` to JSON from a configured machine and `winget import` on a new
-one, with the checkboxes "ignore versions", "do not upgrade installed" and
-"ignore unavailable".
+  Launcher-Audion-Get-RU.cmd
 
-### Service procedures
+  cli\Launcher-Audion-MSVC-Legacy.cmd
 
-Buttons without a form: the Windows licence state through slmgr, Health /
-Doctor, the MSVC runtime check, checking that IDs exist in the source,
-validating the configuration lists, clearing `input`/`output` and clearing the
-logs.
+  cli\Launcher-Audion-MSVC-Legacy-RU.cmd
 
-### The workbench
+  cli\Launcher-Audion-Tools.cmd
 
-At the top the `Source` and `Target` paths with history and pinning, buttons to
-add files or a folder, a file list, reset and delete of the I/O contents. On the
-right the operation log with the Logs, Report and Config buttons and a terminal:
-PowerShell or cmd, command history, pinned commands, a working folder with
-folder and file pickers. Dangerous operations ask for confirmation before they
-run. Theme and language switch in the header. Every control and every tooltip
-is described in the
-[guide's reference](docs/USER_GUIDE_EN.md#reference-every-window-every-control-every-tooltip).
+  cli\Launcher-Audion-Tools-RU.cmd
 
-## Principles
+  cli\Launcher-Audion-Check-Apps.cmd
 
-**A set is a list of names.** An ordinary text file where a package is added as a
-line. No proprietary format, no database of its own.
+  cli\Launcher-Audion-Check-Apps-RU.cmd
 
-**Export and import.** The list is taken from a configured machine and applied to
-a new one.
+  cli\Launcher-Audion-Install-Apps.cmd
 
-**Checking is separate from installing.** First you see what will be installed and
-what is missing from the source — then it installs.
+  cli\Launcher-Audion-Install-Apps-RU.cmd
 
-**Nothing happens silently.** Installing, removing and anything that changes the
-system asks for confirmation; downloads and checks run at once.
+  cli\Launcher-Audion-Update-Apps.cmd
 
-**Two languages everywhere.** Every caption, tooltip and message has an English
-and a Russian version.
+  cli\Launcher-Audion-Update-Apps-RU.cmd
 
-## Next
+  config\
 
-* [User Guide](Docs/USER_GUIDE_EN.md) — step by step, plus the reference of every control.
+    system.txt
 
----
+    dev.txt
 
-## Technical Reference
+    ai.txt
 
-### Running
+    pkms.txt
 
-```cmd
-Launcher-Audion-Get.cmd      command line
-Launcher-Audion-Get-RU.cmd   the same in Russian
-launcher_gui.cmd             windowed
+    office.txt
+
+    media.txt
+
+    browsers-vpn.txt
+
+    hardware-benchmarks.txt
+
+    custom.txt
+
+    pins.txt
+
+  system_core\
+
+    fzf.exe
+
+    powershell\
+
+    winget\
+
+      scripts\
+
+      package_apps\
+
+      install_apps\
+
+      check_apps\
+
+      export_import\
+
+      msvc_legacy_updates\
+
+  install\
+
+  licenses\
+
+  logs\
+
+  release\
+
+  ._runtime\
+
 ```
 
-### Sets
 
-Package lists live in the configuration as separate files — one per machine
-purpose. Windows, fields and tooltips are described in
-`config\tool_manifest.yaml`; the control reference in the user guide is built
-from it by `tools\docs\build_control_reference.py`.
 
-### How the downloads section is built
+## Thematic Lists
 
-A provider describes one catalog
-(`system_core\vendors\`: Blackmagic Design, Affinity, NVIDIA and Windows through UUP dump; the NVIDIA
-driver marks sit in `config\vendor_nvidia.yaml`), the shared
-`vendor_service` fetches the chosen builds with resume into a folder per build
-and unpacks zips, and the `Vendor Downloads` screen is one field group in
-`tool_manifest.yaml`: vendor tabs plus fields shown by `visible_when`.
-A new vendor is one provider file, its platform and product toggles in the
-manifest, and a line in `vendor_service.VENDOR_FIELDS`.
 
-#### Windows install sets
 
-Install sets, the buttons of the `App set` row; each one just fills the card list, which can then be edited by hand or with the group buttons:
+- `config\system.txt` — runtimes, terminals, archivers.
 
-| Set | Packages | What gets installed | Who it is for |
-|---|---|---|---|
-| `Minimal` | 4 | system only: Store, Store purchases, Windows Security, App Installer | an image for an application server or a kiosk that needs nothing from the Store while WinGet and Store updates keep working |
-| `Work` | 27 | the system packages, thirteen tools (Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate) and ten codecs | a work machine without entertainment and promotion; the default, and the reference image was built with it |
-| `Everything` | 59 | the whole catalog as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
+- `config\dev.txt` — developer tools.
 
-The `Image kind` row above is about editions, not apps: `Business` is Pro plus Enterprise, Education, Pro Education and Pro for Workstations, `Consumer` is Home and Pro plus Education, Pro Education and Pro for Workstations, `Pro only` is one edition. Sets and image kinds combine freely.
+- `config\ai.txt` — AI tools.
 
-#### Windows app groups
+- `config\pkms.txt` — PKMS, notes, knowledge bases.
 
-The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 59 packages in total plus Edge, nothing sits outside a group.
+- `config\office.txt` — office, document, and reading tools.
 
-| Group | Count | Inside | By default |
-|---|---|---|---|
-| System | 4 | Microsoft Store, Store purchases, Windows Security, App Installer (WinGet) | in the image, `Work` set |
-| Tools | 13 | Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate | in the image, `Work` set |
-| Codecs | 10 | Web Media, RAW images, HEIF, HEVC, VP9, WebP, AV1, MPEG-2, AVC encoder, Dolby Audio | in the image, `Work` set |
-| Media stack | 4 | Media Player, Films & TV, Photos, Clipchamp | off |
-| Edge | 1 | the Edge browser only; the Edge WebView2 runtime is untouched and stays, apps run and are built on it | off |
-| Xbox | 6 | Xbox app, Xbox Game Bar, Xbox Game overlay, Xbox speech overlay, Xbox identity, Xbox TCUI | off |
-| Teams and mail | 6 | Teams, Outlook (new), Mail and Calendar, People, Office hub (M365), Family | off |
-| Bing and widgets | 6 | Bing Search, News, Widgets (web experience), Widgets runtime, Start experiences, Cortana | off |
-| Promo and helpers | 8 | Solitaire, Tips, Get Help, Feedback Hub, Quick Assist, Dev Home, PC Manager, App compatibility enhancements | off |
-| Small tools | 2 | Maps, Cross Device | off |
+- `config\media.txt` — images, audio, and video; blank lines split sections.
 
-The `Minimal` set is the four system packages without the tools and the codecs, `Everything` turns every group on at once. OneDrive and Copilot are not in the catalog: they are not Store packages and are removed after installation.
+- `config\browsers-vpn.txt` — browsers, VPN, network and communication clients.
+
+- `config\hardware-benchmarks.txt` — hardware diagnostics, benchmarks, utility tools.
+
+- `config\custom.txt` — user-entered IDs installed through GUI "Install by ID" or added manually.
+
+- `config\installed_uninstall_aliases.yaml` — installed-only ARP/MSIX/runtime ID patterns used to group uninstall and grouped update checkboxes.
+
+- `config\pins.txt` — packages for `winget pin`.
+
+
+
+The PKMS order is intentional: `Notion.Notion`, `Notion.NotionCalendar`, then Obsidian, Joplin, Evernote, and the remaining PKMS tools. Office/document tools such as LibreOffice, Acrobat Reader, and Calibre live in the separate Office group.
+
+
+
+## GUI
+
+
+
+`launcher_gui.cmd` starts the NiceGUI/pywebview shell with checkbox-driven package operations, a live terminal, and a manual command bar.
+
+
+
+- Install scans installed IDs and shows only missing project packages; checked IDs are installed without reinstalling what is already present.
+
+- Update has four paths: preview the current `winget upgrade` list as `Name | ID | current -> available`, update everything returned by `winget upgrade`, update visible available updates by project group, or update checked items from the flat available-update list. Groups with no available updates show a clear no-updates message.
+
+- Checkbox blocks include a name/ID filter and select/clear buttons. With a filter active, select/clear acts on the visible matches only.
+
+- `Install / uninstall by ID` supports search, adding exact search-found IDs to a selected list/GUI group, typed-ID install/uninstall, and grouped batch uninstall.
+
+- The System group also carries `.NET Framework 3.5`, which is a Windows optional feature rather than a WinGet package: Audion Get Tools enables it with DISM (payload comes from Windows Update) and hides it once it is enabled.
+
+- The Portable window opens with `Google Chrome (web installer)`: it downloads the ~12 MB Google web installer for the current system language and architecture and installs it silently.
+
+- Every package checkbox has small buttons inside its card: the green down arrow downloads the WinGet installer into `output\Downloads` without installing anything, and the blue arrow opens the page where builds can be picked by hand - GitHub `releases/latest`, TechPowerUp, or the vendor download page.
+
+- The crimson archive button downloads the zip or standalone build - `winget download --installer-type zip|portable` - into `output\Portable\<product name>`. It is rendered only for the ids in `PACKAGE_ARCHIVE_TYPES`: every package was probed with `winget show --installer-type`, and types such as `inno (zip)` were left out because that is an installer inside an archive.
+
+- A second table, `PACKAGE_GITHUB_BUILDS`, covers the case where the vendor ships a build the WinGet manifest does not carry, so `winget download` can never produce it. The value is a repository and two regular expressions, one for the installer and one for the archive (`Eugeny/tabby` → `tabby-[\d.]+-setup-x64\.exe` and `tabby-[\d.]+-portable-x64\.zip`). Both buttons draw from one release, so they cannot hand out different versions - a release lands on GitHub before the manifest catches up. The second entry is `Zarestia-Dev/rclone-manager`: the WinGet manifest carries the msi alone and trails the release, and the portable build never reaches it at all. This vendor also spells the architecture differently in the two names - `x64` in the installer, `x86_64` in the portable archive - so each button has its own expression rather than one shared pattern.
+
+- Fallback for everything else: when `winget download` produces nothing and the package page points at GitHub, the file is looked up in that repository's latest release. `pick_windows_asset` chooses it - other systems and architectures, checksums, debug symbols and `.blockmap` files are refused, an explicit x64 build wins, and for archives so does the one that says `portable`. When nothing fits it returns empty, and the message carries both failures rather than a guess.
+
+- The GitHub API allows 60 anonymous calls an hour and runs out quietly. So the release file list is read through the API first and, on any error from it, off the `releases/latest` and `releases/expanded_assets/<tag>` pages, where there is no quota at all. The download link comes from the same answer, so nothing is asked of GitHub between finding the file and fetching it.
+
+- Download layout: installers land flat in `output\Downloads` (including `ChromeSetup.exe`), archives and standalone builds in `output\Portable\<name>`, installation bundles in `output\Install\<name>`. The folder name comes from the checkbox caption and keeps the vendor's spelling (`MPC-BE`, `Notepad++`, `MSVC All-in-One (TechPowerUp)`); no WinGet id appears in a path. Clicking them never toggles the checkbox, and the page button keeps working while a batch is running.
+
+- Why both: WinGet installs whatever the manifest ships, silently. Cross-platform and portable builds, installer options such as the PowerShell Explorer context-menu entries, and Microsoft Update self-update live on the vendor page. `Microsoft.PowerShell` is the clearest case - WinGet has an MSIX bundle only, so the MSI with those options can only come from GitHub.
+
+- `Classic scripts` offers both all-in-one VC++ bundles - TechPowerUp and `abbodi1406/vcredist` - each with a download button and a blue arrow to its latest-release page. Both carry VC++ 2012, which has no WinGet package. Audion Get Tools downloads and unpacks them; running `install_all.bat` or `VisualCppRedist_AIO.exe /ai` stays a manual, elevated step.
+
+- MSVC is two install groups: `MSVC runtime (2015+)`, the only one a modern system needs, and `Advanced: MSVC 2005-2013` for old software. Both hints point at the all-in-one bundles, which do the whole family in one pass and include 2012. Uninstall still lists every VC++ runtime in one block.
+
+- `Service procedures` has `Check MSVC runtimes`: real versions from the registry, the 2015+ family compared with WinGet, every Programs-and-Features entry listed, and 2012 marked as covered only by the all-in-one bundles.
+
+- `Classic scripts` can also install both bundles. Those actions ask for confirmation first, require Administrator rights, and write the runtime registry state before and after, because `install_all.bat` reports success whatever happens.
+
+- The Portable window pairs `Google Chrome (web installer)` with a download-only icon on the same row.
+
+- Parameter windows name their run button after the action - `INSTALL`, `UPDATE`, `UNINSTALL`, `SEARCH`, `PIN` - at a reserved width.
+
+- `AI Package Planner` is an optional child section for LLM-assisted package suggestions. It manages provider keys/models/prompts locally, validates suggestions with WinGet search, writes a reviewable plan, and lets the user run only selected exact validated IDs through the normal Audion package path.
+
+- In `AI Package Planner`, `AI task` is what to find or prepare, `Instruction template` is a saved AI behavior preset, and `AI planner instruction` is the rule set for how the AI should reason, validate WinGet IDs, and format the plan.
+
+- Grouped uninstall organizes installed packages by the same thematic blocks as install/update. User-entered IDs are shown under `Custom`; installed IDs outside the project lists are shown under `Other installed`.
+
+- Protected uninstall labels and confirmation guard App Installer, Terminal, PowerShell, MSVC/.NET/WindowsAppRuntime, VCLibs, WSL, Microsoft Edge, and similar shared dependencies.
+
+- ARP/MSIX/runtime aliases can be mapped into uninstall and grouped update views without adding those IDs to install lists.
+
+- Installed-package discovery loads asynchronously and uses a shared cache, so the GUI stays responsive while WinGet scans a large machine. The grouped uninstall view performs one serialized `winget list` scan and then filters that snapshot into thematic blocks.
+
+- Unknown IDs installed through GUI `Install by ID` are appended to `config\custom.txt`.
+
+- `Add ID to list` writes to the selected `config\*.txt` list and, for GUI-backed groups, adds the same ID to `config\tool_manifest.yaml` so it appears as a normal checkbox.
+
+- Batch uninstall does not stop on the first problematic ID; it continues through selected IDs and reports failures at the end.
+
+- UAC/vendor GUI uninstallers are treated as user steps: the GUI logs `[WAIT]`, waits up to the configured timeout, and polls `winget list --id <ID> -e`.
+
+- Maintenance actions live under the `Service procedures` root child section. It includes `Clear logs`, which cleans old files from `logs\` while preserving the current operation log; `report\` is left untouched.
+
+- `Health / Doctor` checks WinGet availability, sources, installed/update counts, and the GUI doctor from inside the app.
+
+- `Health / Doctor` also reports the WinGet MCP server (`winget mcp`, `WindowsPackageManagerMCPServer.exe`). Audion Get Tools does not run packages through it: its two tools, `find-winget-packages` and `install-winget-package`, are a subset of the exact-ID paths and would lose live progress, logs, reports, and the protected-ID check.
+
+- `Check installed IDs` is kept there as a diagnostic action; install/update flows already scan missing and updatable packages for normal use.
+
+- Package batch actions write `action_summary` JSON/Markdown reports with selected packages, statuses, failures, skipped updates, and uninstall wait notes.
+
+- The terminal panel preserves ANSI color, UTF-8/Cyrillic output, and can be resized with the splitter.
+
+- WinGet runs under a Windows pseudo console (ConPTY), so the log shows live download bars and colors just like a normal PowerShell window. Set `AUDION_GET_CONSOLE_STREAM=0` to fall back to plain pipes.
+
+- Download progress is one live line with a spinner that is refreshed in place, so a 300 MB download no longer fills the log with hundreds of rows. The file log keeps a coarse trail instead, every 1, 5, or 10 seconds depending on whether the download is above 10, 50, or 100 MiB.
+
+- The update scan reads every installed package, including the ones whose installed version WinGet cannot read (most browsers), and the update table is parsed by column position so a localized Windows lists the same updates as an English one.
+
+- Updating `Microsoft.AppInstaller` replaces `winget` itself: after that package the GUI waits for the execution alias to come back and falls back to the real package path under `Program Files\WindowsApps` instead of failing with `WinError 1920`.
+
+- App Installer is therefore not a package checkbox. `Update WinGet` sits at the top of the update windows, runs alone, and warns that Audion Get Tools has to be restarted afterwards.
+
+- Command windows group their actions in titled panels, and no field, filter, or select is left standing on the bare background.
+
+- A command window never opens just to show more links: sections such as `Install / uninstall by ID` and `Import / export` lay their commands out in place, each as a panel with its own fields and a run button carrying the command name (`Search`, `Add ID to list`, `Install by ID`, `Uninstall by ID`). Only heavy checkbox windows still open separately. A field shown in several panels, such as the WinGet ID, keeps one value everywhere.
+
+- Splitter state is stored in the pywebview/browser profile. For a release-default reset, remove `._runtime\webview` or run the release cleanup that removes `._runtime`; do not delete `runtime\`, which contains the bundled Python payload. The release terminal default is `500px`; the built-in window default is `1600x900`.
+
+
+
+## Launchers
+
+
+
+`Launcher-Audion-Get.cmd` is the main user entry point. It runs thematic install/update/pin flows and opens MSVC or Tools.
+
+
+
+`cli\Launcher-Audion-Tools.cmd` is the service launcher for export/import, individual checks, point install/update from all thematic lists, package removal from lists, and WinGet search.
+
+
+
+`cli\Launcher-Audion-MSVC-Legacy.cmd` is the MSVC launcher. Legacy 2005-2013 updates are intentionally disabled; only MSVC 2015+ x86/x64 is updated through `system_core\winget\install_apps\Update-Audion-MSVC-2015+.cmd`.
+
+
+
+Each launcher also has a Russian `-RU.cmd` variant. `Exit` / `Q` closes the current launcher; finishing a child process returns to that launcher's menu.
+
+
+
+## List Run Policy
+
+
+
+Bulk operations go through:
+
+
+
+```text
+
+system_core\winget\scripts\Launch-WinGet-Lists.cmd
+
+system_core\winget\scripts\Run-WinGet-From-Lists.ps1
+
+```
+
+
+
+Confirmation mode:
+
+
+
+```text
+
+Enter/Y = install or update
+
+N       = skip package
+
+Q       = quit current list
+
+```
+
+
+
+Logs are written to `logs\`; launcher menu temp files are written to `._runtime\`. Russian launchers use separate `_ru` temp files so they do not collide with English launchers.
+
+
+
+## Canonical Workbench labels
+
+
+
+The top I/O panel uses the same vocabulary across Audion projects:
+
+`Source`, `Add file...`, `Target`, `Reset`, `Delete`, `List`.
+
+
+
+- `Source` and `Target` open the current routes.
+
+- `Add file...` selects one file as the current Source without copying it.
+
+- `Reset` drops unpinned history and restores project `input/output`; it does
+
+  not delete files and keeps pinned paths.
+
+- `Delete` clears the current Source and Target after one confirmation.
+
+- `List` writes either the selected file or the current Source folder contents.
+
+
+
+The address-row delete button clears that route. An external Source requires a
+
+separate confirmation; filesystem and project roots are protected.
+
+
+
+## Package Selection Safety
+
+
+
+Search results are candidates, not approval to install. Review the exact WinGet ID, publisher, source, version, architecture, scope, and command action before execution. Prefer exact IDs over display-name guesses and keep thematic lists readable enough for manual review.
+
+
+
+AI Package Planner may suggest candidates and group known Audion packages, but the final list remains an explicit operator decision. Planner output must pass exact-ID validation before install, update, or uninstall.
+
+
+
+## Repeatable Runs
+
+
+
+Use the generated list or plan as the record of intent. Keep execution logs and reports for failures, skipped packages, source errors, and reboot requirements. A new search may return different versions or sources, so do not treat an old candidate list as a permanent lock file.
+
+
+

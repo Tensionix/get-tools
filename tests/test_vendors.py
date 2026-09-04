@@ -748,6 +748,44 @@ class UupDumpTests(unittest.TestCase):
         assert again is not None
         self.assertEqual(provider.resolve_link(again), "https://uupdump.net/download.php?id=aaa&pack=en-us&edition=core;professional")
 
+    def test_driver_service_gets_a_second_try_after_a_timeout(self) -> None:
+        from system_core.vendors import nvidia as nvidia_module
+        from unittest import mock
+
+        class Response:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return b'{"IDS": []}'
+
+        calls: list[int] = []
+
+        def flaky(request, timeout=0):
+            calls.append(timeout)
+            if len(calls) == 1:
+                raise TimeoutError("The read operation timed out")
+            return Response()
+
+        with mock.patch.object(nvidia_module, "urlopen", flaky):
+            self.assertEqual(nvidia_module._default_http("GET", "https://example.test/x", None, {}), (200, '{"IDS": []}'))
+        self.assertEqual(len(calls), 2)
+        calls.clear()
+
+        def dead(request, timeout=0):
+            calls.append(timeout)
+            raise TimeoutError("The read operation timed out")
+
+        with mock.patch.object(nvidia_module, "urlopen", dead):
+            with self.assertRaisesRegex(RuntimeError, "twice"):
+                nvidia_module._default_http("GET", "https://example.test/x", None, {})
+        self.assertEqual(len(calls), 2)
+
     def test_my_generations_round_trip_through_the_marks_file(self) -> None:
         from system_core.vendors.nvidia import DriverMarks
         with tempfile.TemporaryDirectory() as temp:

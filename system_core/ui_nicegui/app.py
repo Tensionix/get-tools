@@ -4410,10 +4410,12 @@ def set_chrome_download_url(url: str) -> None:
 
 def chrome_source_badge(label: str, url: str) -> None:
     current = str(state.setdefault("field_values", {}).get("chrome_download_url") or PORTABLE_CHROME_STANDALONE_URL)
-    classes = "audion-action audion-portable-source-badge rounded-full"
+    classes = "audion-action audion-portable-source-badge"
     if current == url:
         classes += " audion-portable-source-badge-active"
-    button = ui.button(label, on_click=lambda _event=None, item=url: set_chrome_download_url(item)).props("dense flat no-wrap no-caps").classes(classes)
+    # color=None keeps Quasar's text-primary class off the button: that class paints the
+    # caption blue past every theme rule, and these switches are grey like the rest.
+    button = ui.button(label, color=None, on_click=lambda _event=None, item=url: set_chrome_download_url(item)).props("dense flat no-wrap no-caps").classes(classes)
     button.tooltip(url)
 
 
