@@ -23,7 +23,7 @@ An **Audion** tool, published by [Tensionix](https://github.com/Tensionix).
 <!-- /audion:release -->
 
 
-[Русский](Docs/README_RU.md) · [User Guide](Docs/USER_GUIDE_EN.md)
+[Русский](docs/README_RU.md) · [User Guide](docs/USER_GUIDE_EN.md)
 
 **Contents**
 
@@ -116,7 +116,7 @@ file among the assets itself, x64 and portable first; for the rest, the vendor's
 page. So the newest version lands in `output` even when the WinGet catalog lags:
 Tabby and RClone Manager are taken from the releases page before they reach the
 catalog, and the installer and the portable build are always the same version.
-More: [user guide](USER_GUIDE_EN.md#downloading-without-installing).
+More: [user guide](docs/USER_GUIDE_EN.md#downloading-without-installing).
 
 ### Search and work by ID
 
@@ -132,7 +132,7 @@ checked through `winget search`, only exact IDs make it into the plan, and only
 those you tick get installed. Keys and models live on the `Models` tab,
 instruction templates are pinned and reused. Installation goes the usual
 protected way; the LLM runs nothing. More:
-[user guide](USER_GUIDE_EN.md#ai-package-planner).
+[user guide](docs/USER_GUIDE_EN.md#ai-package-planner).
 
 ### Portable browsers
 
@@ -182,7 +182,7 @@ in the archive is dropped.
   drivers embed into the image through `input`. The build runs in `UUP` at the root of the program's drive, the image
   lands in the destination folder.
 
-More: [user guide](USER_GUIDE_EN.md#vendor-downloads), the composition tables
+More: [user guide](docs/USER_GUIDE_EN.md#vendor-downloads), the composition tables
 below in the [technical reference](#windows-install-sets).
 
 ### Visual C++ runtimes
@@ -192,7 +192,7 @@ and two All-in-One bundles (TechPowerUp and abbodi1406) that install every
 runtime in one pass, including 2012, which WinGet does not have at all.
 `Check MSVC runtimes` shows what is installed and what is available. The
 project's classic CMD scripts are available as buttons. More:
-[user guide](USER_GUIDE_EN.md#visual-c-runtime-bundles-msvc).
+[user guide](docs/USER_GUIDE_EN.md#visual-c-runtime-bundles-msvc).
 
 ### Import and export
 
@@ -216,7 +216,7 @@ PowerShell or cmd, command history, pinned commands, a working folder with
 folder and file pickers. Dangerous operations ask for confirmation before they
 run. Theme and language switch in the header. Every control and every tooltip
 is described in the
-[guide's reference](USER_GUIDE_EN.md#reference-every-window-every-control-every-tooltip).
+[guide's reference](docs/USER_GUIDE_EN.md#reference-every-window-every-control-every-tooltip).
 
 ## Principles
 
@@ -237,7 +237,7 @@ and a Russian version.
 
 ## Next
 
-* [User Guide](Docs/USER_GUIDE_EN.md) — step by step, plus the reference of every control.
+* [User Guide](docs/USER_GUIDE_EN.md) — step by step, plus the reference of every control.
 
 ---
 
