@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import subprocess
 from pathlib import Path
 import io
 import json
@@ -654,11 +655,13 @@ class UupDumpTests(unittest.TestCase):
             options = vendor_service.machine_driver_options(Path("."), {})
         finally:
             vendor_service.list_machine_drivers = original  # type: ignore[assignment]
-        # network classes first; of two ibtusb.inf versions only the newest is ticked; firmware last and unticked
-        self.assertEqual([o["value"] for o in options], ["oem22.inf", "oem90.inf", "oem74.inf", "oem41.inf"])
-        self.assertEqual([o["default"] for o in options], [False, True, True, False])
-        self.assertEqual(options[2]["label_ru"], "Сеть: netwtw6e.inf · Intel 24.40.0.4")
-        self.assertEqual(options[3]["label"], "Firmware: 5b10w13975.inf · Lenovo Ltd. 12/26/2022 265.0.0.2")
+        # cards under a header per class, network classes first; of two ibtusb.inf versions only the newest is ticked; firmware last and unticked
+        self.assertEqual([o["value"] for o in options], ["", "oem74.inf", "", "oem22.inf", "oem90.inf", "", "oem41.inf"])
+        self.assertEqual([o["label_ru"] for o in options if not o["value"]], ["Сеть (1)", "Bluetooth (2)", "Прошивка (1)"])
+        self.assertTrue(all(o.get("header") for o in options if not o["value"]))
+        self.assertEqual([o["default"] for o in options if o["value"]], [True, False, True, False])
+        self.assertEqual(options[1]["label_ru"], "netwtw6e.inf · Intel 24.40.0.4")
+        self.assertEqual(options[6]["label"], "5b10w13975.inf · Lenovo Ltd. 12/26/2022 265.0.0.2")
 
     def test_drivers_folder_is_copied_into_the_build_and_the_switch_is_set(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -685,6 +688,34 @@ class UupDumpTests(unittest.TestCase):
             (empty / "setup.exe").write_bytes(b"MZ")
             with self.assertRaisesRegex(RuntimeError, "No .inf"):
                 vendor_service.apply_converter_drivers(build, empty)
+            # once the ticks are exported, an empty or missing input is fine
+            self.assertEqual(vendor_service.apply_converter_drivers(build, empty, required=False), 0)
+            self.assertEqual(vendor_service.apply_converter_drivers(build, root / "nowhere", required=False), 0)
+            # the ticked cards are exported straight into the build, one folder per package
+            calls: list[list[str]] = []
+
+            def fake_pnputil(command: list[str]):
+                calls.append(command)
+                Path(command[-1], "exported.inf").write_text("[Version]\n", encoding="utf-8")
+                return subprocess.CompletedProcess(command, 0, "", "")
+
+            context = RecordingContext(root)
+            self.assertEqual(vendor_service.export_driver_packages(context, ["oem122.inf", "oem127.inf"], build / "Drivers" / "OS", runner=fake_pnputil), 2)
+            self.assertEqual([c[1:3] for c in calls], [["/export-driver", "oem122.inf"], ["/export-driver", "oem127.inf"]])
+            self.assertTrue((build / "Drivers" / "OS" / "oem122_oem122" / "exported.inf").exists())
+            # packages under input show up as ticked cards under their own header, and only the ticked ones are copied
+            cards = vendor_service.input_driver_options(source)
+            self.assertEqual(cards[0]["label_ru"], "Пакеты из input (2)")
+            self.assertTrue(cards[0]["header"])
+            self.assertEqual([c["value"] for c in cards[1:]], ["input:Drivers/ibtusb_oem122", "input:Дрова/netwtw6e_oem127"])
+            self.assertTrue(all(c["default"] for c in cards[1:]))
+            self.assertEqual(cards[2]["label"], "netwtw6e_oem127 · netwtw6e.inf")
+            self.assertEqual(vendor_service.split_driver_ticks(["oem1.inf", "input:Drivers/ibtusb_oem122"]), (["oem1.inf"], ["Drivers/ibtusb_oem122"]))
+            build2 = root / "UUP" / "Win11_two"
+            build2.mkdir(parents=True)
+            self.assertEqual(vendor_service.embed_input_packages(build2, source, ["Drivers/ibtusb_oem122", "gone/away"]), 1)
+            self.assertTrue((build2 / "Drivers" / "OS" / "ibtusb_oem122" / "ibtusb.inf").exists())
+            self.assertFalse((build2 / "Drivers" / "OS" / "netwtw6e_oem127").exists())
             config = build / "ConvertConfig.ini"
             config.write_bytes(b"[convert-UUP]\r\nAutoExit     =0\r\nAddDrivers   =0\r\nDrv_Source   =\\Drivers\r\n")
             self.assertTrue(vendor_service.enable_converter_autoexit(build, add_drivers=True))
@@ -735,6 +766,11 @@ class UupDumpTests(unittest.TestCase):
             self.assertIn("### header", text)
             self.assertIn(b"CustomList   =1", (folder / "ConvertConfig.ini").read_bytes())
             self.assertEqual(vendor_service.apply_converter_apps(folder, "none", []), [])
+            # Edge is a card of the list, not a Store family: it drives SkipEdge and never reaches CustomAppsList
+            self.assertFalse(vendor_service.converter_skips_edge("stock", []))
+            self.assertTrue(vendor_service.converter_skips_edge("none", ["Microsoft.Edge"]))
+            self.assertTrue(vendor_service.converter_skips_edge("custom", ["Microsoft.WindowsStore_8wekyb3d8bbwe"]))
+            self.assertFalse(vendor_service.converter_skips_edge("custom", ["microsoft.edge", "Microsoft.WindowsStore_8wekyb3d8bbwe"]))
             config = (folder / "ConvertConfig.ini").read_bytes()
             self.assertIn(b"SkipApps     =1", config)
             self.assertIn(b"CustomList   =0", config)
@@ -801,6 +837,82 @@ class UupDumpTests(unittest.TestCase):
             self.assertTrue(DriverMarks.save_my_generations(marks, []))
             self.assertEqual(DriverMarks.load(marks).mine, ())
             self.assertIn("my_generations: []", marks.read_text(encoding="utf-8"))
+
+    def test_download_only_script_and_hotpatch_swap(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "Win11_25H2_26200.9448_x64_ru-ru_pro"
+            folder.mkdir()
+            (folder / "uup_download_windows.cmd").write_bytes(b"@echo off\r\necho downloading\r\nif EXIST convert-UUP.cmd goto :START_CONVERT\r\npause\r\n:START_CONVERT\r\ncall convert-UUP.cmd\r\n")
+            script = vendor_service.download_only_script(folder)
+            text = script.read_bytes().decode("utf-8")
+            self.assertEqual(script.name, "uup_download_only.cmd")
+            self.assertIn("goto :EOF\r\npause", text)
+            self.assertNotIn("goto :START_CONVERT", text)
+            self.assertEqual(vendor_service.hotpatch_members(["SSU-26100.9441-x64.cab", "Windows11.0-KB5129241-Hotpatch-x64.cab", "Windows11.0-KB5129241-Hotpatch-x64-baseless.psf", "Windows11.0-KB5124008-x64.wim"]), ["Windows11.0-KB5129241-Hotpatch-x64.cab", "Windows11.0-KB5129241-Hotpatch-x64-baseless.psf"])
+            # originals and stripped copies swap places around the download step
+            uups = folder / "UUPs"
+            uups.mkdir()
+            (uups / "Windows11.0-KB5129241-x64.msu").write_bytes(b"original")
+            (uups / "Windows11.0-KB5043080-x64.msu").write_bytes(b"plain")
+            (uups / "Windows11.0-KB5129241-x64.1.msu").write_bytes(b"aria2 duplicate")
+            context = RecordingContext(Path(temp))
+            stripped_files: list[str] = []
+
+            def fake_strip(ctx, msu: Path, wimlib: Path) -> bool:
+                if "KB5129241" in msu.name:
+                    msu.write_bytes(b"stripped")
+                    stripped_files.append(msu.name)
+                    return True
+                return False
+
+            self.assertEqual(vendor_service.prepare_msus_for_converter(context, folder, stripper=fake_strip), 1)
+            self.assertEqual(stripped_files, ["Windows11.0-KB5129241-x64.msu"])
+            self.assertFalse((uups / "Windows11.0-KB5129241-x64.1.msu").exists())
+            self.assertEqual((uups / "Windows11.0-KB5129241-x64.msu").read_bytes(), b"stripped")
+            self.assertEqual((uups / "_hotpatch_original" / "Windows11.0-KB5129241-x64.msu").read_bytes(), b"original")
+            self.assertFalse((uups / "_hotpatch_original" / "Windows11.0-KB5043080-x64.msu").exists())
+            # before the next download the original is back and the stripped copy waits aside
+            self.assertEqual(vendor_service.restore_original_msus(folder), 1)
+            self.assertEqual((uups / "Windows11.0-KB5129241-x64.msu").read_bytes(), b"original")
+            self.assertEqual((uups / "_hotpatch_stripped" / "Windows11.0-KB5129241-x64.msu").read_bytes(), b"stripped")
+            # after that download the swap is a rename, the stripper is not called again
+            stripped_files.clear()
+            self.assertEqual(vendor_service.prepare_msus_for_converter(context, folder, stripper=fake_strip), 1)
+            self.assertEqual(stripped_files, [])
+            self.assertEqual((uups / "Windows11.0-KB5129241-x64.msu").read_bytes(), b"stripped")
+            self.assertEqual((uups / "_hotpatch_original" / "Windows11.0-KB5129241-x64.msu").read_bytes(), b"original")
+
+    def test_iso_build_is_verified_against_the_request(self) -> None:
+        import struct
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "Win11_25H2_26200.9448_x64_ru-ru_pro"
+            (folder / "ISOFOLDER" / "sources").mkdir(parents=True)
+            xml = '<WIM><IMAGE INDEX="1"><WINDOWS><BUILD>26100</BUILD><SPBUILD>1742</SPBUILD></WINDOWS></IMAGE></WIM>'.encode("utf-16")
+            header = bytearray(208)
+            header[:8] = b"MSWIM\x00\x00\x00"
+            struct.pack_into("<I", header, 0x2C, 1)
+            struct.pack_into("<Q", header, 0x48, len(xml) | (2 << 56))
+            struct.pack_into("<q", header, 0x50, 208)
+            wim = folder / "ISOFOLDER" / "sources" / "install.wim"
+            wim.write_bytes(bytes(header) + xml)
+            self.assertEqual(vendor_service.wim_image_builds(wim), ["26100.1742"])
+            context = RecordingContext(Path(temp))
+            base = folder / "26100.1742.240906-0316.GE_RELEASE_SVC_PROD1_CLIENTPRO_OEMRET_X64FRE_RU-RU.ISO"
+            base.write_bytes(b"iso")
+            with self.assertRaisesRegex(RuntimeError, "26100.1742 instead of the requested 26200.9448"):
+                vendor_service.verify_iso_build(context, base, folder, "25H2 26200.9448")
+            # the same major build with a lower revision is the update without its hotpatch part: accepted
+            hotpatchless = folder / "26200.9445.260905-1224.25H2_GE_RELEASE_SVC_PROD1_CLIENTPRO_OEMRET_X64FRE_RU-RU.ISO"
+            hotpatchless.write_bytes(b"iso")
+            wim.write_bytes(bytes(header) + xml.replace(b"2\x006\x001\x000\x000", b"2\x006\x002\x000\x000").replace(b"1\x007\x004\x002", b"9\x004\x004\x005"))
+            vendor_service.verify_iso_build(context, hotpatchless, folder, "25H2 26200.9448")
+            # the right build passes, whatever the rest of the name says
+            good = folder / "26200.9448.260911-1500.25H2_GE_RELEASE_SVC_PROD3_CLIENTPRO_OEMRET_X64FRE_RU-RU.ISO"
+            good.write_bytes(b"iso")
+            wim.write_bytes(bytes(header) + xml.replace(b"2\x006\x001\x000\x000", b"2\x006\x002\x000\x000").replace(b"1\x007\x004\x002", b"9\x004\x004\x008"))
+            vendor_service.verify_iso_build(context, good, folder, "25H2 26200.9448")
+            # a request without a build number (nothing to compare) is left alone
+            vendor_service.verify_iso_build(context, base, folder, "")
 
     def test_adk_version_build_reads_the_kit_build(self) -> None:
         self.assertEqual(vendor_service.adk_version_build("10.1.22621.5337"), 22621)

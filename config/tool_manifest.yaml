@@ -1975,8 +1975,8 @@ operation_groups:
         type: "tabs"
         label: "Windows page"
         label_ru: "Страница Windows"
-        tooltip: "The Windows tab in three pages. Version: product, platform, edition, language, image kind and the build cards, the newest of each generation in gold. Apps: which Store apps go into the image. Drivers: this machine's drivers to export and embed. The options row on top applies to all three."
-        tooltip_ru: "Вкладка Windows в трёх страницах. Версия: продукт, платформа, редакция, язык, вид образа и карточки сборок, новейшая каждого поколения золотом. Приложения: какие Store-приложения попадут в образ. Драйверы: драйверы этой машины для экспорта и вшивки. Ряд опций сверху действует на все три."
+        tooltip: "The Windows tab in three pages. Version: product, platform, edition, language, image kind and the build cards, the newest of each generation in gold. Apps: which Store apps go into the image. Drivers: what to embed in the image, this machine's drivers and the packages under input. The options row on top applies to all three."
+        tooltip_ru: "Вкладка Windows в трёх страницах. Версия: продукт, платформа, редакция, язык, вид образа и карточки сборок, новейшая каждого поколения золотом. Приложения: какие Store-приложения попадут в образ. Драйверы: что вшить в образ, драйверы этой машины и пакеты из input. Ряд опций сверху действует на все три."
         default: "versions"
         span: "full"
         visible_when:
@@ -2520,8 +2520,8 @@ operation_groups:
         type: "radio"
         label: "Built-in apps"
         label_ru: "Встроенные приложения"
-        tooltip: "Which Store apps the image carries. 'As Microsoft' keeps the stock set. 'Chosen below' builds the image with the ticked apps only, the converter supports this since build 22563. 'None' adds no Store apps at all, not even the Store itself."
-        tooltip_ru: "Какие Store-приложения будут в образе. «Как у Microsoft» оставляет штатный набор. «Выбранные ниже» собирает образ только с отмеченными, конвертер умеет это с сборки 22563. «Никаких» не добавляет Store-приложений вовсе, даже сам Магазин."
+        tooltip: "Which Store apps the image carries. 'As Microsoft' keeps the stock set, Edge included. 'Chosen below' builds the image with the ticked apps only, the converter supports this since build 22563. 'None' adds no Store apps at all, not even the Store itself, and Edge with them. Edge is the first card of the list."
+        tooltip_ru: "Какие Store-приложения будут в образе. «Как у Microsoft» оставляет штатный набор вместе с Edge. «Выбранные ниже» собирает образ только с отмеченными, конвертер умеет это с сборки 22563; Edge в этом списке первая карточка. «Никаких» не добавляет Store-приложений вовсе, даже сам Магазин, и Edge тоже."
         default: "custom"
         span: "full"
         visible_when:
@@ -2542,8 +2542,8 @@ operation_groups:
         type: "profile_buttons"
         label: "App set"
         label_ru: "Набор приложений"
-        tooltip: "One press ticks a set below. Minimal: the four system packages, Store, Store purchases, Windows Security and App Installer. Work: those plus thirteen tools and ten codecs, 27 packages, the default and the set the reference image was built with. Everything: the whole catalog. Every card can be changed afterwards."
-        tooltip_ru: "Одно нажатие отмечает набор ниже. Минимум: четыре системных пакета, Магазин, Покупки Store, Безопасность Windows и установщик приложений. Работа: они же плюс тринадцать инструментов и десять кодеков, 27 пакетов, выбор по умолчанию, с ним собран эталонный образ. Всё: весь каталог. Любую карточку потом можно поправить."
+        tooltip: "One press ticks a set below. Minimal: the four system packages, Store, Store purchases, Windows Security and App Installer. Work: those plus thirteen tools and ten codecs, 27 packages, the default and the set the reference image was built with. Everything: the whole catalog with Edge, as Microsoft ships it. Every card can be changed afterwards."
+        tooltip_ru: "Одно нажатие отмечает набор ниже. Минимум: четыре системных пакета, Магазин, Покупки Store, Безопасность Windows и установщик приложений. Работа: они же плюс тринадцать инструментов и десять кодеков, 27 пакетов, выбор по умолчанию, с ним собран эталонный образ. Всё: весь каталог вместе с Edge, как у Microsoft. Любую карточку потом можно поправить."
         visible_when:
           vendor: "uupdump"
           uup_view: "apps"
@@ -2595,6 +2595,7 @@ operation_groups:
             label_ru: "Всё"
             values:
               uup_apps:
+                - "Microsoft.Edge"
                 - "Microsoft.WindowsStore_8wekyb3d8bbwe"
                 - "Microsoft.StorePurchaseApp_8wekyb3d8bbwe"
                 - "Microsoft.SecHealthUI_8wekyb3d8bbwe"
@@ -2680,9 +2681,10 @@ operation_groups:
           - id: "edge"
             label: "Edge (1)"
             label_ru: "Edge (1)"
-            tooltip: "The Edge browser, the converter's SkipEdge option in reverse. The Edge WebView2 runtime is untouched and stays in the system: it is a separate component, apps run and are built on it, from the new Outlook and Teams to third-party programs."
-            tooltip_ru: "Браузер Edge, опция конвертера SkipEdge наоборот. Среда Edge WebView2 не затрагивается и остаётся в системе: это отдельный компонент, на нём работают и собираются приложения, от новых Outlook и Teams до сторонних программ."
-            flag: "uup_skip_edge"
+            tooltip: "The Edge browser: the first card of the list, the converter's SkipEdge option in reverse. The Edge WebView2 runtime is untouched and stays in the system: it is a separate component, apps run and are built on it, from the new Outlook and Teams to third-party programs."
+            tooltip_ru: "Браузер Edge: первая карточка списка, опция конвертера SkipEdge наоборот. Среда Edge WebView2 не затрагивается и остаётся в системе: это отдельный компонент, на нём работают и собираются приложения, от новых Outlook и Teams до сторонних программ."
+            apps:
+              - "Microsoft.Edge"
           - id: "xbox"
             label: "Xbox (6)"
             label_ru: "Xbox (6)"
@@ -2782,6 +2784,7 @@ operation_groups:
           uup_view: "apps"
           uup_apps_mode: "custom"
         options:
+          - { value: "Microsoft.Edge", label: "Microsoft Edge (browser)", label_ru: "Microsoft Edge (браузер)" }
           - { value: "Microsoft.WindowsStore_8wekyb3d8bbwe", label: "Microsoft Store", label_ru: "Microsoft Store" }
           - { value: "Microsoft.StorePurchaseApp_8wekyb3d8bbwe", label: "Store purchases", label_ru: "Покупки Store" }
           - { value: "Microsoft.SecHealthUI_8wekyb3d8bbwe", label: "Windows Security", label_ru: "Безопасность Windows" }
@@ -2847,10 +2850,10 @@ operation_groups:
           vendor: "uupdump"
           uup_view: "drivers"
         type: "checkboxes"
-        label: "This machine's drivers: tick, press Export drivers, the packages land in output\\Drivers"
-        label_ru: "Драйверы этой машины: отметьте, нажмите «Экспорт драйверов», пакеты лягут в output\\Drivers"
-        tooltip: "Every third-party driver package of this machine (in-box Microsoft ones are not listed). Class, original inf name, provider and version on each card. The network classes are ticked when the list opens, only the newest version of each driver; 'Select block' and 'Clear block' take the whole list."
-        tooltip_ru: "Все сторонние пакеты драйверов этой машины (встроенные драйверы Microsoft не показываются). На карточке класс, исходное имя inf, поставщик и версия. Сетевые классы отмечены при открытии, только новейшая версия каждого драйвера; «Отметить блок» и «Снять блок» берут весь список."
+        label: "Drivers for the image: the ticked ones are embedded when the ISO is built; Export drivers writes them to output\\Drivers"
+        label_ru: "Драйверы в образ: отмеченные вшиваются при сборке ISO; «Экспорт драйверов» выгружает их в output\\Drivers"
+        tooltip: "Every tick goes into the image when the ISO is built: this machine's drivers are exported with pnputil /export-driver straight into the build's Drivers\\OS, and DISM embeds the packages into install.wim, so Windows Setup installs them with the system. This machine's third-party packages sit under a header per class (Network, Bluetooth, Chipset, Storage, Audio, Display...), the network classes ticked when the list opens, only the newest version of each driver; in-box Microsoft ones are not listed. Packages from elsewhere: put folders with .inf, .sys and .cat anywhere inside the input folder (the Source path at the top of the window) and press Refresh list: they appear on top under Packages under input, ticked. Only unpacked INF packages work, a vendor's .exe installer does not; the bitness must match the image (x64); unsigned drivers need test mode on the target machine. Storage and RAID drivers without which Setup cannot see the disk are not covered here. No tick: the image keeps Microsoft's in-box drivers only."
+        tooltip_ru: "Каждая отметка уходит в образ при сборке ISO: драйверы этой машины выгружаются через pnputil /export-driver прямо в Drivers\\OS сборки, DISM вшивает пакеты в install.wim, и установщик Windows ставит их вместе с системой. Сторонние пакеты этой машины разложены по классам с заголовками (Сеть, Bluetooth, Чипсет, Диски, Звук, Видео...), сетевые классы отмечены при открытии, только новейшая версия каждого драйвера; встроенные драйверы Microsoft не показываются. Пакеты откуда-то ещё: положите папки с .inf, .sys и .cat куда угодно внутрь входной папки (путь «Источник» вверху окна) и нажмите «Обновить список»: они появятся сверху под заголовком «Пакеты из input», отмеченные. Работают только распакованные INF-пакеты, exe-установщик вендора не годится; разрядность должна совпадать с образом (x64); неподписанные драйверы потребуют тестового режима на целевой машине. Драйверы дисков и RAID, без которых сам установщик не видит диск, сюда не входят. Без отметок образ остаётся со встроенными драйверами Microsoft."
         default: []
         min_selected: 1
         filter: true
@@ -2973,18 +2976,6 @@ operation_groups:
         tooltip_ru: "После распаковки архив только удваивает место на диске. Выключено оставляет оба."
         default: true
         span: "half"
-      - id: uup_skip_edge
-        hidden: true
-        section: "options"
-        type: "checkbox"
-        label: "Without Edge"
-        label_ru: "Без Edge"
-        tooltip: "Tell the converter to leave the Edge browser out of the image (its SkipEdge option). The Edge WebView2 runtime is untouched and stays in the system: it is a separate component, apps run and are built on it, from the new Outlook and Teams to third-party programs."
-        tooltip_ru: "Сказать конвертеру не класть браузер Edge в образ (его опция SkipEdge). Среда Edge WebView2 не затрагивается и остаётся в системе: это отдельный компонент, на нём работают и собираются приложения, от новых Outlook и Teams до сторонних программ."
-        default: true
-        span: "half"
-        visible_when:
-          vendor: "uupdump"
       - id: uup_run
         section: "options"
         type: "checkbox"
@@ -3008,17 +2999,6 @@ operation_groups:
         visible_when:
           vendor: "uupdump"
           uup_run: true
-      - id: uup_add_drivers
-        section: "options"
-        type: "checkbox"
-        label: "Embed drivers from input into the image"
-        label_ru: "Вшить драйверы из input в образ"
-        tooltip: "Step by step. 1) Get driver packages: open 'This machine's drivers' in the operations list, the network drivers are ticked already, tick more if you want, press Export: the packages go into output\\Drivers as folders with .inf, .sys and .cat; or copy such folders from anywhere. 2) Put them anywhere inside the input folder (the Source path at the top of the window): the exported Drivers folder as is, a folder named after the laptop, or the packages at the top, the program finds every .inf itself. 3) Tick this box and build the ISO: each package is copied into the build's Drivers\\OS and DISM embeds them into install.wim, so Windows Setup installs them with the system. Only unpacked INF packages work, a vendor's .exe installer does not; the architecture must match the image (x64); unsigned drivers need test signing on the target. Storage or RAID drivers that Setup itself needs to see the disk are not covered here."
-        tooltip_ru: "По шагам. 1) Получите пакеты драйверов: откройте «Драйверы этой машины» в списке операций, сетевые уже отмечены, отметьте ещё что хотите, нажмите «Экспорт»: пакеты лягут в output\\Drivers папками с .inf, .sys и .cat; или скопируйте такие папки откуда угодно. 2) Положите их куда угодно внутрь входной папки (путь «Источник» вверху окна): папку Drivers из экспорта как есть, папку с именем ноутбука или пакеты прямо сверху, программа сама найдёт каждый .inf. 3) Поставьте эту галочку и соберите ISO: каждый пакет копируется в Drivers\\OS сборки, DISM вшивает их в install.wim, и установщик Windows ставит их вместе с системой. Работают только распакованные INF-пакеты, exe-установщик вендора не годится; разрядность должна совпадать с образом (x64); неподписанные драйверы потребуют тестового режима на целевой машине. Драйверы дисков и RAID, без которых сам установщик не видит диск, сюда не входят."
-        default: false
-        span: "half"
-        visible_when:
-          vendor: "uupdump"
       - id: vendor_flat
         section: "options"
         type: "checkbox"
@@ -3169,8 +3149,8 @@ operation_groups:
       - id: export_selected_drivers
         title: "Export drivers"
         title_ru: "Экспорт драйверов"
-        description: "Step by step. 1) In the section This machine's drivers below, the network drivers are ticked already; tick anything else you want. 2) Press this button: pnputil /export-driver copies every ticked driver into output\\Drivers, one folder per package with .inf, .sys and .cat; nothing on the machine changes. 3) Move that Drivers folder into the input folder (the Source path at the top of the window), under any name. 4) Tick 'Embed drivers from input into the image' in the Options row at the top of this tab together with 'Build the ISO right away': while building, the program finds every .inf anywhere under input and DISM embeds the packages into install.wim, so Windows Setup installs them with the system. Without that checkbox the drivers stay in input and are not embedded."
-        description_ru: "По шагам. 1) В секции «Драйверы этой машины» ниже сетевые драйверы уже отмечены; отметьте, что ещё хотите. 2) Нажмите эту кнопку: pnputil /export-driver скопирует каждый отмеченный драйвер в output\\Drivers, по папке на пакет с .inf, .sys и .cat; на машине ничего не меняется. 3) Перенесите папку Drivers во входную папку (путь «Источник» вверху окна), под любым именем. 4) Поставьте галочку «Вшить драйверы из input в образ» в ряду «Опции» вверху этой вкладки вместе с «Сразу собрать ISO»: при сборке программа найдёт все .inf где угодно внутри input, и DISM вошьёт пакеты в install.wim, так что установщик Windows поставит их вместе с системой. Без этой галочки драйверы остаются в input и не вшиваются."
+        description: "Write the ticked drivers of this machine to disk as files: pnputil /export-driver copies every ticked package into output\\Drivers, one folder per package with .inf, .sys and .cat; nothing on the machine changes. Packages ticked under input are files already and are skipped. For a Windows build of this machine the button is not needed: the ticks are embedded when the ISO is built. The exported folder is for other machines and other tools: put it anywhere under their input, or feed it to pnputil /add-driver."
+        description_ru: "Выгрузить отмеченные драйверы этой машины файлами: pnputil /export-driver скопирует каждый отмеченный пакет в output\\Drivers, по папке на пакет с .inf, .sys и .cat; на машине ничего не меняется. Отмеченные пакеты из input уже лежат файлами и пропускаются. Для сборки Windows на этой же машине кнопка не нужна: отметки вшиваются при сборке ISO. Выгруженная папка нужна для других машин и других инструментов: положите её куда угодно внутрь их input или скормите pnputil /add-driver."
         service: "system_core.services.vendor_service:export_selected_drivers"
         kind: "safe"
         parameters:
@@ -3324,6 +3304,34 @@ operation_groups:
           script: "system_core\\winget\\install_apps\\Update-Audion-MSVC-2015+.cmd"
 
 maintenance_operations:
+  - id: github_token
+    title: "GitHub token"
+    title_ru: "Токен GitHub"
+    description: "Store a personal GitHub token: release lookups (Tabby, rclone, DDU and the other GitHub builds) then get 5000 API calls an hour instead of the anonymous 60, after which the program has to scrape the release pages. Asked in a pop-up field, checked against GitHub, kept in config\\github_token.dpapi encrypted with Windows DPAPI for this account only, never printed. An empty field removes the stored token. Any personal token will do, no scopes needed."
+    description_ru: "Сохранить личный токен GitHub: запросы к релизам (Tabby, rclone, DDU и другие сборки с GitHub) получают 5000 обращений к API в час вместо анонимных 60, после которых программе приходится разбирать страницы релизов. Спрашивается во всплывающем поле, проверяется у GitHub, хранится в config\\github_token.dpapi под шифрованием Windows DPAPI только для этой учётной записи, нигде не печатается. Пустое поле удаляет сохранённый токен. Подходит любой личный токен, права (scopes) не нужны."
+    service: "system_core.services.github_auth:set_github_token"
+    kind: "safe"
+    parameters:
+      prompt:
+        field: "github_token"
+        secret: true
+        title: "GitHub token"
+        title_ru: "Токен GitHub"
+        label: "Personal access token"
+        label_ru: "Личный токен (personal access token)"
+        hint: "github.com > Settings > Developer settings > Personal access tokens. Paste the token; leave the field empty to remove the stored one."
+        hint_ru: "github.com > Settings > Developer settings > Personal access tokens. Вставьте токен; пустое поле удаляет сохранённый."
+        ok: "Save"
+        ok_ru: "Сохранить"
+
+  - id: github_token_status
+    title: "GitHub quota"
+    title_ru: "Лимит GitHub"
+    description: "Read-only: whether a token is stored and how many GitHub API calls are left this hour, printed to the log."
+    description_ru: "Только чтение: есть ли сохранённый токен и сколько обращений к API GitHub осталось в этом часу, вывод в журнал."
+    service: "system_core.services.github_auth:check_github_token"
+    kind: "safe"
+
   - id: check_windows_activation
     title: "Windows licence state"
     title_ru: "Состояние лицензии Windows"

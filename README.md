@@ -8,14 +8,14 @@
   <a href="https://github.com/Tensionix/get-tools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Tensionix/get-tools?style=flat-square&color=5fd08a&logo=apache&logoColor=white&cacheSeconds=3600"></a>
 </p>
 
-**Version 2.16.0** · 2026-09-18 · 10.1 MB
+**Version 2.16.0** · 2026-09-20 · 210.2 MB
 
-- [Direct download](https://dl.audion.dev/get-tools/2.16.0/Audion_Get_Tools_v2.16.0.zip) — unmetered, no rate limits
+- [Direct download](https://audion.dev/get/get-tools/2.16.0/Audion_Get_Tools_v2.16.0_Full.zip) — unmetered, no rate limits
 - [Project page](https://audion.dev/downloads/get-tools) — every version and how to install
 
 <p align="center"><img src="docs/screenshot.png" alt="The program window" width="560"></p>
 
-`SHA-256: 4b70fbd9cb0d4a3385fb6f4fd90a4e8a5d324b30dc0c343878463ea5c0d3fbff`
+`SHA-256: 30db11a9b640e3385fd36294d29a42f418ec8e386ac0d6974839c0cef5928b6b`
 
 ---
 
@@ -155,9 +155,10 @@ in the archive is dropped.
 - **Windows through UUP dump**: any Windows 11 or 10 build from Microsoft's
   catalog with the cumulative update inside, the ISO built on the spot. Image
   kind Business, Consumer or Pro only; a Store app set (Minimal, Work,
-  Everything) and the ballast group buttons; without the Edge browser, while
-  the Edge WebView2 runtime is untouched and stays for apps; this machine's
-  drivers embed into the image through `input`. The build runs in `UUP` at the root of the program's drive, the image
+  Everything) and the ballast group buttons; the Edge browser is the first
+  card of the list, off in Minimal and Work, on in Everything, while the Edge
+  WebView2 runtime is untouched and stays for apps; this machine's
+  drivers embed into the image by their ticks, packages under `input` join the same list. The build runs in `UUP` at the root of the program's drive, the image
   lands in the destination folder.
 - **TechPowerUp**: the site's catalog with the whole version history of every
   entry, by section. Drivers: AMD Radeon and Ryzen chipset, Intel graphics,
@@ -207,7 +208,10 @@ one, with the checkboxes "ignore versions", "do not upgrade installed" and
 Buttons without a form: the Windows licence state through slmgr, Health /
 Doctor, the MSVC runtime check, checking that IDs exist in the source,
 validating the configuration lists, clearing `input`/`output` and clearing the
-logs.
+logs. GitHub token: a pop-up field, the token is checked against GitHub and
+kept in `config\github_token.dpapi` encrypted with Windows DPAPI for this
+account only; with it the release lookups get 5000 API calls an hour instead
+of the anonymous 60. The `GitHub quota` button shows what is left.
 
 ### The workbench
 
@@ -279,13 +283,13 @@ Install sets, the buttons of the `App set` row; each one just fills the card lis
 |---|---|---|---|
 | `Minimal` | 4 | system only: Store, Store purchases, Windows Security, App Installer | an image for an application server or a kiosk that needs nothing from the Store while WinGet and Store updates keep working |
 | `Work` | 27 | the system packages, thirteen tools (Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate) and ten codecs | a work machine without entertainment and promotion; the default, and the reference image was built with it |
-| `Everything` | 59 | the whole catalog as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
+| `Everything` | 60 | the whole catalog with Edge, as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
 
 The `Image kind` row above is about editions, not apps: `Business` is Pro plus Enterprise, Education, Pro Education and Pro for Workstations, `Consumer` is Home and Pro plus Education, Pro Education and Pro for Workstations, `Pro only` is one edition. Sets and image kinds combine freely.
 
 #### Windows app groups
 
-The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 59 packages in total plus Edge, nothing sits outside a group.
+The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 60 cards in total, Edge among them, nothing sits outside a group.
 
 | Group | Count | Inside | By default |
 |---|---|---|---|

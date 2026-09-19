@@ -1705,6 +1705,22 @@
             line-height: 1.25;
             padding: 5px 2px;
           }
+          /* A group caption inside a card grid: spans the row, the cards of the
+             group follow it (this machine's drivers by class). */
+          .audion-checkbox-grid .audion-checkbox-group-header {
+            grid-column: 1 / -1;
+            margin-top: 6px;
+            padding: 0 2px 2px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: color-mix(in srgb, var(--audion-choice-accent) 72%, var(--audion-text));
+            border-bottom: 1px solid var(--audion-panel-border);
+          }
+          .audion-checkbox-grid .audion-checkbox-group-header:first-child {
+            margin-top: 0;
+          }
           #popup.nicegui-error-popup {
             border-color: var(--audion-input-border) !important;
             border-radius: var(--border-radius-md) !important;

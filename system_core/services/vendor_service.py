@@ -464,6 +464,160 @@ UUP_SCRIPT = "uup_download_windows.cmd"
 UUP_PATH_SOFT_LIMIT = 48
 
 
+UUP_DOWNLOAD_ONLY_SCRIPT = "uup_download_only.cmd"
+HOTPATCH_ORIGINALS = "_hotpatch_original"  # under UUPs: the msu as Microsoft ships it, back in place for aria2
+HOTPATCH_STRIPPED = "_hotpatch_stripped"  # under UUPs: the same msu without its hotpatch part, for the converter
+
+
+def download_only_script(folder: Path) -> Path:
+    """A copy of the UUP dump script that stops after the downloads instead of calling the converter.
+
+    The build then runs in two consoles: first the downloads, then the
+    converter. In between, the program can look at what came down, which the
+    one-piece script never allows: it starts converting the moment aria2 ends.
+    """
+    source = folder / UUP_SCRIPT
+    text = source.read_bytes().decode("utf-8", errors="replace")
+    marker = "if EXIST convert-UUP.cmd goto :START_CONVERT"
+    if marker not in text:
+        raise RuntimeError(f"{UUP_SCRIPT} has no converter hand-off line; the script layout changed.")
+    text = text.replace(marker, "goto :EOF", 1)
+    target = folder / UUP_DOWNLOAD_ONLY_SCRIPT
+    target.write_bytes(text.encode("utf-8"))
+    return target
+
+
+def hotpatch_members(names: list[str]) -> list[str]:
+    """The entries of a cumulative-update msu that belong to its hotpatch part."""
+    return [name for name in names if "-hotpatch-" in name.lower()]
+
+
+def wimlib_entries(wimlib: Path, archive: Path) -> list[str]:
+    completed = subprocess.run([str(wimlib), "dir", str(archive), "1"], capture_output=True, text=True, errors="replace", check=False)
+    if completed.returncode != 0:
+        raise RuntimeError(f"wimlib could not read {archive.name}: {(completed.stderr or completed.stdout).strip()[:200]}")
+    return [line.strip().lstrip("\\/") for line in completed.stdout.splitlines() if line.strip() and line.strip() not in ("\\", "/")]
+
+
+def strip_hotpatch_from_msu(context: JobContext, msu: Path, wimlib: Path) -> bool:
+    """Rewrite a cumulative-update msu without its hotpatch part, so the UUP dump converter accepts it.
+
+    Since September 2026 the monthly update for Windows 11 25H2 carries a
+    hotpatch component (`*-Hotpatch-*.cab/.psf` and a HotpatchCompDB in the
+    aggregated metadata). The converter, v126, looks at that metadata and
+    skips the whole package as "Not Supported: HotPatchUpdate", in the console
+    only, and then writes an ISO of the bare base build. Without the hotpatch
+    part the msu is an ordinary cumulative update again and integrates as
+    before; the hotpatch enrolment is something Windows Update does later on
+    the installed system.
+
+    The msu is a plain uncompressed WIM, so wimlib edits it in place: the
+    hotpatch entries go, the metadata cab is rebuilt with makecab from its
+    other members. The original is kept next to it for the downloader.
+    """
+    names = wimlib_entries(wimlib, msu)
+    hotpatch = hotpatch_members(names)
+    if not hotpatch:
+        return False
+    metadata_name = next((name for name in names if name.lower().endswith("aggregatedmetadata.cab")), "")
+    work = msu.parent / f"{msu.stem}_hotpatch_work"
+    if work.exists():
+        shutil.rmtree(work)
+    work.mkdir(parents=True)
+    commands = [f'delete "/{name}"' for name in hotpatch]
+    if metadata_name:
+        subprocess.run([str(wimlib), "extract", str(msu), "1", f"/{metadata_name}", f"--dest-dir={work}", "--no-acls", "--no-attributes"], capture_output=True, check=False)
+        cab = work / Path(metadata_name).name
+        members = work / "members"
+        members.mkdir()
+        system32 = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32"
+        subprocess.run([str(system32 / "expand.exe"), "-F:*", str(cab), str(members)], capture_output=True, check=False)
+        kept = sorted(item for item in members.iterdir() if item.is_file() and "hotpatchcompdb" not in item.name.lower())
+        if not kept:
+            raise RuntimeError(f"{msu.name}: the aggregated metadata cab could not be unpacked")
+        ddf = work / "metadata.ddf"
+        rebuilt_dir = work / "rebuilt"
+        rebuilt_dir.mkdir()
+        ddf.write_text(
+            ".OPTION EXPLICIT\n.Set CabinetNameTemplate=" + Path(metadata_name).name + "\n"
+            f".Set DiskDirectoryTemplate={rebuilt_dir}\n.Set Cabinet=on\n.Set Compress=on\n.Set CompressionType=MSZIP\n"
+            ".Set MaxDiskSize=0\n.Set MaxDiskFileCount=0\n.Set FolderSizeThreshold=0\n.Set RptFileName=nul\n.Set InfFileName=nul\n"
+            + "".join(f'"{item}"\n' for item in kept),
+            encoding="utf-8",
+        )
+        completed = subprocess.run([str(system32 / "makecab.exe"), "/F", str(ddf)], capture_output=True, text=True, errors="replace", check=False, cwd=str(work))
+        rebuilt = rebuilt_dir / Path(metadata_name).name
+        if completed.returncode != 0 or not rebuilt.exists():
+            raise RuntimeError(f"{msu.name}: makecab could not rebuild the metadata cab: {(completed.stderr or completed.stdout).strip()[:200]}")
+        commands.append(f'delete "/{metadata_name}"')
+        commands.append(f'add "{rebuilt}" "/{metadata_name}"')
+    script = work / "update.txt"
+    script.write_text("\n".join(commands) + "\n", encoding="utf-8")
+    # wimlib takes several commands on standard input only (--command works for one)
+    completed = subprocess.run([str(wimlib), "update", str(msu), "1"], input="\n".join(commands) + "\n", capture_output=True, text=True, errors="replace", check=False)
+    if completed.returncode != 0:
+        raise RuntimeError(f"{msu.name}: wimlib could not rewrite the package: {(completed.stderr or completed.stdout).strip()[:300]}")
+    shutil.rmtree(work, ignore_errors=True)
+    context.log(f"[ISO] {msu.name}: hotpatch part removed ({', '.join(Path(name).name for name in hotpatch)}); the converter takes the update now")
+    return True
+
+
+def restore_original_msus(folder: Path) -> int:
+    """Before a download: put Microsoft's original msu files back so aria2 sees them complete; keep the stripped copies aside."""
+    uups = folder / "UUPs"
+    originals = uups / HOTPATCH_ORIGINALS
+    stripped = uups / HOTPATCH_STRIPPED
+    count = 0
+    if originals.is_dir():
+        stripped.mkdir(exist_ok=True)
+        for original in sorted(originals.glob("*.msu")):
+            current = uups / original.name
+            if current.exists():
+                shutil.move(str(current), str(stripped / original.name))
+            shutil.move(str(original), str(current))
+            count += 1
+    return count
+
+
+def prepare_msus_for_converter(context: JobContext, folder: Path, stripper: Callable[[JobContext, Path, Path], bool] | None = None) -> int:
+    """After the downloads: give the converter msu files without hotpatch parts; originals go to `_hotpatch_original`."""
+    uups = folder / "UUPs"
+    if not uups.is_dir():
+        return 0
+    originals = uups / HOTPATCH_ORIGINALS
+    stripped = uups / HOTPATCH_STRIPPED
+    wimlib = folder / "bin" / "wimlib-imagex.exe"
+    strip = stripper or strip_hotpatch_from_msu
+    count = 0
+    for duplicate in sorted(uups.glob("*-KB*.msu")):
+        # aria2 keeps a file it does not recognise and downloads the original as name.1.msu:
+        # a second copy of the same update, which the converter would try as well
+        match = re.fullmatch(r"(.+)\.(\d+)\.msu", duplicate.name)
+        if match and (uups / f"{match.group(1)}.msu").exists():
+            duplicate.unlink()
+            context.log(f"[ISO] {duplicate.name}: duplicate download removed")
+    for msu in sorted(uups.glob("*-KB*.msu")):
+        ready = stripped / msu.name
+        if ready.exists():
+            # stripped once already: swap the files, no rework
+            originals.mkdir(exist_ok=True)
+            shutil.move(str(msu), str(originals / msu.name))
+            shutil.move(str(ready), str(msu))
+            count += 1
+            continue
+        if stripper is None and not wimlib.exists():
+            context.log("[WARN] wimlib-imagex.exe not found in the build folder; cumulative updates are left as they are")
+            return count
+        originals.mkdir(exist_ok=True)
+        backup = originals / msu.name
+        shutil.copy2(msu, backup)
+        if strip(context, msu, wimlib):
+            count += 1
+        else:
+            backup.unlink()
+    return count
+
+
 def run_uup_script(context: JobContext, folder: Path) -> str:
     """Start the UUP dump script in its own console and wait; the ISO lands next to it.
 
@@ -486,14 +640,26 @@ def run_uup_script(context: JobContext, folder: Path) -> str:
             f"The build folder path is {len(str(folder))} characters; DISM inside the UUP dump converter "
             f"needs it short (about {UUP_PATH_SOFT_LIMIT} or less). Pick a destination such as D:\\UUP and run again."
         )
-    add_drivers = _param_bool(context, "uup_add_drivers", False)
+    # The ticks of the driver list are the whole truth: this machine's drivers are
+    # exported straight into the build, the ticked packages from input are copied.
+    machine_ticks, input_ticks = split_driver_ticks(_param_list(context, "driver_packages"))
+    exported = export_driver_packages(context, machine_ticks, folder / DRIVERS_DIRECTORY_NAME / "OS") if machine_ticks else 0
+    copied = embed_input_packages(folder, _input_base(context), input_ticks) if input_ticks else 0
+    add_drivers = bool(exported or copied)
+    if exported:
+        context.log(f"[ISO] {exported} driver package(s) of this machine exported into the build")
+    if copied:
+        context.log(f"[ISO] {copied} package(s) from input copied into the build")
     if add_drivers:
-        source = _input_base(context)
-        count = apply_converter_drivers(folder, source)
-        context.log(f"[ISO] {count} driver package(s) found under {source} go into install.wim (Drivers\\OS, AddDrivers=1)")
-    enable_converter_autoexit(folder, skip_edge=_param_bool(context, "uup_skip_edge", False), add_drivers=add_drivers)
+        context.log(f"[ISO] {exported + copied} driver package(s) go into install.wim (Drivers\\OS, AddDrivers=1)")
+    else:
+        context.log("[ISO] no driver ticked: the image keeps Microsoft's in-box drivers only")
     apps_mode = _param_text(context, "uup_apps_mode", "stock") or "stock"
-    chosen = apply_converter_apps(folder, apps_mode, _param_list(context, "uup_apps"))
+    apps = _param_list(context, "uup_apps")
+    skip_edge = converter_skips_edge(apps_mode, apps)
+    enable_converter_autoexit(folder, skip_edge=skip_edge, add_drivers=add_drivers)
+    context.log("[ISO] Edge browser left out (SkipEdge=1); WebView2 stays" if skip_edge else "[ISO] Edge browser stays in the image")
+    chosen = apply_converter_apps(folder, apps_mode, apps)
     if apps_mode == "custom":
         context.log(f"[ISO] Store apps limited to {len(chosen)} chosen entries via CustomAppsList.txt")
     elif apps_mode == "none":
@@ -506,12 +672,47 @@ def run_uup_script(context: JobContext, folder: Path) -> str:
             "comes out without updates or extra editions. Use 'Install Windows ADK Deployment Tools' first."
         )
     context.log(f"[ISO] Windows ADK Deployment Tools found; the converter will service the image with {adk}")
-    context.log(f"[ISO] starting {UUP_SCRIPT} in a console window; it downloads from Microsoft with aria2 and builds the ISO")
-    context.log("[ISO] the window asks for administrator rights; the build takes a while and shows its own progress")
+    # Two consoles: the downloads first, then the converter. In between the
+    # cumulative updates are made digestible for the converter (see
+    # strip_hotpatch_from_msu); the one-piece script gives no such moment.
+    restored = restore_original_msus(folder)
+    if restored:
+        context.log(f"[ISO] {restored} original update package(s) put back for the downloader")
+    downloader = download_only_script(folder)
+    context.log(f"[ISO] step 1: {downloader.name} in a console window downloads Microsoft's files with aria2 (the window asks for administrator rights)")
+    download = subprocess.Popen(
+        ["cmd.exe", "/c", str(downloader)],
+        cwd=str(folder),
+        creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0),
+    )
+    while download.poll() is None:
+        if context.cancelled():
+            _kill_tree(download.pid)
+            raise RuntimeError("Cancelled: the download console was closed; run again to continue")
+        context.activity(f"downloading the UUP set: {folder.name}")
+        time.sleep(2)
+    context.activity("")
+    leftovers = sorted((folder / "UUPs").glob("*.aria2")) if (folder / "UUPs").is_dir() else []
+    if download.returncode != 0 or leftovers or not (folder / "UUPs").is_dir():
+        raise RuntimeError(
+            f"The download step ended with code {download.returncode}"
+            + (f" and {len(leftovers)} file(s) still incomplete" if leftovers else "")
+            + "; see the console output. Run again to continue the download."
+        )
+    stripped = prepare_msus_for_converter(context, folder)
+    if stripped:
+        context.log(f"[ISO] {stripped} cumulative update package(s) prepared for the converter")
+    # Step 2 is the converter itself, not the whole script again: a second aria2
+    # pass would see the rewritten msu, take it for a foreign file, download the
+    # original once more next to it (2.5 GB, an hour on a slow line) and hand the
+    # converter both. convert-UUP.cmd finds the UUPs folder next to it by itself.
+    converter = folder / "convert-UUP.cmd"
+    launcher = converter if converter.exists() else script
+    context.log(f"[ISO] step 2: {launcher.name} in a console window builds the ISO")
     # One console, the converter's own: a `cmd /c start /wait` wrapper would sit
     # next to it as an empty black window for the whole build.
     process = subprocess.Popen(
-        ["cmd.exe", "/c", str(script)],
+        ["cmd.exe", "/c", str(launcher)],
         cwd=str(folder),
         creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0),
     )
@@ -554,6 +755,72 @@ def run_uup_script(context: JobContext, folder: Path) -> str:
         )
     context.log(f"[ISO] {isos[0].name} ({isos[0].stat().st_size} bytes)")
     return str(isos[0])
+
+
+BUILD_NUMBER = re.compile(r"\b(\d{5})\.(\d+)\b")
+
+
+def wim_image_builds(path: Path) -> list[str]:
+    """`BUILD.SPBUILD` of every image in a WIM, read from the XML resource the header points at; no DISM involved."""
+    with path.open("rb") as handle:
+        header = handle.read(208)
+        if header[:8] != b"MSWIM\x00\x00\x00":
+            raise RuntimeError(f"{path} is not a WIM file")
+        packed = int.from_bytes(header[0x48:0x50], "little")
+        size = packed & ((1 << 56) - 1)
+        offset = int.from_bytes(header[0x50:0x58], "little", signed=True)
+        handle.seek(offset)
+        text = handle.read(size).decode("utf-16", errors="replace")
+    builds: list[str] = []
+    for body in re.findall(r"<IMAGE INDEX=\"\d+\">(.*?)</IMAGE>", text, re.S):
+        major = re.search(r"<BUILD>(\d+)</BUILD>", body)
+        minor = re.search(r"<SPBUILD>(\d+)</SPBUILD>", body)
+        if major:
+            builds.append(f"{major.group(1)}.{minor.group(1) if minor else '0'}")
+    return builds
+
+
+def verify_iso_build(context: JobContext, iso: Path, folder: Path, expected_version: str) -> None:
+    """Refuse an image whose build is not the one that was asked for.
+
+    The converter writes an ISO even when its DISM step fails: it is then the
+    bare base image (24H2 RTM 26100.1742 for a 25H2 request), a third smaller and
+    without the cumulative update, the enablement package, the app list or the
+    drivers. Twice such an image passed as a finished build. The converter names
+    the ISO after the build it really produced, and install.wim says the same, so
+    both are compared with the requested build before the image is handed over.
+    """
+    wanted = BUILD_NUMBER.search(expected_version or "")
+    if not wanted:
+        return
+    expected = f"{wanted.group(1)}.{wanted.group(2)}"
+    seen: list[str] = []
+    named = BUILD_NUMBER.search(iso.name)
+    if named:
+        seen.append(f"{named.group(1)}.{named.group(2)}")
+    for wim in (folder / "ISOFOLDER" / "sources" / "install.wim", folder / "ISOFOLDER" / "sources" / "install.esd"):
+        if wim.exists():
+            try:
+                seen.extend(wim_image_builds(wim))
+            except Exception as exc:  # noqa: BLE001 - the name check still stands
+                context.log(f"[WARN] could not read {wim.name}: {exc}")
+            break
+    wrong_build = sorted({item for item in seen if item.split(".")[0] != wanted.group(1)})
+    if wrong_build:
+        raise RuntimeError(
+            f"The converter produced build {', '.join(wrong_build)} instead of the requested {expected}: the base image "
+            f"without the cumulative update, so no 25H2 update, app list or embedded drivers went in; the update was "
+            f"skipped or DISM failed inside the console. The image and the cache stay in {folder} for a look. Run again "
+            f"with 'Delete cache after ISO' off and watch the converter window."
+        )
+    lower = sorted({item for item in seen if item != expected})
+    if lower:
+        # 26200.9445 for a 26200.9448 request: the cumulative update went in, the three
+        # revisions on top are the hotpatch part the converter cannot take; Windows
+        # Update adds it on the installed system.
+        context.log(f"[ISO] image build {', '.join(lower)}, requested {expected}: the update is in, the missing revisions are the hotpatch part, Windows Update adds it later")
+    else:
+        context.log(f"[ISO] image build verified: {expected}")
 
 
 def _unique_path(target: Path) -> Path:
@@ -774,6 +1041,18 @@ def install_adk_deployment_tools(context: JobContext) -> dict[str, object]:
     return {"installed": True, "dism": str(dism), "changed": True, "reboot": process.returncode == 3010, "removed": removed}
 
 
+EDGE_APP = "Microsoft.Edge"  # the Edge card of the app list; not a Store family, it drives the converter's SkipEdge
+
+
+def converter_skips_edge(mode: str, apps: list[str]) -> bool:
+    """SkipEdge from the app choice: 'stock' keeps Edge as Microsoft does, 'none' drops it, 'custom' follows the Edge card."""
+    if mode == "none":
+        return True
+    if mode == "custom":
+        return EDGE_APP.lower() not in {str(item).strip().lower() for item in apps}
+    return False
+
+
 def apply_converter_apps(folder: Path, mode: str, apps: list[str]) -> list[str]:
     """Set which Store apps the converter puts into the image; returns the entries kept.
 
@@ -901,19 +1180,48 @@ def find_driver_packages(source: Path) -> list[Path]:
     return list(packages)
 
 
-def apply_converter_drivers(folder: Path, source: Path) -> int:
-    """Copy every INF driver package found under `source` into the build's `Drivers\\OS`; returns their count.
+def _default_input_root() -> Path:
+    return Path(__file__).resolve().parents[2] / "input"
 
-    The converter feeds that folder to DISM /Add-Driver /Recurse for
-    install.wim (`OS`); `ALL` and `WinPE` would also touch the boot images and
-    are left alone: a machine's full driver set (GPU, audio) has no place in
-    WinPE. An .exe installer is not a driver package and is not accepted.
-    """
-    if not source.is_dir():
-        raise RuntimeError(f"Input folder not found: {source}. Put the driver packages (folders with .inf, .sys, .cat) anywhere inside it, or export this machine's drivers first.")
+
+INPUT_PACKAGE_PREFIX = "input:"  # a card of the driver list that stands for a package found under input
+
+
+def input_package_id(source: Path, package: Path) -> str:
+    relative = "." if package == source else package.relative_to(source).as_posix()
+    return f"{INPUT_PACKAGE_PREFIX}{relative}"
+
+
+def split_driver_ticks(ticks: list[str]) -> tuple[list[str], list[str]]:
+    """`(published inf names of this machine, relative paths of packages under input)` from one tick list."""
+    machine = [item for item in ticks if not str(item).startswith(INPUT_PACKAGE_PREFIX)]
+    inputs = [str(item)[len(INPUT_PACKAGE_PREFIX):] for item in ticks if str(item).startswith(INPUT_PACKAGE_PREFIX)]
+    return machine, inputs
+
+
+def input_driver_options(source: Path) -> list[dict[str, Any]]:
+    """Cards for the packages found under input: one per folder with an .inf, ticked, under their own header."""
     packages = find_driver_packages(source)
     if not packages:
-        raise RuntimeError(f"No .inf driver packages anywhere under {source}. Only unpacked INF packages are embedded; a vendor's .exe installer must be unpacked, or the driver exported with 'This machine's drivers'.")
+        return []
+    options: list[dict[str, Any]] = [{
+        "value": "", "header": True,
+        "label": f"Packages under input ({len(packages)})", "label_ru": f"Пакеты из input ({len(packages)})",
+    }]
+    for package in packages:
+        infs = sorted(p.name for p in package.glob("*.inf"))
+        shown = ", ".join(infs[:3]) + (f" +{len(infs) - 3}" if len(infs) > 3 else "")
+        name = package.name if package != source else source.name
+        options.append({
+            "value": input_package_id(source, package),
+            "label": f"{name} · {shown}", "label_ru": f"{name} · {shown}",
+            "default": True, "tags": ["Input"],
+        })
+    return options
+
+
+def copy_driver_packages(folder: Path, source: Path, packages: list[Path]) -> int:
+    """Copy the given INF packages from under `source` into the build's `Drivers\\OS`; returns their count."""
     target = folder / DRIVERS_DIRECTORY_NAME / "OS"
     target.mkdir(parents=True, exist_ok=True)
     for package in packages:
@@ -928,6 +1236,35 @@ def apply_converter_drivers(folder: Path, source: Path) -> int:
             else:
                 shutil.copytree(item, destination / item.name, dirs_exist_ok=True)
     return len(packages)
+
+
+def embed_input_packages(folder: Path, source: Path, relatives: list[str]) -> int:
+    """Copy the ticked input packages (by their relative paths) into the build; a vanished package is skipped."""
+    wanted = {relative.strip().strip("/") or "." for relative in relatives}
+    present = {input_package_id(source, package)[len(INPUT_PACKAGE_PREFIX):]: package for package in find_driver_packages(source)}
+    chosen = [present[relative] for relative in wanted if relative in present]
+    return copy_driver_packages(folder, source, chosen) if chosen else 0
+
+
+def apply_converter_drivers(folder: Path, source: Path, required: bool = True) -> int:
+    """Copy every INF driver package found under `source` into the build's `Drivers\\OS`; returns their count.
+
+    The converter feeds that folder to DISM /Add-Driver /Recurse for
+    install.wim (`OS`); `ALL` and `WinPE` would also touch the boot images and
+    are left alone: a machine's full driver set (GPU, audio) has no place in
+    WinPE. An .exe installer is not a driver package and is not accepted.
+    """
+    if not source.is_dir():
+        if not required:
+            return 0
+        raise RuntimeError(f"Input folder not found: {source}. Tick this machine's drivers, or put driver packages (folders with .inf, .sys, .cat) anywhere inside it.")
+    packages = find_driver_packages(source)
+    if not packages:
+        if not required:
+            return 0
+        raise RuntimeError(f"No .inf driver packages anywhere under {source} and no driver ticked. Only unpacked INF packages are embedded; a vendor's .exe installer must be unpacked, or the driver ticked in 'This machine's drivers'.")
+    return copy_driver_packages(folder, source, packages)
+
 
 
 NETWORK_CLASS_GUIDS = {
@@ -982,6 +1319,8 @@ DRIVER_CLASS_NAMES = {
     "{745a17a0-74d3-11d0-b6fe-00a0c90f57da}": ("HID", "HID"),
     "{4d36e979-e325-11ce-bfc1-08002be10318}": ("Printer", "Принтер"),
     "{6bdd1fc6-810f-11d0-bec7-08002be2092f}": ("Camera", "Камера"),
+    "{ca3e7ab9-b4c3-4ae6-8251-579ef933890f}": ("Camera", "Камера"),
+    "{88bae032-5a81-49f0-bc3d-a4ff138216d6}": ("USB device", "USB-устройство"),
     "{36fc9e60-c465-11cf-8056-444553540000}": ("USB", "USB"),
     "{e2f84ce7-8efa-411c-aa69-97454ca4cb57}": ("Extension", "Расширение"),
     "{5c4c3332-344d-483c-8739-259e934c9cc8}": ("Software component", "Программный компонент"),
@@ -1008,7 +1347,8 @@ def machine_driver_options(root: Path, values: dict[str, Any] | None = None) -> 
     ones sit on top. Each card names the class, the original inf and the
     provider; the tooltip adds the published name and the version.
     """
-    del root, values
+    source = Path(str((values or {}).get("input_path") or "").strip() or (Path(root) / "input" if root else _default_input_root()))
+    del values
     drivers = list_machine_drivers()
     # The driver store keeps older versions of the same inf next to the current one;
     # only the newest of each network driver is ticked by default.
@@ -1021,26 +1361,37 @@ def machine_driver_options(root: Path, values: dict[str, Any] | None = None) -> 
             newest[family] = driver
     default_names = {driver["published"] for driver in newest.values()}
 
-    def rank(driver: dict[str, str]) -> tuple[int, str, str]:
-        network = 0 if driver["guid"] in NETWORK_CLASS_GUIDS else 1
-        names = DRIVER_CLASS_NAMES.get(driver["guid"], (driver["class"] or "Other", driver["class"] or "Прочее"))
-        return (network, names[0].lower(), driver["original"].lower())
+    class_order = list(DRIVER_CLASS_NAMES)  # network first, then the way the table reads; unknown classes last
 
+    def class_names(driver: dict[str, str]) -> tuple[str, str]:
+        return DRIVER_CLASS_NAMES.get(driver["guid"], (driver["class"] or "Other", driver["class"] or "Прочее"))
+
+    def rank(driver: dict[str, str]) -> tuple[int, str, str]:
+        position = class_order.index(driver["guid"]) if driver["guid"] in class_order else len(class_order)
+        return (position, class_names(driver)[0].lower(), driver["original"].lower())
+
+    # The cards sit under a header per class: a header is an option without a
+    # value, which the grid draws as a caption spanning the row.
     options: list[dict[str, Any]] = []
+    current_class: tuple[str, str] | None = None
     for driver in sorted(drivers, key=rank):
-        names = DRIVER_CLASS_NAMES.get(driver["guid"], (driver["class"] or "Other", driver["class"] or "Прочее"))
+        names = class_names(driver)
+        if names != current_class:
+            current_class = names
+            count = sum(1 for item in drivers if class_names(item) == names)
+            options.append({"value": "", "label": f"{names[0]} ({count})", "label_ru": f"{names[1]} ({count})", "header": True})
         provider = driver["provider"] or "?"
         version = driver.get("version", "")
         options.append({
             "value": driver["published"],
-            "label": f"{names[0]}: {driver['original']} · {provider}" + (f" {version}" if version else ""),
-            "label_ru": f"{names[1]}: {driver['original']} · {provider}" + (f" {version}" if version else ""),
+            "label": f"{driver['original']} · {provider}" + (f" {version}" if version else ""),
+            "label_ru": f"{driver['original']} · {provider}" + (f" {version}" if version else ""),
             "default": driver["published"] in default_names,
             "tags": [names[0]],
         })
     if not options:
         options.append(_option("", "No third-party drivers found on this machine", "Сторонних драйверов на этой машине не найдено"))
-    return options
+    return input_driver_options(source) + options
 
 
 def export_selected_drivers(context: JobContext) -> dict[str, object]:
@@ -1050,15 +1401,34 @@ def export_selected_drivers(context: JobContext) -> dict[str, object]:
     already has for it, ready for `Drivers\\OS` of a UUP dump build or for
     `pnputil /add-driver` on a fresh system. Nothing on the machine changes.
     """
-    chosen = _param_list(context, "driver_packages")
+    chosen, input_ticks = split_driver_ticks(_param_list(context, "driver_packages"))
+    if input_ticks:
+        context.log(f"[DRIVERS] {len(input_ticks)} package(s) from input are files already and are not exported")
     if not chosen:
-        raise RuntimeError("Tick at least one driver package.")
+        raise RuntimeError("Tick at least one driver of this machine.")
     destination = _output_base(context) / DRIVERS_DIRECTORY_NAME
+    exported = export_driver_packages(context, chosen, destination)
+    size = sum(path.stat().st_size for path in destination.rglob("*") if path.is_file())
+    context.log(f"[DONE] {exported} driver package(s), {size / 1e6:.0f} MB in {destination}")
+    context.log("[NEXT] a Windows build of this machine embeds the ticked drivers on its own; the folder is for other machines: put it anywhere under their input, it shows up in their list as ticked cards.")
+    return {"packages": exported, "bytes": size, "folder": str(destination)}
+
+
+PnputilRunner = Callable[[list[str]], subprocess.CompletedProcess]
+
+
+def _run_pnputil(command: list[str]) -> subprocess.CompletedProcess:
+    return subprocess.run(command, capture_output=True, text=True, errors="replace", check=False)
+
+
+def export_driver_packages(context: JobContext, chosen: list[str], destination: Path, runner: PnputilRunner | None = None) -> int:
+    """`pnputil /export-driver` of the given published names into `destination`, one folder per package; returns how many made it."""
     destination.mkdir(parents=True, exist_ok=True)
     pnputil = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "pnputil.exe"
-    if not pnputil.exists():
+    if runner is None and not pnputil.exists():
         raise RuntimeError("pnputil.exe not found; driver export works on Windows only.")
-    known = {driver["published"].lower(): driver for driver in list_machine_drivers()}
+    run = runner or _run_pnputil
+    known = {driver["published"].lower(): driver for driver in list_machine_drivers()} if runner is None else {}
     context.log(f"[DRIVERS] exporting {len(chosen)} driver package(s) -> {destination}")
     exported = 0
     for index, published in enumerate(chosen, start=1):
@@ -1067,7 +1437,7 @@ def export_selected_drivers(context: JobContext) -> dict[str, object]:
         # one folder per package: pnputil drops a single driver's files flat into the target
         package_dir = destination / f"{Path(driver['original']).stem}_{Path(driver['published']).stem}"
         package_dir.mkdir(parents=True, exist_ok=True)
-        completed = subprocess.run([str(pnputil), "/export-driver", driver["published"], str(package_dir)], capture_output=True, text=True, errors="replace", check=False)
+        completed = run([str(pnputil), "/export-driver", driver["published"], str(package_dir)])
         names = DRIVER_CLASS_NAMES.get(driver["guid"], (driver["class"] or "Other", ""))
         if completed.returncode in (0, 259):
             exported += 1
@@ -1076,10 +1446,7 @@ def export_selected_drivers(context: JobContext) -> dict[str, object]:
             context.log(f"[WARN] {driver['published']} ({driver['original']}) not exported: {(completed.stderr or completed.stdout).strip()[:160]}")
         context.progress(index / len(chosen))
     context.activity("")
-    size = sum(path.stat().st_size for path in destination.rglob("*") if path.is_file())
-    context.log(f"[DONE] {exported} driver package(s), {size / 1e6:.0f} MB in {destination}")
-    context.log(f"[NEXT] move the Drivers folder into input ({_input_base(context)}), any subfolder name will do, and tick 'Embed drivers from input' in the Windows build")
-    return {"packages": exported, "bytes": size, "folder": str(destination)}
+    return exported
 
 
 def download_vendor_builds(context: JobContext) -> dict[str, object]:
@@ -1127,6 +1494,7 @@ def download_vendor_builds(context: JobContext) -> dict[str, object]:
                 entry["archive"] = ""
         if build_iso:
             iso = Path(run_uup_script(context, folder))
+            verify_iso_build(context, iso, folder, build.version)
             entry["iso"] = hand_over_iso(context, iso, folder, root, clean_cache=clean_cache)
             if clean_cache:
                 entry["folder"] = ""

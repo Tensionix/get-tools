@@ -88,9 +88,9 @@ It is one screen for every vendor: the tabs at the top pick whose catalog to bro
 
 Windows through UUP dump is the way to get an image "as of a given month", updates already inside, without waiting for Microsoft to refresh its media. Microsoft ships the system as the same UUP files Windows Update installs, and UUP dump keeps a catalog of everything it has seen. A version card here is a build, for example `24H2 26100.9278 - 27 Aug 2026`; type a release or a month into the filter. What is downloaded is a small package with `uup_download_windows.cmd`, and there are two ways from there:
 
-- the `Build the ISO right away` checkbox: after unpacking, the script starts in its own console window, downloads the files from Microsoft's servers with aria2 and assembles a bootable ISO. The build does not run under the destination but in a `UUP` folder at the root of the drive the program sits on (`E:\UUP`, say): the script needs a short path without spaces, and the program creates it by itself. The finished image is moved to the destination folder, into `Vendors\Windows (UUP dump)` or straight into it with `Straight into the destination folder` on; when an image of that name is already there, the new one goes into a subfolder named by date and time, the old one is never overwritten. The script needs administrator rights, which it asks for itself;
+- the `Build the ISO right away` checkbox: after unpacking, the script runs in two console windows. The first downloads the files from Microsoft's servers with aria2, the second assembles a bootable ISO. In between, the program prepares the cumulative update for the converter: since September 2026 the monthly package for Windows 11 25H2 carries a hotpatch part, and the UUP dump converter silently skips such a package as "Not Supported: HotPatchUpdate", producing an image of the bare base build without updates; the program removes the hotpatch part from the package (the original stays in `UUPs\_hotpatch_original`), the update integrates as before, and hotpatch is something Windows Update enables later on the installed system. After the build the program compares the build number in the image name and in `install.wim` with the requested one and refuses an image where the update did not go in: the cache and the image stay in place for a look. The build does not run under the destination but in a `UUP` folder at the root of the drive the program sits on (`E:\UUP`, say): the script needs a short path without spaces, and the program creates it by itself. The finished image is moved to the destination folder, into `Vendors\Windows (UUP dump)` or straight into it with `Straight into the destination folder` on; when an image of that name is already there, the new one goes into a subfolder named by date and time, the old one is never overwritten. The script needs administrator rights, which it asks for itself;
 - the `Delete cache after ISO` checkbox appears together with the previous one: once the image is moved, the build folder in `UUP` with the scripts and the 9 GB of Microsoft's files is deleted. Without it the folder stays, and the same build can be reassembled with another app set without downloading again;
-- the `Embed drivers from input into the image` checkbox in the options row at the top of the tab. The order is: the `This machine's drivers` section on the same tab shows every third-party driver package as a card, the network ones (Wi-Fi, Ethernet, Bluetooth) ticked already, enough for a fresh system to get online while Windows Update brings the rest; tick more if you need them and press `Export drivers` in the navigation row, each in its own folder with .inf, .sys and .cat; move the `Drivers` folder anywhere inside `input` (the Source path at the top of the window), under any name and at any depth, the program finds every `.inf` by itself; tick the box and build. The packages are copied into the build's `Drivers\OS`, the converter switches `AddDrivers` on and DISM embeds them into install.wim, so Setup installs them with the system. Only unpacked INF packages work, a vendor's .exe installer does not; the architecture must match the image; unsigned drivers need test signing. Storage and RAID drivers that Setup itself needs to see the disk are not covered;
+- the `Drivers for the image` list on the `Drivers` page of the tab. Every tick goes into the image when it is built: the section shows every third-party driver package of this machine as a card, by class, the network ones (Wi-Fi, Ethernet, Bluetooth) ticked already, enough for a fresh system to get online while Windows Update brings the rest; tick more if you need them and build: while building, the program runs `pnputil /export-driver` for every ticked package straight into the build's `Drivers\OS`, and DISM embeds them into `install.wim`, so Windows Setup installs them with the system. Packages from other machines go as folders with `.inf`, `.sys` and `.cat` anywhere inside `input` (the Source path at the top of the window), under any name and at any depth; press `Refresh list` and they appear on top under `Packages under input`, ticked, and go into the image with the rest. The `Export drivers` button in the navigation row is only for getting this machine's ticked packages as files in `output\Drivers` for another machine. Only unpacked INF packages work, a vendor's .exe installer does not; the bitness must match the image; unsigned drivers need test mode. Storage and RAID drivers without which Setup cannot see the disk are not covered. No tick: the image keeps Microsoft's in-box drivers only.
 - without the checkbox the package simply sits in the build folder, and the script can be run whenever, even on another machine.
 
 The package is requested with updates integrated, .NET 3.5 included and cleanup on.
@@ -99,7 +99,7 @@ Updates and extra editions are put into the image by DISM, and the converter tak
 
 Above the edition sit three `Image kind` presets: `Business` sets Pro with Enterprise, Education, Pro Education and Pro for Workstations, as in the business editions ISO; `Consumer` sets Home and Pro in one image with Education, Pro Education and Pro for Workstations, as in the consumer editions ISO; `Pro only` clears the extras. The `Edge (1)` button in the apps block decides whether the Edge browser goes into the image. The Edge WebView2 runtime is untouched and stays in the system: it is a separate component, apps run and are built on it, from the new Outlook and Teams to third-party programs.
 
-The `Built-in apps` block decides which Store apps go into the image. `As Microsoft` puts in the stock set, `None` puts in none, `Chosen below` (the default) opens a list of 59 cards where ticked apps are installed and the rest never appear in the system, so there is nothing to remove afterwards. Three `App set` presets fill the list: `Minimal` (the four system packages), `Work` (plus thirteen tools and ten codecs) and `Everything`; each set is laid out in the table below. The `Include in the distribution build` row gathers the ballast into toggle buttons: a button that is not pressed keeps its group out of the image, a pressed one installs it. By default all seven are off, and the image ships with the `Work` set and without Edge. The number in the label is how many packages the group holds, the list sits in the button's tooltip: `Media stack (4)` is Media Player, Films & TV, Photos and Clipchamp; `Edge (1)` is the browser itself, there is no separate checkbox for it; then `Xbox (6)`, `Teams and mail (6)`, `Bing and widgets (6)`, `Promo and helpers (8)` and `Small tools (2)`. The buttons and the cards below show one and the same choice: untick one card of a group and its button goes dark. The mechanism is the same for every Windows 11 client edition, not only N: the converter comments the surplus lines out of its package list and leaves them out of the image. OneDrive and Copilot are not Store packages; they are removed after installation.
+The `Built-in apps` block decides which Store apps go into the image. `As Microsoft` puts in the stock set, `None` puts in none, `Chosen below` (the default) opens a list of 60 cards, Edge first where ticked apps are installed and the rest never appear in the system, so there is nothing to remove afterwards. Three `App set` presets fill the list: `Minimal` (the four system packages), `Work` (plus thirteen tools and ten codecs) and `Everything`; each set is laid out in the table below. The `Include in the distribution build` row gathers the ballast into toggle buttons: a button that is not pressed keeps its group out of the image, a pressed one installs it. By default all seven are off, and the image ships with the `Work` set and without Edge. The number in the label is how many packages the group holds, the list sits in the button's tooltip: `Media stack (4)` is Media Player, Films & TV, Photos and Clipchamp; `Edge (1)` is the browser itself, its card is the first of the list; then `Xbox (6)`, `Teams and mail (6)`, `Bing and widgets (6)`, `Promo and helpers (8)` and `Small tools (2)`. The buttons and the cards below show one and the same choice: untick one card of a group and its button goes dark. The mechanism is the same for every Windows 11 client edition, not only N: the converter comments the surplus lines out of its package list and leaves them out of the image. OneDrive and Copilot are not Store packages; they are removed after installation.
 
 Install sets, the buttons of the `App set` row; each one just fills the card list, which can then be edited by hand or with the group buttons:
 
@@ -107,11 +107,11 @@ Install sets, the buttons of the `App set` row; each one just fills the card lis
 |---|---|---|---|
 | `Minimal` | 4 | system only: Store, Store purchases, Windows Security, App Installer | an image for an application server or a kiosk that needs nothing from the Store while WinGet and Store updates keep working |
 | `Work` | 27 | the system packages, thirteen tools (Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate) and ten codecs | a work machine without entertainment and promotion; the default, and the reference image was built with it |
-| `Everything` | 59 | the whole catalog as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
+| `Everything` | 60 | the whole catalog with Edge, as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
 
 The `Image kind` row above is about editions, not apps: `Business` is Pro plus Enterprise, Education, Pro Education and Pro for Workstations, `Consumer` is Home and Pro plus Education, Pro Education and Pro for Workstations, `Pro only` is one edition. Sets and image kinds combine freely.
 
-The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 59 packages in total plus Edge, nothing sits outside a group.
+The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 60 cards in total, Edge among them, nothing sits outside a group.
 
 | Group | Count | Inside | By default |
 |---|---|---|---|
@@ -153,7 +153,7 @@ No account is needed anywhere but one place: the free DaVinci Resolve is issued 
 
 ## This machine's drivers
 
-The `This machine's drivers` section sits on the Windows (UUP dump) tab of Vendor Downloads, between the build and the versions. `pnputil /enum-drivers` builds the list: one card per third-party package, the class first (Network, Bluetooth, Chipset / system, Storage / RAID, Audio, Display and so on), then the original inf name, the provider and the version; Microsoft's in-box drivers are not shown. The Network and Bluetooth classes are ticked when the window opens, and only the newest version of each driver, older copies from the store stay unticked: enough for a fresh system to get online, and Windows Update then brings the remaining drivers, newer ones at that. Want more, tick the chipset, storage, audio, even the GPU, minding that install.wim grows by every package. The `Export drivers` button in the navigation row runs `pnputil /export-driver` for every tick and lays the packages down as folders with .inf, .sys and .cat; nothing on the machine changes. That folder then goes either into `input` to be embedded into an image, or onto a fresh system with `pnputil /add-driver <folder>\*.inf /subdirs /install`.
+The `This machine's drivers` section sits on the Windows (UUP dump) tab of Vendor Downloads, between the build and the versions. `pnputil /enum-drivers` builds the list: one card per third-party package, the cards laid out by class under headers with the package count (Network, Bluetooth, Chipset / system, Storage / RAID, Audio, Display and so on), each card naming the original inf, the provider and the version; Microsoft's in-box drivers are not shown. The Network and Bluetooth classes are ticked when the window opens, and only the newest version of each driver, older copies from the store stay unticked: enough for a fresh system to get online, and Windows Update then brings the remaining drivers, newer ones at that. Want more, tick the chipset, storage, audio, even the GPU, minding that install.wim grows by every package. The `Export drivers` button in the navigation row runs `pnputil /export-driver` for every tick and lays the packages down as folders with .inf, .sys and .cat; nothing on the machine changes. That folder then goes either into `input` to be embedded into an image, or onto a fresh system with `pnputil /add-driver <folder>\*.inf /subdirs /install`.
 
 ## Service buttons for outside tools
 
@@ -428,6 +428,7 @@ Fields:
 | --- | --- |
 | `config\api_key_openai.txt` | Local OpenAI API key. |
 | `config\api_key_gemini.txt` | Local Gemini API key. |
+| `config\github_token.dpapi` | Personal GitHub token encrypted with Windows DPAPI for this account; written by the `GitHub token` maintenance button, useless on another machine. |
 | `config\llm_settings.yaml` | Provider settings and defaults. |
 | `config\gui_key_cache.json` | Favorite key references, no key material. |
 | `config\gui_model_cache.json` | Model lists, favorites, and check statuses. |
@@ -1099,7 +1100,7 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Options: NVIDIA NVFlash; AMDVBFlash
 
 **Windows page** — tabs at the top of the form.
-- Tooltip: The Windows tab in three pages. Version: product, platform, edition, language, image kind and the build cards, the newest of each generation in gold. Apps: which Store apps go into the image. Drivers: this machine's drivers to export and embed. The options row on top applies to all three.
+- Tooltip: The Windows tab in three pages. Version: product, platform, edition, language, image kind and the build cards, the newest of each generation in gold. Apps: which Store apps go into the image. Drivers: what to embed in the image, this machine's drivers and the packages under input. The options row on top applies to all three.
 - Default: Version
 - Shown when: Vendor = 'Windows (UUP dump)'
 - Options: Version — Which Windows: product, platform, edition and language pick the list; every build of the catalog with its cumulative update is a card, tick the one to build.; Apps — Which Store apps go into the image: the sets, the group buttons, the cards.; Drivers — This machine's drivers: tick, export to output, embed from input.
@@ -1197,13 +1198,13 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Options: Enterprise; IoT Enterprise; IoT Enterprise K; Education; Pro Education; Pro for Workstations; Enterprise multi-session
 
 **Built-in apps** — a row of switches, one choice.
-- Tooltip: Which Store apps the image carries. 'As Microsoft' keeps the stock set. 'Chosen below' builds the image with the ticked apps only, the converter supports this since build 22563. 'None' adds no Store apps at all, not even the Store itself.
+- Tooltip: Which Store apps the image carries. 'As Microsoft' keeps the stock set, Edge included. 'Chosen below' builds the image with the ticked apps only, the converter supports this since build 22563. 'None' adds no Store apps at all, not even the Store itself, and Edge with them. Edge is the first card of the list.
 - Default: Chosen below
 - Shown when: Vendor = 'Windows (UUP dump)'; Windows page = 'Apps'
 - Options: As Microsoft; Chosen below; None
 
 **App set** — a row of preset buttons: a press fills the fields below.
-- Tooltip: One press ticks a set below. Minimal: the four system packages, Store, Store purchases, Windows Security and App Installer. Work: those plus thirteen tools and ten codecs, 27 packages, the default and the set the reference image was built with. Everything: the whole catalog. Every card can be changed afterwards.
+- Tooltip: One press ticks a set below. Minimal: the four system packages, Store, Store purchases, Windows Security and App Installer. Work: those plus thirteen tools and ten codecs, 27 packages, the default and the set the reference image was built with. Everything: the whole catalog with Edge, as Microsoft ships it. Every card can be changed afterwards.
 - Shown when: Vendor = 'Windows (UUP dump)'; Windows page = 'Apps'; Built-in apps = 'Chosen below'
 - Buttons:
   - **Minimal**
@@ -1215,7 +1216,7 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Shown when: Vendor = 'Windows (UUP dump)'; Windows page = 'Apps'; Built-in apps = 'Chosen below'
 - Buttons:
   - **Media stack (4)** — Media Player, Films & TV, Photos, Clipchamp. OneDrive and Copilot are not Store packages and are removed after installation.
-  - **Edge (1)** — The Edge browser, the converter's SkipEdge option in reverse. The Edge WebView2 runtime is untouched and stays in the system: it is a separate component, apps run and are built on it, from the new Outlook and Teams to third-party programs.
+  - **Edge (1)** — The Edge browser: the first card of the list, the converter's SkipEdge option in reverse. The Edge WebView2 runtime is untouched and stays in the system: it is a separate component, apps run and are built on it, from the new Outlook and Teams to third-party programs.
   - **Xbox (6)** — Xbox app, Xbox Game Bar, Game overlay, speech-to-text overlay, Xbox identity provider, Xbox TCUI.
   - **Teams and mail (6)** — Teams, Outlook (new), Mail and Calendar, People, Office hub (M365), Family.
   - **Bing and widgets (6)** — Bing Search, News, Widgets (web experience), Widgets runtime, Start experiences, Cortana.
@@ -1226,10 +1227,10 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Tooltip: Ticked apps go into the image, the rest are never installed, so there is nothing to remove afterwards. The Store, Windows Security and App Installer are worth keeping: WinGet and Store updates run through them. The codec extensions give Explorer and the Photos-free system HEIF, WebP, HEVC and AV1 thumbnails and playback.
 - Default: 27: Microsoft Store, Store purchases, Windows Security, App Installer (WinGet), Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link ...
 - Shown when: Vendor = 'Windows (UUP dump)'; Windows page = 'Apps'; Built-in apps = 'Chosen below'
-- Options (59 items): Microsoft Store; Store purchases; Windows Security; App Installer (WinGet); Notepad; Windows Terminal; Calculator; Snipping Tool; Paint; Camera; Photos; Clock; Sticky Notes; Maps; Sound Recorder; Media Player; Films & TV; Clipchamp; Phone Link; Cross Device; Mail and Calendar; Outlook (new); People; Teams; To Do; Office hub (M365); Cortana; Bing Search; News; Weather; Widgets (web experience); Widgets runtime; Start experiences; Xbox app; Xbox Game Bar; Xbox Game overlay; Xbox speech overlay; Xbox identity; Xbox TCUI; Solitaire; Feedback Hub; Get Help; Tips; Quick Assist; Family; Power Automate; Dev Home; PC Manager; App compatibility enhancements; Codec: Web Media; Codec: RAW images; Codec: HEIF; Codec: HEVC; Codec: VP9; Codec: WebP; Codec: AV1; Codec: MPEG-2; Codec: AVC encoder; Codec: Dolby Audio
+- Options (60 items): Microsoft Edge (browser); Microsoft Store; Store purchases; Windows Security; App Installer (WinGet); Notepad; Windows Terminal; Calculator; Snipping Tool; Paint; Camera; Photos; Clock; Sticky Notes; Maps; Sound Recorder; Media Player; Films & TV; Clipchamp; Phone Link; Cross Device; Mail and Calendar; Outlook (new); People; Teams; To Do; Office hub (M365); Cortana; Bing Search; News; Weather; Widgets (web experience); Widgets runtime; Start experiences; Xbox app; Xbox Game Bar; Xbox Game overlay; Xbox speech overlay; Xbox identity; Xbox TCUI; Solitaire; Feedback Hub; Get Help; Tips; Quick Assist; Family; Power Automate; Dev Home; PC Manager; App compatibility enhancements; Codec: Web Media; Codec: RAW images; Codec: HEIF; Codec: HEVC; Codec: VP9; Codec: WebP; Codec: AV1; Codec: MPEG-2; Codec: AVC encoder; Codec: Dolby Audio
 
-**This machine's drivers: tick, press Export drivers, the packages land in output\Drivers** — cards with checkboxes, any set.
-- Tooltip: Every third-party driver package of this machine (in-box Microsoft ones are not listed). Class, original inf name, provider and version on each card. The network classes are ticked when the list opens, only the newest version of each driver; 'Select block' and 'Clear block' take the whole list.
+**Drivers for the image: the ticked ones are embedded when the ISO is built; Export drivers writes them to output\Drivers** — cards with checkboxes, any set.
+- Tooltip: Every tick goes into the image when the ISO is built: this machine's drivers are exported with pnputil /export-driver straight into the build's Drivers\OS, and DISM embeds the packages into install.wim, so Windows Setup installs them with the system. This machine's third-party packages sit under a header per class (Network, Bluetooth, Chipset, Storage, Audio, Display...), the network classes ticked when the list opens, only the newest version of each driver; in-box Microsoft ones are not listed. Packages from elsewhere: put folders with .inf, .sys and .cat anywhere inside the input folder (the Source path at the top of the window) and press Refresh list: they appear on top under Packages under input, ticked. Only unpacked INF packages work, a vendor's .exe installer does not; the bitness must match the image (x64); unsigned drivers need test mode on the target machine. Storage and RAID drivers without which Setup cannot see the disk are not covered here. No tick: the image keeps Microsoft's in-box drivers only.
 - Default: empty
 - The list is built on the fly: `system_core.services.vendor_service:machine_driver_options`
 - At least 1 must be ticked
@@ -1263,12 +1264,6 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Tooltip: Once unpacked, the archive only doubles the disk use. Off keeps both.
 - Default: yes
 
-**Without Edge** — checkbox.
-- Hidden field: its value goes to the operation, another control drives it on screen.
-- Tooltip: Tell the converter to leave the Edge browser out of the image (its SkipEdge option). The Edge WebView2 runtime is untouched and stays in the system: it is a separate component, apps run and are built on it, from the new Outlook and Teams to third-party programs.
-- Default: yes
-- Shown when: Vendor = 'Windows (UUP dump)'
-
 **Build the ISO right away** — checkbox.
 - Tooltip: After the package is unpacked, start its uup_download_windows.cmd in a console: it downloads the files from Microsoft with aria2 and assembles the ISO. The build runs in the UUP folder at the root of the program's drive; the finished image is moved to the destination folder. Needs administrator rights; takes a while.
 - Default: yes
@@ -1278,11 +1273,6 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Tooltip: Once the image is moved to the destination, the build folder in the UUP folder at the root of the program's drive, with the converter's scripts and the 9 GB of Microsoft's files, is deleted. Off: the folder stays, so the same build can be reassembled with other apps without downloading again.
 - Default: no
 - Shown when: Vendor = 'Windows (UUP dump)'; Build the ISO right away = 'True'
-
-**Embed drivers from input into the image** — checkbox.
-- Tooltip: Step by step. 1) Get driver packages: open 'This machine's drivers' in the operations list, the network drivers are ticked already, tick more if you want, press Export: the packages go into output\Drivers as folders with .inf, .sys and .cat; or copy such folders from anywhere. 2) Put them anywhere inside the input folder (the Source path at the top of the window): the exported Drivers folder as is, a folder named after the laptop, or the packages at the top, the program finds every .inf itself. 3) Tick this box and build the ISO: each package is copied into the build's Drivers\OS and DISM embeds them into install.wim, so Windows Setup installs them with the system. Only unpacked INF packages work, a vendor's .exe installer does not; the architecture must match the image (x64); unsigned drivers need test signing on the target. Storage or RAID drivers that Setup itself needs to see the disk are not covered here.
-- Default: no
-- Shown when: Vendor = 'Windows (UUP dump)'
 
 **Straight into the destination folder** — checkbox.
 - Tooltip: Skip the Vendors\<Vendor> levels: each build folder lands directly in the destination. For a store that already is the vendor's folder.
@@ -1356,7 +1346,7 @@ _changes the system, asks for confirmation before it runs; shown when: vendor = 
 
 ##### Export drivers
 
-Step by step. 1) In the section This machine's drivers below, the network drivers are ticked already; tick anything else you want. 2) Press this button: pnputil /export-driver copies every ticked driver into output\Drivers, one folder per package with .inf, .sys and .cat; nothing on the machine changes. 3) Move that Drivers folder into the input folder (the Source path at the top of the window), under any name. 4) Tick 'Embed drivers from input into the image' in the Options row at the top of this tab together with 'Build the ISO right away': while building, the program finds every .inf anywhere under input and DISM embeds the packages into install.wim, so Windows Setup installs them with the system. Without that checkbox the drivers stay in input and are not embedded.
+Write the ticked drivers of this machine to disk as files: pnputil /export-driver copies every ticked package into output\Drivers, one folder per package with .inf, .sys and .cat; nothing on the machine changes. Packages ticked under input are files already and are skipped. For a Windows build of this machine the button is not needed: the ticks are embedded when the ISO is built. The exported folder is for other machines and other tools: put it anywhere under their input, or feed it to pnputil /add-driver.
 
 _safe action, no confirmation asked; shown when: vendor = uupdump_
 
@@ -1477,6 +1467,18 @@ No fields: a single button.
 ## Service procedures
 
 Buttons of the Maintenance section. Each runs at once, without a form.
+
+### GitHub token
+
+Store a personal GitHub token: release lookups (Tabby, rclone, DDU and the other GitHub builds) then get 5000 API calls an hour instead of the anonymous 60, after which the program has to scrape the release pages. Asked in a pop-up field, checked against GitHub, kept in config\github_token.dpapi encrypted with Windows DPAPI for this account only, never printed. An empty field removes the stored token. Any personal token will do, no scopes needed.
+
+_safe action, no confirmation asked_
+
+### GitHub quota
+
+Read-only: whether a token is stored and how many GitHub API calls are left this hour, printed to the log.
+
+_safe action, no confirmation asked_
 
 ### Windows licence state
 

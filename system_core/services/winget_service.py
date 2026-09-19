@@ -3220,7 +3220,9 @@ def _github_latest_assets(repo: str) -> tuple[str, list[tuple[str, str]]]:
     """
     from urllib.request import Request, urlopen
 
-    headers = {"User-Agent": "Audion-Get", "Accept": "application/vnd.github+json"}
+    from system_core.services.github_auth import github_headers
+
+    headers = github_headers()  # the stored token, when there is one, lifts the 60-an-hour quota
     try:
         request = Request(f"https://api.github.com/repos/{repo}/releases/latest", headers=headers)
         with urlopen(request, timeout=60) as response:

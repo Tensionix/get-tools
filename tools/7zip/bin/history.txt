@@ -4,9 +4,15 @@
 This file contains only information about changes related to that package exclusively.
 The full history of changes is listed in history.txt in main 7-Zip program.
 
+26.03          2026-09-03
+-------------------------
+- Some bugs and vulnerabilities were fixed.
+
+
 26.02          2026-06-25
 -------------------------
 - Some bugs and vulnerabilities were fixed.
+- CVE-2026-14266 : XZ Decompression Heap-based Buffer Overflow Remote Code Execution.
 
 
 26.01          2026-04-27

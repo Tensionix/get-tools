@@ -138,7 +138,11 @@ def _safe_name(name: str) -> str:
 
 
 def _http_json(url: str) -> dict[str, Any]:
-    request = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/vnd.github+json"})
+    from system_core.services.github_auth import github_headers
+
+    headers = github_headers() if "api.github.com" in url else {"Accept": "application/vnd.github+json"}
+    headers["User-Agent"] = USER_AGENT
+    request = Request(url, headers=headers)
     try:
         with urlopen(request, timeout=60) as response:
             return json.loads(response.read().decode("utf-8"))

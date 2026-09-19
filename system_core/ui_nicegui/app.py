@@ -2076,6 +2076,42 @@ def command_node_runs_immediately(node: CommandNode) -> bool:
     return command_node_quick_run(node) or not node.fields
 
 
+async def prompt_command_value(node: CommandNode) -> dict[str, str] | None:
+    """`parameters.prompt` asks one value in a pop-up before the command runs.
+
+    prompt: {field, secret, title/title_ru, hint/hint_ru, ok/ok_ru}. The value
+    lands in the operation's parameters under `field`; a secret field is a
+    password box, so the token never shows on screen. None means cancelled.
+    """
+    prompt = node.parameters.get("prompt")
+    if not isinstance(prompt, dict):
+        return {}
+    field = str(prompt.get("field") or "value")
+
+    def text(key: str, fallback: str = "") -> str:
+        if settings.language == "ru" and prompt.get(f"{key}_ru"):
+            return str(prompt[f"{key}_ru"])
+        return str(prompt.get(key) or fallback)
+
+    with ui.dialog() as dialog, ui.card().classes("audion-dialog rounded-lg"):
+        ui.label(text("title", node.display_title(settings.language))).classes("text-base font-semibold")
+        hint = text("hint")
+        if hint:
+            ui.label(hint).classes("max-w-xl text-xs text-gray-400")
+        entry = ui.input(
+            label=text("label", field),
+            password=bool(prompt.get("secret")),
+            password_toggle_button=bool(prompt.get("secret")),
+        ).props("dense outlined autofocus").classes("audion-input w-full")
+        with ui.row().classes("gap-2"):
+            ui.button(tr("cancel"), on_click=dialog.close).props("dense flat")
+            ui.button(text("ok", "OK"), on_click=lambda: dialog.submit(str(entry.value or ""))).props("dense color=primary")
+    result = await dialog
+    if result is None:
+        return None
+    return {field: str(result)}
+
+
 async def activate_command_node(node: CommandNode) -> None:
     child = single_leaf_child(node)
     if child is not None:
@@ -2083,6 +2119,15 @@ async def activate_command_node(node: CommandNode) -> None:
         return
     if node.children:
         enter_command_node(node)
+        return
+    if isinstance(node.parameters.get("prompt"), dict):
+        answer = await prompt_command_value(node)
+        if answer is None:
+            return
+        parameters = {key: value for key, value in node.parameters.items() if key != "prompt"}
+        parameters.update(answer)
+        state["pending_command"] = None
+        await start_operation(node.to_operation(parameters))
         return
     if command_node_quick_run(node):
         state["pending_command"] = None
@@ -2188,10 +2233,14 @@ def current_field_value(field: dict[str, Any]) -> Any:
 # WinGet ID feeds install, uninstall and "add to list" alike. The value is shared,
 # so every visible copy has to follow the control the user typed into.
 field_controls: dict[str, list[Any]] = {}
+# Toggle buttons by the list they mirror: a card change relights them at once,
+# without a re-render of the whole form (which would drop the scroll position).
+toggle_controls: dict[str, list[tuple[Any, dict[str, Any], dict[str, Any]]]] = {}
 
 
 def reset_field_controls() -> None:
     field_controls.clear()
+    toggle_controls.clear()
 
 
 def register_field_control(key: str, control: Any) -> None:
@@ -2824,6 +2873,19 @@ def toggle_option_apps(option: dict[str, Any]) -> list[str]:
     return [str(item) for item in (apps if isinstance(apps, list) else [apps]) if str(item)]
 
 
+def relight_toggle_buttons(target_key: str) -> None:
+    """Re-read the pressed state of every toggle button mirroring this list: untick one card of a group and its button goes dark now, not on the next change."""
+    for button, field, option in toggle_controls.get(target_key, []):
+        pressed = toggle_option_pressed(field, option)
+        try:
+            if pressed:
+                button.classes(add="audion-toggle-on")
+            else:
+                button.classes(remove="audion-toggle-on")
+        except Exception:  # noqa: BLE001 - a button of a form that has already been torn down
+            continue
+
+
 def toggle_option_pressed(field: dict[str, Any], option: dict[str, Any]) -> bool:
     """A toggle button is pressed while its whole group is in the target list.
 
@@ -3011,6 +3073,30 @@ def option_label(option: Any) -> str:
 def checkbox_options(field: dict[str, Any]) -> list[tuple[Any, str]]:
     options = field_options(field)
     return [(option_value(option), option_label(option)) for option in options]
+
+
+def checkbox_header_texts(field: dict[str, Any]) -> set[str]:
+    """Captions of the group headers a list carries: options without a value flagged `header: true`."""
+    texts: set[str] = set()
+    for option in field_options(field):
+        if isinstance(option, dict) and not str(option.get("value", "")).strip() and bool(option.get("header")):
+            texts.add(option_label(option))
+    return texts
+
+
+def drop_orphan_headers(field: dict[str, Any], options: list[tuple[Any, str]]) -> list[tuple[Any, str]]:
+    """A filtered list keeps only the headers that still have a card under them."""
+    headers = checkbox_header_texts(field)
+    if not headers:
+        return options
+    kept: list[tuple[Any, str]] = []
+    for index, (option_key, option_text) in enumerate(options):
+        if not str(option_key).strip() and option_text in headers:
+            follower = next((item for item in options[index + 1:] if str(item[0]).strip() or item[1] in headers), None)
+            if follower is None or not str(follower[0]).strip():
+                continue
+        kept.append((option_key, option_text))
+    return kept
 
 
 def empty_options_label(field: dict[str, Any], source: str = "") -> str:
@@ -3650,7 +3736,7 @@ def field_is_visible(field: dict[str, Any]) -> bool:
     and each vendor's own controls appear only while it is the one selected.
     """
     # `hidden: true` keeps a field in the form's values without drawing it: another
-    # control owns it on screen (the Edge toggle drives the skip-Edge flag).
+    # control owns it on screen.
     if bool(field.get("hidden", False)):
         return False
     values = pending_field_values()
@@ -3751,6 +3837,9 @@ def render_field(field: dict[str, Any]) -> None:
                         on_click=toggle_click_handler(field, option),
                     ).props("dense flat no-wrap").classes(classes)
                     attach_tooltip(button, str(option.get("tooltip_ru" if settings.language == "ru" else "tooltip") or preset_label(option)))
+                    target_key = str(field.get("target") or "").strip()
+                    if target_key:
+                        toggle_controls.setdefault(target_key, []).append((button, field, option))
             if hint:
                 ui.label(hint).classes("audion-field-hint")
             return
@@ -3865,10 +3954,14 @@ def render_field(field: dict[str, Any]) -> None:
             selected = set(value if isinstance(value, list) else [])
             window_filter_query = checkbox_window_filter_value()
             local_filter_query = checkbox_filter_value(key) if field_uses_local_checkbox_filter(field) else ""
-            visible_options = filter_checkbox_options(
-                filter_checkbox_options(options, window_filter_query),
-                local_filter_query,
+            visible_options = drop_orphan_headers(
+                field,
+                filter_checkbox_options(
+                    filter_checkbox_options(options, window_filter_query),
+                    local_filter_query,
+                ),
             )
+            header_texts = checkbox_header_texts(field)
             source = dynamic_option_source(field)
             has_selectable_options = any(str(option_key).strip() for option_key, _option_text in options)
             all_option_keys = {option_key for option_key, _option_text in options if str(option_key).strip()}
@@ -3892,6 +3985,7 @@ def render_field(field: dict[str, Any]) -> None:
                     item_key,
                     [*preserved, *checked],
                 )
+                relight_toggle_buttons(item_key)
 
             def set_group_checkboxes(checked: bool) -> None:
                 for checkbox in controls.values():
@@ -3939,7 +4033,10 @@ def render_field(field: dict[str, Any]) -> None:
                     else:
                         for option_key, option_text in visible_options:
                             if not str(option_key).strip():
-                                ui.label(option_text).classes("audion-empty-options")
+                                if option_text in header_texts:
+                                    ui.label(option_text).classes("audion-checkbox-group-header")
+                                else:
+                                    ui.label(option_text).classes("audion-empty-options")
                                 continue
                             with ui.element("div").classes(checkbox_card_classes(field, option_key, option_text)):
                                 checkbox = ui.checkbox(
