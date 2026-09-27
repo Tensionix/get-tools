@@ -10,7 +10,7 @@ exactly what a person would have made by hand.
 
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import os
 import re
 import shutil
@@ -311,11 +311,30 @@ def zip_single_root(names: list[str]) -> str:
     return next(iter(roots), "")
 
 
+def zip_destination(target_dir: Path, relative: str) -> Path:
+    """Where an archive entry lands, or ValueError when it would land outside the target.
+
+    Refused: a drive, an absolute or UNC path, `..` anywhere, a colon (an NTFS
+    stream), and a path that leaves the target once links on the way are resolved.
+    """
+    windows = PureWindowsPath(relative)
+    parts = PurePosixPath(relative.replace("\\", "/")).parts
+    if windows.drive or windows.root or relative.startswith(("/", "\\")) or ":" in relative or ".." in parts:
+        raise ValueError(relative)
+    base = target_dir.resolve()
+    destination = (base / relative).resolve()
+    if destination != base and base not in destination.parents:
+        raise ValueError(relative)
+    return destination
+
+
 def extract_zip(context: JobContext, archive: Path, target_dir: Path) -> int:
     """Unpack a zip next to itself; returns the number of entries written.
 
     An archive whose entries all sit in one root folder is unpacked without
-    that folder: the files land straight in the target.
+    that folder: the files land straight in the target. Every entry is checked
+    before anything is written: one that would land outside the target refuses
+    the whole archive.
     """
     context.log(f"[EXTRACT] {archive.name} -> {target_dir}")
     count = 0
@@ -323,15 +342,20 @@ def extract_zip(context: JobContext, archive: Path, target_dir: Path) -> int:
         root = zip_single_root(bundle.namelist())
         if root:
             context.log(f"[EXTRACT] single root folder '{root}' dropped")
+        plan: list[tuple[zipfile.ZipInfo, Path]] = []
         for info in bundle.infolist():
-            if context.cancelled():
-                raise RuntimeError("Cancelled during extraction")
             relative = info.filename.replace("\\", "/").strip("/")
             if root:
                 relative = relative[len(root):].lstrip("/")
                 if not relative:
                     continue  # the root folder entry itself
-            destination = target_dir / relative
+            try:
+                plan.append((info, zip_destination(target_dir, relative)))
+            except ValueError:
+                raise RuntimeError(f"Unsafe path in {archive.name}: {info.filename!r} - nothing was extracted") from None
+        for info, destination in plan:
+            if context.cancelled():
+                raise RuntimeError("Cancelled during extraction")
             if info.is_dir():
                 destination.mkdir(parents=True, exist_ok=True)
                 continue

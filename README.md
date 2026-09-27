@@ -8,15 +8,14 @@
   <a href="https://github.com/Tensionix/get-tools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Tensionix/get-tools?style=flat-square&color=5fd08a&logo=apache&logoColor=white&cacheSeconds=3600"></a>
 </p>
 
-**Version 2.17.1** · 2026-09-27 · 10.0 MB
+**Version 2.17.1** · 2026-09-27 · 210.4 MB
 
-- [Direct download](https://dl.audion.dev/get-tools/2.17.1/Audion_Get_Tools_v2.17.1.zip) — unmetered, no rate limits
+- [Direct download](https://audion.dev/get/get-tools/2.17.1/Audion_Get_Tools_v2.17.1_Full.zip) — unmetered, no rate limits
 - [Project page](https://audion.dev/downloads/get-tools) — every version and how to install
-- [GitHub release](https://github.com/Tensionix/get-tools/releases/tag/v2.17.1)
 
 <p align="center"><img src="docs/screenshot.png" alt="The program window" width="560"></p>
 
-`SHA-256: b4e9d659d239be8c678a2ff54cfff32b9c599d039f207c026003f8e3a7c18482`
+`SHA-256: a024b6cb594859c28d84c2c061966b13df06949cb459447dcdcc401561c4757c`
 
 ---
 
@@ -24,7 +23,7 @@ An **Audion** tool, published by [Tensionix](https://github.com/Tensionix).
 <!-- /audion:release -->
 
 
-[Русский](docs/README_RU.md) · [User Guide](docs/USER_GUIDE_EN.md)
+[English README](docs/README_EN.md) · [User Guide](docs/USER_GUIDE_EN.md) | [Русский README](docs/README_RU.md) · [Руководство](docs/USER_GUIDE_RU.md)
 
 **Contents**
 

@@ -14,6 +14,8 @@ golden:
   - "566.36"
   - "581.57"
   - "596.36"
+  - "610.88"
+  - "616.92"
 
 # FFmpeg nv-codec-headers (NVENC / NVDEC): the oldest driver each SDK generation
 # accepts. A driver is marked with the newest SDK it satisfies, so a build of

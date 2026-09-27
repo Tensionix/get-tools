@@ -4046,6 +4046,10 @@ def render_field(field: dict[str, Any]) -> None:
                                 ).props("dense")
                                 checkbox.tooltip(str(option_text))
                                 controls[option_key] = checkbox
+                                from system_core.services.winget_service import cli_package_ids
+
+                                if str(option_key).strip().lower() in cli_package_ids():
+                                    ui.label("CLI").classes("audion-cli-badge").tooltip(tr("cli_badge_tooltip"))
                                 package_card_actions(field, option_key, str(option_text))
             if hint:
                 ui.label(hint).classes("audion-field-hint")

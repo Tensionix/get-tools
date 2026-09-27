@@ -1211,6 +1211,33 @@ class DownloadTests(unittest.TestCase):
             self.assertEqual((target / "doc" / "readme.txt").read_bytes(), b"txt")
             self.assertFalse((target / "ThrottleStop").exists())
 
+    def test_extract_zip_refuses_an_entry_outside_the_target(self) -> None:
+        # Audit G1: after the common root folder is dropped, `package/../sentinel.txt` pointed at the
+        # folder above the target and overwrote a file there. Now the archive is refused before writing.
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            sentinel = root / "sentinel.txt"
+            sentinel.write_text("KEEP ORIGINAL", encoding="utf-8")
+            archive = root / "evil.zip"
+            buffer = io.BytesIO()
+            with zipfile.ZipFile(buffer, "w") as bundle:
+                bundle.writestr("package/readme.txt", b"readme")
+                bundle.writestr("package/../sentinel.txt", b"OVERWRITTEN BY ARCHIVE")
+            archive.write_bytes(buffer.getvalue())
+            target = root / "extracted"
+            with self.assertRaises(RuntimeError):
+                vendor_service.extract_zip(RecordingContext(root), archive, target)
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "KEEP ORIGINAL")
+            self.assertFalse((target / "readme.txt").exists())
+
+    def test_extract_zip_refuses_drive_and_stream_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            target = Path(temp) / "out"
+            for bad in ("C:/Windows/evil.dll", "//server/share/x", "a/../../x", "file.txt:stream", "a/b/../../../x"):
+                with self.assertRaises(ValueError, msg=bad):
+                    vendor_service.zip_destination(target, bad)
+            self.assertEqual(vendor_service.zip_destination(target, "sub/ok.txt"), (target / "sub" / "ok.txt").resolve())
+
 
 class JobTests(unittest.TestCase):
     def setUp(self) -> None:

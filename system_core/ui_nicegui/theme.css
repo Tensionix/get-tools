@@ -1388,6 +1388,18 @@
             background: var(--audion-choice-accent) !important;
             border-color: color-mix(in srgb, var(--audion-choice-accent) 70%, white 30%) !important;
           }
+          /* A command-line tool, in any group: a small CLI tag after its name. */
+          .audion-cli-badge {
+            flex: 0 0 auto;
+            margin-left: 6px;
+            padding: 0 5px;
+            font: 700 10px/16px ui-monospace, "Cascadia Mono", Consolas, monospace;
+            letter-spacing: 0.04em;
+            color: #7fd3a8;
+            border: 1px solid rgba(46, 158, 98, 0.75);
+            border-radius: 3px;
+            box-shadow: 0 0 5px rgba(48, 184, 110, 0.35);
+          }
           .audion-control-chip .q-checkbox__svg,
           .audion-choice-row .q-checkbox__svg,
           .audion-checkbox-card .q-checkbox__svg {

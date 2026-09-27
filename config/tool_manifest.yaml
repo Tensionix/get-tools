@@ -208,6 +208,7 @@ x-package-fields: &package_fields
       - value: "Microsoft.PowerShell"
         label: "PowerShell 7"
         label_ru: "PowerShell 7"
+        cli: true
       - value: "Eugeny.Tabby"
         label: "Tabby"
         label_ru: "Tabby"
@@ -248,12 +249,15 @@ x-package-fields: &package_fields
       - value: "yt-dlp.yt-dlp"
         label: "yt-dlp"
         label_ru: "yt-dlp"
+        cli: true
       - value: "RHash.RHash"
         label: "RHash"
         label_ru: "RHash"
+        cli: true
       - value: "Git.Git"
         label: "Git"
         label_ru: "Git"
+        cli: true
       - value: "Microsoft.VisualStudioCode"
         label: "Visual Studio Code"
         label_ru: "Visual Studio Code"
@@ -269,9 +273,11 @@ x-package-fields: &package_fields
       - value: "Gyan.FFmpeg"
         label: "FFmpeg"
         label_ru: "FFmpeg"
+        cli: true
       - value: "aristocratos.btop4win"
         label: "btop4win"
         label_ru: "btop4win"
+        cli: true
       - value: "Microsoft.PowerToys"
         label: "PowerToys"
         label_ru: "PowerToys"
@@ -281,6 +287,7 @@ x-package-fields: &package_fields
       - value: "FarManager.FarManager"
         label: "Far Manager"
         label_ru: "Far Manager"
+        cli: true
       - value: "StefansTools.grepWin"
         label: "grepWin"
         label_ru: "grepWin"
@@ -311,6 +318,38 @@ x-package-fields: &package_fields
       - value: "ShareX.ShareX"
         label: "ShareX"
         label_ru: "ShareX"
+      - value: "GitHub.cli"
+        label: "GitHub CLI · gh"
+        label_ru: "GitHub CLI · gh"
+        cli: true
+      - value: "astral-sh.uv"
+        label: "uv (Python)"
+        label_ru: "uv (Python)"
+        cli: true
+      - value: "BurntSushi.ripgrep.MSVC"
+        label: "ripgrep"
+        label_ru: "ripgrep"
+        cli: true
+      - value: "sharkdp.fd"
+        label: "fd"
+        label_ru: "fd"
+        cli: true
+      - value: "junegunn.fzf"
+        label: "fzf"
+        label_ru: "fzf"
+        cli: true
+      - value: "jqlang.jq"
+        label: "jq"
+        label_ru: "jq"
+        cli: true
+      - value: "sharkdp.bat"
+        label: "bat"
+        label_ru: "bat"
+        cli: true
+      - value: "gerardog.gsudo"
+        label: "gsudo"
+        label_ru: "gsudo"
+        cli: true
 
   - id: packages_ai
     type: "checkboxes"
@@ -324,9 +363,27 @@ x-package-fields: &package_fields
       - value: "Anthropic.ClaudeCode"
         label: "Claude Code"
         label_ru: "Claude Code"
+        cli: true
       - value: "OpenAI.Codex"
         label: "OpenAI Codex"
         label_ru: "OpenAI Codex"
+        cli: true
+      - value: "GitHub.Copilot"
+        label: "GitHub Copilot"
+        label_ru: "GitHub Copilot"
+        cli: true
+      - value: "xAI.GrokBuild"
+        label: "Grok Build (xAI)"
+        label_ru: "Grok Build (xAI)"
+        cli: true
+      - value: "SST.opencode"
+        label: "opencode"
+        label_ru: "opencode"
+        cli: true
+      - value: "Ollama.Ollama"
+        label: "Ollama"
+        label_ru: "Ollama"
+        cli: true
 
   - id: packages_pkms
     type: "checkboxes"
@@ -399,6 +456,7 @@ x-package-fields: &package_fields
       - value: "ImageMagick.ImageMagick"
         label: "ImageMagick"
         label_ru: "ImageMagick"
+        cli: true
       - value: "IrfanSkiljan.IrfanView"
         label: "IrfanView"
         label_ru: "IrfanView"
@@ -543,6 +601,7 @@ x-package-fields: &package_fields
       - value: "Rclone.Rclone"
         label: "Rclone"
         label_ru: "Rclone"
+        cli: true
       - value: "Bdrive.RcloneView"
         label: "RcloneView"
         label_ru: "RcloneView"
@@ -595,9 +654,11 @@ x-package-fields: &package_fields
       - value: "Fastfetch-cli.Fastfetch"
         label: "fastfetch"
         label_ru: "fastfetch"
+        cli: true
       - value: "Clement.bottom"
         label: "bottom"
         label_ru: "bottom"
+        cli: true
       - value: "AntibodySoftware.WizTree"
         label: "WizTree"
         label_ru: "WizTree"

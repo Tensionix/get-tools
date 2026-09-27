@@ -328,7 +328,8 @@ class ConsoleProcess:
         ):
             raise ConsoleUnavailable(f"UpdateProcThreadAttribute failed: {ctypes.get_last_error()}")
 
-        command_line = ctypes.create_unicode_buffer(subprocess.list2cmdline(command))
+        # A str is a finished command line (CMD's own quoting); a list is quoted for the C runtime.
+        command_line = ctypes.create_unicode_buffer(command if isinstance(command, str) else subprocess.list2cmdline(command))
         environment = _environment_block(env)
         process_info = PROCESS_INFORMATION()
         created = kernel32.CreateProcessW(
@@ -349,7 +350,7 @@ class ConsoleProcess:
         )
         if not created:
             error = ctypes.get_last_error()
-            raise OSError(0, f"CreateProcessW failed for {command[0]}", None, error)
+            raise OSError(0, f"CreateProcessW failed for {command if isinstance(command, str) else command[0]}", None, error)
 
         self._process_handle = wintypes.HANDLE(process_info.hProcess)
         self._thread_handle = wintypes.HANDLE(process_info.hThread)

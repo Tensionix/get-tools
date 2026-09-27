@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Iterable
 import json
 import os
+import queue
 import re
 import shutil
 import subprocess
@@ -18,6 +19,7 @@ from system_core.core.ansi import strip_ansi
 from system_core.core.conpty import ConsoleProcess, ConsoleUnavailable, console_supported
 from system_core.core.jobs import JobContext, hidden_subprocess_kwargs, utf8_subprocess_env
 from system_core.core.output_decode import decode_process_bytes, decode_process_output
+from system_core.core.process_tree import ProcessTree
 from system_core.core.stream_output import StreamAssembler, is_spinner_only
 from system_core.services.package_links import (
     download_folder_name,
@@ -296,11 +298,38 @@ def _project_path(context: JobContext, value: Any, fallback: str) -> Path:
     return path
 
 
-def _display_command(command: list[str]) -> str:
+class CmdLine(str):
+    """A command line for CMD, handed to Windows as it is.
+
+    A list goes through the C runtime's quoting (`\"` inside), which CMD does not read: a quoted
+    path or a script in a folder with spaces fails. CMD gets `cmd.exe /d /s /c "<text>"` instead -
+    /s takes off the outer quotes only and runs the text as written.
+    """
+
+    @classmethod
+    def run(cls, text: str) -> "CmdLine":
+        return cls(f'cmd.exe /d /s /c "{text}"')
+
+
+CMD_SPECIAL = set(' \t&|<>^(),;="')
+
+
+def cmd_quote(argument: str) -> str:
+    """One argument for CMD: in quotes when it has a space or a character CMD acts on."""
+    if argument and not (CMD_SPECIAL & set(argument)):
+        return argument
+    return '"' + argument.replace('"', '""') + '"'
+
+
+def _display_command(command: list[str] | str) -> str:
+    if isinstance(command, str):
+        return command
     return " ".join(f'"{item}"' if " " in item else item for item in command)
 
 
-def unbuffer_python_command(command: list[str]) -> list[str]:
+def unbuffer_python_command(command: list[str] | str) -> list[str] | str:
+    if isinstance(command, str):
+        return command
     if len(command) < 2:
         return command
     executable = Path(command[0]).name.lower()
@@ -564,6 +593,63 @@ def _progress_ticker(context: JobContext, start: float):
     return tick
 
 
+CANCEL_POLL_SECONDS = 0.2
+
+
+def _stop_tree(context: JobContext, tree: ProcessTree, process) -> None:
+    """STOP: the process and everything it started, waited for; an elevated installer is outside."""
+    context.log("[CANCEL] Stopping the process and everything it started...")
+    all_gone = tree.kill()
+    try:
+        process.kill()
+    except OSError:
+        pass
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        pass
+    if not all_gone:
+        context.log(f"{ANSI_YELLOW}[CANCEL] Some child processes could not be confirmed stopped.{ANSI_RESET}")
+    context.log(
+        f"{ANSI_YELLOW}[CANCEL] An installer that asked for administrator rights runs outside this tree "
+        f"and may go on - check it before the next step.{ANSI_RESET}"
+    )
+
+
+def _pump(chunks, source, name: str) -> threading.Thread:
+    """Read the output in a thread of its own: a silent process must not keep STOP waiting."""
+
+    def run() -> None:
+        try:
+            for chunk in source():
+                chunks.put(chunk)
+        except (OSError, ValueError):
+            pass
+        finally:
+            chunks.put(None)
+
+    reader = threading.Thread(target=run, name=name, daemon=True)
+    reader.start()
+    return reader
+
+
+def _follow_output(context: JobContext, chunks, assembler: StreamAssembler, tick, stop) -> None:
+    """Feed the output on, checking STOP every CANCEL_POLL_SECONDS whether the process speaks or not."""
+    while True:
+        if context.cancelled():
+            stop()
+            raise _cancelled_error()
+        try:
+            chunk = chunks.get(timeout=CANCEL_POLL_SECONDS)
+        except queue.Empty:
+            tick()
+            continue
+        if chunk is None:
+            return
+        assembler.feed(chunk)
+        tick()
+
+
 def _stream_piped_process(
     context: JobContext,
     command: list[str],
@@ -572,6 +658,8 @@ def _stream_piped_process(
     assembler: StreamAssembler,
     tick,
 ) -> int:
+    if context.cancelled():
+        raise _cancelled_error()
     process = subprocess.Popen(
         command,
         cwd=str(working_dir),
@@ -582,28 +670,40 @@ def _stream_piped_process(
         **hidden_subprocess_kwargs(),
     )
     assert process.stdout is not None
-    try:
+    tree = ProcessTree(process.pid)
+    stdout = process.stdout
+
+    def blocks():
         while True:
-            chunk = process.stdout.read1(16384)
+            chunk = stdout.read1(16384)
             if not chunk:
+                return
+            yield chunk
+
+    try:
+        chunks: queue.Queue = queue.Queue()
+        _pump(chunks, blocks, "audion-pipe-read")
+        _follow_output(context, chunks, assembler, tick, lambda: _stop_tree(context, tree, process))
+        # The output ended; the process may still be finishing - STOP still counts.
+        while True:
+            try:
+                code = int(process.wait(timeout=CANCEL_POLL_SECONDS))
                 break
-            if context.cancelled():
-                context.log("[CANCEL] Terminating child process...")
-                process.terminate()
-                try:
-                    process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    process.kill()
-                raise _cancelled_error()
-            assembler.feed(chunk)
-            tick()
+            except subprocess.TimeoutExpired:
+                if context.cancelled():
+                    _stop_tree(context, tree, process)
+                    raise _cancelled_error()
+        if context.cancelled():
+            _stop_tree(context, tree, process)
+            raise _cancelled_error()
     finally:
         try:
-            process.stdout.close()
+            stdout.close()
         except OSError:
             pass
+        tree.close()
     assembler.flush()
-    return int(process.wait())
+    return code
 
 
 def _stream_console_process(
@@ -614,16 +714,21 @@ def _stream_console_process(
     assembler: StreamAssembler,
     tick,
 ) -> int:
+    if context.cancelled():
+        raise _cancelled_error()
     with ConsoleProcess(command, cwd=working_dir, env=env, columns=CONSOLE_STREAM_COLUMNS) as process:
-        for chunk in process.read_chunks():
+        tree = ProcessTree(process.pid)
+        try:
+            chunks: queue.Queue = queue.Queue()
+            _pump(chunks, process.read_chunks, "audion-conpty-read")
+            _follow_output(context, chunks, assembler, tick, lambda: _stop_tree(context, tree, process))
             if context.cancelled():
-                context.log("[CANCEL] Terminating child process...")
-                process.terminate()
+                _stop_tree(context, tree, process)
                 raise _cancelled_error()
-            assembler.feed(chunk)
-            tick()
-        assembler.flush()
-        return int(process.wait(timeout=60))
+            assembler.flush()
+            return int(process.wait(timeout=60))
+        finally:
+            tree.close()
 
 
 def _run_process(
@@ -702,9 +807,8 @@ def _run_cmd_script(context: JobContext, script: str, args: list[str] | None = N
     script_path = _resolve_project_path(context, script)
     if not script_path.exists():
         raise RuntimeError(f"Script was not found: {script_path}")
-    script_call = subprocess.list2cmdline([str(script_path), *(args or [])])
-    command = ["cmd.exe", "/d", "/c", f"chcp 65001 >nul & call {script_call}"]
-    return _run_process(context, command)
+    script_call = " ".join(cmd_quote(item) for item in [str(script_path), *(args or [])])
+    return _run_process(context, CmdLine.run(f"chcp 65001 >nul & call {script_call}"))
 
 
 def _resolve_powershell() -> str:
@@ -731,7 +835,7 @@ def terminal_command(context: JobContext) -> dict[str, object]:
 
     if os.name == "nt":
         if shell == "cmd":
-            command = ["cmd.exe", "/d", "/c", f"chcp 65001 >nul & {command_text}"]
+            command = CmdLine.run(f"chcp 65001 >nul & {command_text}")
         else:
             powershell = _resolve_powershell()
             powershell_command = POWERSHELL_UTF8_PREAMBLE + command_text
@@ -3188,6 +3292,36 @@ def _download_target_dir(context: JobContext) -> Path:
     return _output_base(context) / DOWNLOAD_DIRECTORY_NAME
 
 
+_CLI_PACKAGE_IDS: tuple[float, frozenset[str]] | None = None
+
+
+def cli_package_ids(root: Path | None = None) -> frozenset[str]:
+    """Package ids marked `cli: true` in the manifest: command-line tools, shown with a CLI badge in any group.
+
+    Read again when the manifest changes; lower-case ids.
+    """
+    global _CLI_PACKAGE_IDS
+    project_root = Path(root) if root else Path(__file__).resolve().parents[2]
+    manifest_path = project_root / "config" / "tool_manifest.yaml"
+    try:
+        stamp = manifest_path.stat().st_mtime
+        if _CLI_PACKAGE_IDS is not None and _CLI_PACKAGE_IDS[0] == stamp:
+            return _CLI_PACKAGE_IDS[1]
+        raw = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
+    except Exception:  # noqa: BLE001 - a badge must never break the window
+        return frozenset()
+    ids: set[str] = set()
+    for field in raw.get("x-package-fields", []) or []:
+        if not isinstance(field, dict):
+            continue
+        for option in field.get("options", []) or []:
+            if isinstance(option, dict) and option.get("cli") is True:
+                value = str(option.get("value") or "").strip().lower()
+                if value:
+                    ids.add(value)
+    _CLI_PACKAGE_IDS = (stamp, frozenset(ids))
+    return _CLI_PACKAGE_IDS[1]
+
 def package_display_name(package_id: str) -> str:
     """The caption the checkbox shows, used for folder names instead of the id."""
     package_id = str(package_id or "").strip()
@@ -3354,7 +3488,8 @@ def _download_package_to(
 
     artefacts = [item for item in _download_artefacts(target) if item not in before]
     context.progress(1.0)
-    if result.exit_code != 0 and not artefacts:
+    # A failed run is a failure whatever it left behind: a dependency is not the installer.
+    if result.exit_code != 0:
         detail = (
             f"WinGet has no {installer_type} build for {package_id} (exit code {result.exit_code}). "
             "Use the page button and pick an archive by hand."
@@ -3362,6 +3497,8 @@ def _download_package_to(
             else f"WinGet could not download {package_id} (exit code {result.exit_code}). "
             "Some packages ship no standalone installer; use the vendor page button instead."
         )
+        if artefacts:
+            detail += " Left in the folder, the main installer not confirmed: " + ", ".join(item.name for item in artefacts) + "."
         raise RuntimeError(detail)
 
     for item in artefacts:

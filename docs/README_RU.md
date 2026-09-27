@@ -1,6 +1,6 @@
 # Audion Get Tools
 
-[English](README_EN.md) · [Руководство](USER_GUIDE_RU.md)
+[English README](README_EN.md) · [User Guide](USER_GUIDE_EN.md) | [Русский README](README_RU.md) · [Руководство](USER_GUIDE_RU.md)
 
 **Содержание**
 

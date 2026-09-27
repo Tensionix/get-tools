@@ -4,4 +4,7 @@
 Anthropic.Claude
 Anthropic.ClaudeCode
 OpenAI.Codex
-
+GitHub.Copilot
+xAI.GrokBuild
+SST.opencode
+Ollama.Ollama

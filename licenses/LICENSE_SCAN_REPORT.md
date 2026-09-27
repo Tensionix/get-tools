@@ -1,10 +1,10 @@
 # Audion Build Licenses Scan Report
 
 - Project: **Audion Get Tools** (`audion-get-tools`)
-- Run: `20260918T025540Z_audion-get-tools_b92cfb4f`
-- Project root: `S:\Releases\Audion Get Tools`
-- Scan root: `S:\Releases\Audion Get Tools`
-- Output: `S:\Releases\Audion Get Tools\licenses`
+- Run: `20260927T120952Z_audion-get-tools_e0baa1ac`
+- Project root: `E:\Release Plus\Audion Get Tools`
+- Scan root: `E:\Release Plus\Audion Get Tools`
+- Output: `E:\Release Plus\Audion Get Tools\licenses`
 - Status: **PASS**
 - Components: 84
 - Bundled: 84
@@ -27,7 +27,7 @@ No issues detected.
 | annotated-types | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.8.0 | 0.8.0 |
 | anyio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.15.1 | 4.15.1 |
 | attrs | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.1.0 | 26.1.0 |
-| Audion launcher | `NEW_COMPONENT_APPROVED_PROFILE` | - | bundled |
+| Audion launcher | `UNCHANGED` | bundled | bundled |
 | bidict | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.24.1 | 0.24.1 |
 | bottle | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.13.4 | 0.13.4 |
 | certifi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2026.7.22 | 2026.7.22 |
@@ -42,14 +42,14 @@ No issues detected.
 | fastapi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.141.1 | 0.141.1 |
 | frozenlist | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.8.0 | 1.8.0 |
 | fzf | `UNCHANGED` | bundled | bundled |
-| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.58.0 | 2.58.0 |
-| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.24.0 | 2.24.0 |
+| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.58.1 | 2.58.1 |
+| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.25.0 | 2.25.0 |
 | h11 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.16.0 | 0.16.0 |
 | httpcore | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.0.9 | 1.0.9 |
-| httpcore2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.0 | 2.13.0 |
+| httpcore2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.13.1 |
 | httptools | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.8.0 | 0.8.0 |
 | httpx | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.28.1 | 0.28.1 |
-| httpx2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.0 | 2.13.0 |
+| httpx2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.13.1 |
 | idna | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.20 | 3.20 |
 | ifaddr | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.2.0 | 0.2.0 |
 | itsdangerous | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.2.0 | 2.2.0 |
@@ -59,9 +59,9 @@ No issues detected.
 | markdown2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.5.5 | 2.5.5 |
 | MarkupSafe | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.0.3 | 3.0.3 |
 | mdurl | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.1.2 | 0.1.2 |
-| multidict | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 6.8.0 | 6.8.0 |
-| nicegui | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.17.0 | 3.17.0 |
-| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.14.1 | 3.15.0 |
+| multidict | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 6.9.1 | 6.9.1 |
+| nicegui | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.17.1 | 3.17.1 |
+| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.19.2 | 3.19.2 |
 | orjson | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.12.0 | 3.12.0 |
 | packaging | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.3 | 26.3 |
 | pip | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.2.1 | 26.2.1 |
@@ -87,7 +87,7 @@ No issues detected.
 | setuptools | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 84.0.0 | 84.0.0 |
 | simple-websocket | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.1.0 | 1.1.0 |
 | sniffio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.3.1 | 1.3.1 |
-| starlette | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.6.0 | 1.6.0 |
+| starlette | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.7.0 | 1.7.0 |
 | tenacity | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 9.1.4 | 9.1.4 |
 | tinycss2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.5.1 | 1.5.1 |
 | tqdm | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.70.1 | 4.70.1 |
@@ -95,8 +95,8 @@ No issues detected.
 | typing_extensions | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.16.0 | 4.16.0 |
 | typing-inspection | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.4 | 0.4.4 |
 | urllib3 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.8.0 | 2.8.0 |
-| uvicorn | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.53.0 | 0.53.0 |
-| watchfiles | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.2.0 | 1.2.0 |
+| uvicorn | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.54.0 | 0.54.0 |
+| watchfiles | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.3.0 | 1.3.0 |
 | webencodings | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.6.1 | 0.6.1 |
 | websockets | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 16.1.1 | 16.1.1 |
 | wheel | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.48.0 | 0.48.0 |

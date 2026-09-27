@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Iterable
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+from http.client import IncompleteRead
 import hashlib
 import json
 import os
@@ -165,6 +166,29 @@ def _progress_between(context: JobContext, start: float | None, end: float | Non
     context.progress(start + (end - start) * max(0.0, min(1.0, fraction)))
 
 
+def _done_marker(target: Path) -> Path:
+    """The note of a finished download: its size and SHA256, written only after a complete download."""
+    return target.with_name(target.name + ".ok")
+
+
+def _cached(target: Path, expected_sha256: str) -> tuple[int, str] | None:
+    """A file counts as cached only with its note of a finished download, and when it still matches it."""
+    marker = _done_marker(target)
+    if not target.is_file() or not marker.is_file():
+        return None
+    try:
+        note = json.loads(marker.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    size = target.stat().st_size
+    if size <= 0 or int(note.get("size", -1)) != size:
+        return None
+    digest = _sha256(target)
+    if str(note.get("sha256", "")).lower() != digest or (expected_sha256 and expected_sha256 != digest):
+        return None
+    return size, digest
+
+
 def _download(
     context: JobContext,
     url: str,
@@ -173,15 +197,19 @@ def _download(
     *,
     progress_start: float | None = None,
     progress_end: float | None = None,
+    expected_sha256: str = "",
 ) -> DownloadedAsset:
     target.parent.mkdir(parents=True, exist_ok=True)
-    if target.exists() and target.stat().st_size > 0:
-        size = target.stat().st_size
-        digest = _sha256(target)
+    expected = expected_sha256.lower().removeprefix("sha256:").strip()
+    cached = _cached(target, expected)
+    if cached:
+        size, digest = cached
         context.log(f"[CACHE] {label}: {target} ({size} bytes)")
         context.log(f"[SHA256] {digest}")
         _progress_between(context, progress_start, progress_end, 1.0)
         return DownloadedAsset(label, url, target, digest, size)
+    if target.exists():
+        context.log(f"[CACHE] {label}: {target.name} has no note of a finished download - fetching it again")
 
     context.log(f"[DOWNLOAD] {label}")
     context.log(f"[URL] {url}")
@@ -189,6 +217,7 @@ def _download(
     part = target.with_name(target.name + ".part")
     if part.exists():
         part.unlink()
+    _done_marker(target).unlink(missing_ok=True)
     try:
         with urlopen(request, timeout=120) as response, part.open("wb") as handle:
             total = int(response.headers.get("Content-Length") or 0)
@@ -209,15 +238,23 @@ def _download(
                         last_logged_percent = percent
             if total <= 0:
                 _progress_between(context, progress_start, progress_end, 1.0)
+        # A connection that closed early is not a download: nothing is published under the final name.
+        if total > 0 and downloaded != total:
+            raise IncompleteRead(b"", total - downloaded)
+        digest = _sha256(part)
+        if expected and digest != expected:
+            raise RuntimeError(f"SHA256 mismatch: expected {expected}, got {digest}")
         part.replace(target)
-    except (HTTPError, URLError, TimeoutError) as exc:
+    except (HTTPError, URLError, TimeoutError, IncompleteRead, OSError, RuntimeError) as exc:
         if part.exists():
             part.unlink()
+        if isinstance(exc, IncompleteRead):
+            raise RuntimeError(f"Download incomplete: {url} ({downloaded} of {total} bytes) - run it again") from exc
         raise RuntimeError(f"Download failed: {url} ({exc})") from exc
     size = target.stat().st_size
-    digest = _sha256(target)
+    _done_marker(target).write_text(json.dumps({"size": size, "sha256": digest, "url": url}), encoding="utf-8")
     context.log(f"[OK] {target} ({size} bytes)")
-    context.log(f"[SHA256] {digest}")
+    context.log(f"[SHA256] {digest}" + (" (matches the release)" if expected else ""))
     return DownloadedAsset(label, url, target, digest, size)
 
 
@@ -403,6 +440,7 @@ def _download_github_asset(
         f"{label} {tag}",
         progress_start=progress_start,
         progress_end=progress_end,
+        expected_sha256=str(asset.get("digest") or ""),
     )
 
 

@@ -26,4 +26,11 @@ JetBrains.PyCharm.Community
 JetBrains.WebStorm
 ShareX.ShareX
 FarManager.FarManager
-
+GitHub.cli
+astral-sh.uv
+BurntSushi.ripgrep.MSVC
+sharkdp.fd
+junegunn.fzf
+jqlang.jq
+sharkdp.bat
+gerardog.gsudo
