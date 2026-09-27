@@ -3,19 +3,20 @@
 <!-- audion:release -->
 <p align="center">
   <a href="https://audion.dev/downloads/get-tools"><img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0b6db8?style=flat-square&logo=windows&logoColor=white"></a>
-  <a href="https://github.com/Tensionix/get-tools/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/Tensionix/get-tools?style=flat-square&label=release&color=e08a63"></a>
+  <a href="https://github.com/Tensionix/get-tools/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/Tensionix/get-tools?style=flat-square&label=release&color=2a7488"></a>
   <a href="https://github.com/Tensionix/get-tools/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/Tensionix/get-tools/total?style=flat-square&label=downloads&color=5fd08a"></a>
   <a href="https://github.com/Tensionix/get-tools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Tensionix/get-tools?style=flat-square&color=5fd08a&logo=apache&logoColor=white&cacheSeconds=3600"></a>
 </p>
 
-**Version 2.16.0** · 2026-09-20 · 210.2 MB
+**Version 2.17.1** · 2026-09-27 · 210.4 MB
 
-- [Direct download](https://audion.dev/get/get-tools/2.16.0/Audion_Get_Tools_v2.16.0_Full.zip) — unmetered, no rate limits
+- [Direct download](https://dl.audion.dev/get-tools/2.17.1/Audion_Get_Tools_v2.17.1_Full.zip) — unmetered, no rate limits
 - [Project page](https://audion.dev/downloads/get-tools) — every version and how to install
+- [GitHub release](https://github.com/Tensionix/get-tools/releases/tag/v2.17.1)
 
 <p align="center"><img src="docs/screenshot.png" alt="The program window" width="560"></p>
 
-`SHA-256: 30db11a9b640e3385fd36294d29a42f418ec8e386ac0d6974839c0cef5928b6b`
+`SHA-256: a024b6cb594859c28d84c2c061966b13df06949cb459447dcdcc401561c4757c`
 
 ---
 
