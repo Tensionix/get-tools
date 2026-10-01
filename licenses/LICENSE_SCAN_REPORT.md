@@ -1,13 +1,12 @@
 # Audion Build Licenses Scan Report
 
 - Project: **Audion Get Tools** (`audion-get-tools`)
-- Run: `20260927T120952Z_audion-get-tools_e0baa1ac`
-- Project root: `E:\Release Plus\Audion Get Tools`
-- Scan root: `E:\Release Plus\Audion Get Tools`
-- Output: `E:\Release Plus\Audion Get Tools\licenses`
+- Run: `20261001T211027Z_audion-get-tools_6c29d39f`
+- Scan root (from the project root): `.`
+- Output (from the project root): `licenses`
 - Status: **PASS**
-- Components: 84
-- Bundled: 84
+- Components: 85
+- Bundled: 85
 - Optional runtime: 0
 
 ## Issues
@@ -32,18 +31,18 @@ No issues detected.
 | bottle | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.13.4 | 0.13.4 |
 | certifi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2026.7.22 | 2026.7.22 |
 | cffi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.1.1 | 2.1.1 |
-| charset-normalizer | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.5.1 | 3.5.1 |
+| charset-normalizer | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.5.2 | 3.5.2 |
 | click | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 8.5.0 | 8.5.0 |
 | clr_loader | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.3.1 | 0.3.1 |
 | colorama | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.6 | 0.4.6 |
-| cryptography | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 50.0.1 | 50.0.1 |
+| cryptography | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 50.0.2 | 50.0.2 |
 | distro | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.9.0 | 1.9.0 |
 | docutils | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.23 | 0.23 |
-| fastapi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.141.1 | 0.141.1 |
+| fastapi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.142.2 | 0.142.2 |
 | frozenlist | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.8.0 | 1.8.0 |
 | fzf | `UNCHANGED` | bundled | bundled |
-| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.58.1 | 2.58.1 |
-| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.25.0 | 2.25.0 |
+| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.59.1 | 2.59.1 |
+| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.26.0 | 2.26.0 |
 | h11 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.16.0 | 0.16.0 |
 | httpcore | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.0.9 | 1.0.9 |
 | httpcore2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.13.1 |
@@ -61,7 +60,8 @@ No issues detected.
 | mdurl | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.1.2 | 0.1.2 |
 | multidict | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 6.9.1 | 6.9.1 |
 | nicegui | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.17.1 | 3.17.1 |
-| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.19.2 | 3.19.2 |
+| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.22.1 | 3.22.1 |
+| opentelemetry-api | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.45.0 | 1.45.0 |
 | orjson | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.12.0 | 3.12.0 |
 | packaging | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.3 | 26.3 |
 | pip | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.2.1 | 26.2.1 |
@@ -74,12 +74,12 @@ No issues detected.
 | pydantic | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.5 | 2.13.5 |
 | pydantic_core | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.46.5 | 2.46.5 |
 | Pygments | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.21.0 | 2.21.0 |
-| python-dotenv | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.2.3 | 1.2.3 |
+| python-dotenv | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.2.4 | 1.2.4 |
 | Python Embedded | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.12.x | 3.12.x |
 | python-engineio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.14.0 | 4.14.0 |
 | python-multipart | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.0.32 | 0.0.32 |
 | python-socketio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 5.17.0 | 5.17.0 |
-| pythonnet | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.1.0 | 3.1.0 |
+| pythonnet | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.2.0 | 3.2.0 |
 | pywebview | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 6.2.1 | 6.2.1 |
 | PyYAML | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 6.0.3 | 6.0.3 |
 | requests | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.34.2 | 2.34.2 |

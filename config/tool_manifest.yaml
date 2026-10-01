@@ -2603,8 +2603,8 @@ operation_groups:
         type: "profile_buttons"
         label: "App set"
         label_ru: "Набор приложений"
-        tooltip: "One press ticks a set below. Minimal: the four system packages, Store, Store purchases, Windows Security and App Installer. Work: those plus thirteen tools and ten codecs, 27 packages, the default and the set the reference image was built with. Everything: the whole catalog with Edge, as Microsoft ships it. Every card can be changed afterwards."
-        tooltip_ru: "Одно нажатие отмечает набор ниже. Минимум: четыре системных пакета, Магазин, Покупки Store, Безопасность Windows и установщик приложений. Работа: они же плюс тринадцать инструментов и десять кодеков, 27 пакетов, выбор по умолчанию, с ним собран эталонный образ. Всё: весь каталог вместе с Edge, как у Microsoft. Любую карточку потом можно поправить."
+        tooltip: "One press ticks a set below. Minimal: the four system packages, Store, Store purchases, Windows Security and App Installer. Work: those plus thirteen tools and nine codecs, 26 packages, the default and the set the reference image was built with. Everything: the whole catalog with Edge, as Microsoft ships it. Every card can be changed afterwards."
+        tooltip_ru: "Одно нажатие отмечает набор ниже. Минимум: четыре системных пакета, Магазин, Покупки Store, Безопасность Windows и установщик приложений. Работа: они же плюс тринадцать инструментов и девять кодеков, 26 пакетов, выбор по умолчанию, с ним собран эталонный образ. Всё: весь каталог вместе с Edge, как у Microsoft. Любую карточку потом можно поправить."
         visible_when:
           vendor: "uupdump"
           uup_view: "apps"
@@ -2650,7 +2650,6 @@ operation_groups:
                 - "Microsoft.AV1VideoExtension_8wekyb3d8bbwe"
                 - "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe"
                 - "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
-                - "Microsoft.DolbyAudioExtensions_8wekyb3d8bbwe"
           - id: "apps_all"
             label: "Everything"
             label_ru: "Всё"
@@ -2712,7 +2711,6 @@ operation_groups:
                 - "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe"
                 - "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe"
                 - "Microsoft.WebpImageExtension_8wekyb3d8bbwe"
-                - "Microsoft.DolbyAudioExtensions_8wekyb3d8bbwe"
                 - "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
                 - "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe"
                 - "Microsoft.AV1VideoExtension_8wekyb3d8bbwe"
@@ -2838,7 +2836,6 @@ operation_groups:
           - "Microsoft.AV1VideoExtension_8wekyb3d8bbwe"
           - "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe"
           - "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
-          - "Microsoft.DolbyAudioExtensions_8wekyb3d8bbwe"
         grid_min_px: 200
         visible_when:
           vendor: "uupdump"
@@ -2904,7 +2901,6 @@ operation_groups:
           - { value: "Microsoft.AV1VideoExtension_8wekyb3d8bbwe", label: "Codec: AV1", label_ru: "Кодек: AV1" }
           - { value: "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe", label: "Codec: MPEG-2", label_ru: "Кодек: MPEG-2" }
           - { value: "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe", label: "Codec: AVC encoder", label_ru: "Кодек: AVC encoder" }
-          - { value: "Microsoft.DolbyAudioExtensions_8wekyb3d8bbwe", label: "Codec: Dolby Audio", label_ru: "Кодек: Dolby Audio" }
       - id: driver_packages
         section: "drivers"
         visible_when:

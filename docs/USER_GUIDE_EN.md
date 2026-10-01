@@ -99,25 +99,25 @@ Updates and extra editions are put into the image by DISM, and the converter tak
 
 Above the edition sit three `Image kind` presets: `Business` sets Pro with Enterprise, Education, Pro Education and Pro for Workstations, as in the business editions ISO; `Consumer` sets Home and Pro in one image with Education, Pro Education and Pro for Workstations, as in the consumer editions ISO; `Pro only` clears the extras. The `Edge (1)` button in the apps block decides whether the Edge browser goes into the image. The Edge WebView2 runtime is untouched and stays in the system: it is a separate component, apps run and are built on it, from the new Outlook and Teams to third-party programs.
 
-The `Built-in apps` block decides which Store apps go into the image. `As Microsoft` puts in the stock set, `None` puts in none, `Chosen below` (the default) opens a list of 60 cards, Edge first where ticked apps are installed and the rest never appear in the system, so there is nothing to remove afterwards. Three `App set` presets fill the list: `Minimal` (the four system packages), `Work` (plus thirteen tools and ten codecs) and `Everything`; each set is laid out in the table below. The `Include in the distribution build` row gathers the ballast into toggle buttons: a button that is not pressed keeps its group out of the image, a pressed one installs it. By default all seven are off, and the image ships with the `Work` set and without Edge. The number in the label is how many packages the group holds, the list sits in the button's tooltip: `Media stack (4)` is Media Player, Films & TV, Photos and Clipchamp; `Edge (1)` is the browser itself, its card is the first of the list; then `Xbox (6)`, `Teams and mail (6)`, `Bing and widgets (6)`, `Promo and helpers (8)` and `Small tools (2)`. The buttons and the cards below show one and the same choice: untick one card of a group and its button goes dark. The mechanism is the same for every Windows 11 client edition, not only N: the converter comments the surplus lines out of its package list and leaves them out of the image. OneDrive and Copilot are not Store packages; they are removed after installation.
+The `Built-in apps` block decides which Store apps go into the image. `As Microsoft` puts in the stock set, `None` puts in none, `Chosen below` (the default) opens a list of 59 cards, Edge first where ticked apps are installed and the rest never appear in the system, so there is nothing to remove afterwards. Three `App set` presets fill the list: `Minimal` (the four system packages), `Work` (plus thirteen tools and nine codecs) and `Everything`; each set is laid out in the table below. The `Include in the distribution build` row gathers the ballast into toggle buttons: a button that is not pressed keeps its group out of the image, a pressed one installs it. By default all seven are off, and the image ships with the `Work` set and without Edge. The number in the label is how many packages the group holds, the list sits in the button's tooltip: `Media stack (4)` is Media Player, Films & TV, Photos and Clipchamp; `Edge (1)` is the browser itself, its card is the first of the list; then `Xbox (6)`, `Teams and mail (6)`, `Bing and widgets (6)`, `Promo and helpers (8)` and `Small tools (2)`. The buttons and the cards below show one and the same choice: untick one card of a group and its button goes dark. The mechanism is the same for every Windows 11 client edition, not only N: the converter comments the surplus lines out of its package list and leaves them out of the image. OneDrive and Copilot are not Store packages; they are removed after installation.
 
 Install sets, the buttons of the `App set` row; each one just fills the card list, which can then be edited by hand or with the group buttons:
 
 | Set | Packages | What gets installed | Who it is for |
 |---|---|---|---|
 | `Minimal` | 4 | system only: Store, Store purchases, Windows Security, App Installer | an image for an application server or a kiosk that needs nothing from the Store while WinGet and Store updates keep working |
-| `Work` | 27 | the system packages, thirteen tools (Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate) and ten codecs | a work machine without entertainment and promotion; the default, and the reference image was built with it |
-| `Everything` | 60 | the whole catalog with Edge, as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
+| `Work` | 26 | the system packages, thirteen tools (Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate) and nine codecs | a work machine without entertainment and promotion; the default, and the reference image was built with it |
+| `Everything` | 59 | the whole catalog with Edge, as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
 
 The `Image kind` row above is about editions, not apps: `Business` is Pro plus Enterprise, Education, Pro Education and Pro for Workstations, `Consumer` is Home and Pro plus Education, Pro Education and Pro for Workstations, `Pro only` is one edition. Sets and image kinds combine freely.
 
-The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 60 cards in total, Edge among them, nothing sits outside a group.
+The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 59 cards in total, Edge among them, nothing sits outside a group.
 
 | Group | Count | Inside | By default |
 |---|---|---|---|
 | System | 4 | Microsoft Store, Store purchases, Windows Security, App Installer (WinGet) | in the image, `Work` set |
 | Tools | 13 | Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate | in the image, `Work` set |
-| Codecs | 10 | Web Media, RAW images, HEIF, HEVC, VP9, WebP, AV1, MPEG-2, AVC encoder, Dolby Audio | in the image, `Work` set |
+| Codecs | 9 | Web Media, RAW images, HEIF, HEVC, VP9, WebP, AV1, MPEG-2, AVC encoder | in the image, `Work` set |
 | Media stack | 4 | Media Player, Films & TV, Photos, Clipchamp | off |
 | Edge | 1 | the Edge browser only; the Edge WebView2 runtime is untouched and stays, apps run and are built on it | off |
 | Xbox | 6 | Xbox app, Xbox Game Bar, Xbox Game overlay, Xbox speech overlay, Xbox identity, Xbox TCUI | off |
@@ -572,11 +572,11 @@ Scan the system, show only missing packages, and install checked IDs without Y/N
 
 **Developer tools** — cards with checkboxes, any set.
 - Default: empty
-- Options (25 items): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX
+- Options (33 items): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo
 
 **AI** — cards with checkboxes, any set.
 - Default: empty
-- Options: Claude; Claude Code; OpenAI Codex
+- Options: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama
 
 **PKMS and notes** — cards with checkboxes, any set.
 - Default: empty
@@ -653,11 +653,11 @@ Show available updates by project groups and update only checked IDs.
 
 **Developer tools** — cards with checkboxes, any set.
 - Default: empty
-- Options (25 items): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX
+- Options (33 items): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo
 
 **AI** — cards with checkboxes, any set.
 - Default: empty
-- Options: Claude; Claude Code; OpenAI Codex
+- Options: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama
 
 **PKMS and notes** — cards with checkboxes, any set.
 - Default: empty
@@ -1204,7 +1204,7 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Options: As Microsoft; Chosen below; None
 
 **App set** — a row of preset buttons: a press fills the fields below.
-- Tooltip: One press ticks a set below. Minimal: the four system packages, Store, Store purchases, Windows Security and App Installer. Work: those plus thirteen tools and ten codecs, 27 packages, the default and the set the reference image was built with. Everything: the whole catalog with Edge, as Microsoft ships it. Every card can be changed afterwards.
+- Tooltip: One press ticks a set below. Minimal: the four system packages, Store, Store purchases, Windows Security and App Installer. Work: those plus thirteen tools and nine codecs, 26 packages, the default and the set the reference image was built with. Everything: the whole catalog with Edge, as Microsoft ships it. Every card can be changed afterwards.
 - Shown when: Vendor = 'Windows (UUP dump)'; Windows page = 'Apps'; Built-in apps = 'Chosen below'
 - Buttons:
   - **Minimal**
@@ -1225,9 +1225,9 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 
 **Apps in the image** — cards with checkboxes, any set.
 - Tooltip: Ticked apps go into the image, the rest are never installed, so there is nothing to remove afterwards. The Store, Windows Security and App Installer are worth keeping: WinGet and Store updates run through them. The codec extensions give Explorer and the Photos-free system HEIF, WebP, HEVC and AV1 thumbnails and playback.
-- Default: 27: Microsoft Store, Store purchases, Windows Security, App Installer (WinGet), Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link ...
+- Default: 26: Microsoft Store, Store purchases, Windows Security, App Installer (WinGet), Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link ...
 - Shown when: Vendor = 'Windows (UUP dump)'; Windows page = 'Apps'; Built-in apps = 'Chosen below'
-- Options (60 items): Microsoft Edge (browser); Microsoft Store; Store purchases; Windows Security; App Installer (WinGet); Notepad; Windows Terminal; Calculator; Snipping Tool; Paint; Camera; Photos; Clock; Sticky Notes; Maps; Sound Recorder; Media Player; Films & TV; Clipchamp; Phone Link; Cross Device; Mail and Calendar; Outlook (new); People; Teams; To Do; Office hub (M365); Cortana; Bing Search; News; Weather; Widgets (web experience); Widgets runtime; Start experiences; Xbox app; Xbox Game Bar; Xbox Game overlay; Xbox speech overlay; Xbox identity; Xbox TCUI; Solitaire; Feedback Hub; Get Help; Tips; Quick Assist; Family; Power Automate; Dev Home; PC Manager; App compatibility enhancements; Codec: Web Media; Codec: RAW images; Codec: HEIF; Codec: HEVC; Codec: VP9; Codec: WebP; Codec: AV1; Codec: MPEG-2; Codec: AVC encoder; Codec: Dolby Audio
+- Options (59 items): Microsoft Edge (browser); Microsoft Store; Store purchases; Windows Security; App Installer (WinGet); Notepad; Windows Terminal; Calculator; Snipping Tool; Paint; Camera; Photos; Clock; Sticky Notes; Maps; Sound Recorder; Media Player; Films & TV; Clipchamp; Phone Link; Cross Device; Mail and Calendar; Outlook (new); People; Teams; To Do; Office hub (M365); Cortana; Bing Search; News; Weather; Widgets (web experience); Widgets runtime; Start experiences; Xbox app; Xbox Game Bar; Xbox Game overlay; Xbox speech overlay; Xbox identity; Xbox TCUI; Solitaire; Feedback Hub; Get Help; Tips; Quick Assist; Family; Power Automate; Dev Home; PC Manager; App compatibility enhancements; Codec: Web Media; Codec: RAW images; Codec: HEIF; Codec: HEVC; Codec: VP9; Codec: WebP; Codec: AV1; Codec: MPEG-2; Codec: AVC encoder
 
 **Drivers for the image: the ticked ones are embedded when the ISO is built; Export drivers writes them to output\Drivers** — cards with checkboxes, any set.
 - Tooltip: Every tick goes into the image when the ISO is built: this machine's drivers are exported with pnputil /export-driver straight into the build's Drivers\OS, and DISM embeds the packages into install.wim, so Windows Setup installs them with the system. This machine's third-party packages sit under a header per class (Network, Bluetooth, Chipset, Storage, Audio, Display...), the network classes ticked when the list opens, only the newest version of each driver; in-box Microsoft ones are not listed. Packages from elsewhere: put folders with .inf, .sys and .cat anywhere inside the input folder (the Source path at the top of the window) and press Refresh list: they appear on top under Packages under input, ticked. Only unpacked INF packages work, a vendor's .exe installer does not; the bitness must match the image (x64); unsigned drivers need test mode on the target machine. Storage and RAID drivers without which Setup cannot see the disk are not covered here. No tick: the image keeps Microsoft's in-box drivers only.

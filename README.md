@@ -8,15 +8,14 @@
   <a href="https://github.com/Tensionix/get-tools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Tensionix/get-tools?style=flat-square&color=5fd08a&logo=apache&logoColor=white&cacheSeconds=3600"></a>
 </p>
 
-**Version 2.17.2** · 2026-10-02 · 10.0 MB
+**Version 2.17.2** · 2026-10-02 · 208.0 MB
 
-- [Direct download](https://dl.audion.dev/get-tools/2.17.2/Audion_Get_Tools_v2.17.2.zip) — unmetered, no rate limits
+- [Direct download](https://audion.dev/get/get-tools/2.17.2/Audion_Get_Tools_v2.17.2_Full.zip) — unmetered, no rate limits
 - [Project page](https://audion.dev/downloads/get-tools) — every version and how to install
-- [GitHub release](https://github.com/Tensionix/get-tools/releases/tag/v2.17.2)
 
 <p align="center"><img src="docs/screenshot.png" alt="The program window" width="560"></p>
 
-`SHA-256: 282a96a132324d08bcf5901b60cb216d36934d4d6a83135dd947a2730d19bb18`
+`SHA-256: ef0cfdc02c9ecc30ced7a385dfa7f5f5cd7b54aef0fe15b1312e7068e3f2ba66`
 
 ---
 
@@ -283,20 +282,20 @@ Install sets, the buttons of the `App set` row; each one just fills the card lis
 | Set | Packages | What gets installed | Who it is for |
 |---|---|---|---|
 | `Minimal` | 4 | system only: Store, Store purchases, Windows Security, App Installer | an image for an application server or a kiosk that needs nothing from the Store while WinGet and Store updates keep working |
-| `Work` | 27 | the system packages, thirteen tools (Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate) and ten codecs | a work machine without entertainment and promotion; the default, and the reference image was built with it |
-| `Everything` | 60 | the whole catalog with Edge, as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
+| `Work` | 26 | the system packages, thirteen tools (Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate) and nine codecs | a work machine without entertainment and promotion; the default, and the reference image was built with it |
+| `Everything` | 59 | the whole catalog with Edge, as Microsoft ships it, only with the list open for editing | when everything stock is wanted with the option to untick a card or two |
 
 The `Image kind` row above is about editions, not apps: `Business` is Pro plus Enterprise, Education, Pro Education and Pro for Workstations, `Consumer` is Home and Pro plus Education, Pro Education and Pro for Workstations, `Pro only` is one edition. Sets and image kinds combine freely.
 
 #### Windows app groups
 
-The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 60 cards in total, Edge among them, nothing sits outside a group.
+The whole Store package catalog the way the program divides it: the `Work` set plus the seven buttons of the `Include in the distribution build` row. 59 cards in total, Edge among them, nothing sits outside a group.
 
 | Group | Count | Inside | By default |
 |---|---|---|---|
 | System | 4 | Microsoft Store, Store purchases, Windows Security, App Installer (WinGet) | in the image, `Work` set |
 | Tools | 13 | Notepad, Windows Terminal, Calculator, Snipping Tool, Paint, Camera, Sound Recorder, Phone Link, Clock, Sticky Notes, To Do, Weather, Power Automate | in the image, `Work` set |
-| Codecs | 10 | Web Media, RAW images, HEIF, HEVC, VP9, WebP, AV1, MPEG-2, AVC encoder, Dolby Audio | in the image, `Work` set |
+| Codecs | 9 | Web Media, RAW images, HEIF, HEVC, VP9, WebP, AV1, MPEG-2, AVC encoder | in the image, `Work` set |
 | Media stack | 4 | Media Player, Films & TV, Photos, Clipchamp | off |
 | Edge | 1 | the Edge browser only; the Edge WebView2 runtime is untouched and stays, apps run and are built on it | off |
 | Xbox | 6 | Xbox app, Xbox Game Bar, Xbox Game overlay, Xbox speech overlay, Xbox identity, Xbox TCUI | off |

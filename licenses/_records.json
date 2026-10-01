@@ -185,7 +185,7 @@
   },
   {
     "name": "charset-normalizer",
-    "version": "3.5.1",
+    "version": "3.5.2",
     "license": "MIT",
     "source": "site-packages",
     "license_files": [
@@ -237,7 +237,7 @@
   },
   {
     "name": "cryptography",
-    "version": "50.0.1",
+    "version": "50.0.2",
     "license": "Apache-2.0 OR BSD-3-Clause",
     "source": "site-packages",
     "license_files": [
@@ -281,7 +281,7 @@
   },
   {
     "name": "fastapi",
-    "version": "0.141.1",
+    "version": "0.142.2",
     "license": "MIT",
     "source": "site-packages",
     "license_files": [
@@ -320,7 +320,7 @@
   },
   {
     "name": "google-auth",
-    "version": "2.58.1",
+    "version": "2.59.1",
     "license": "Apache 2.0",
     "source": "site-packages",
     "license_files": [
@@ -333,7 +333,7 @@
   },
   {
     "name": "google-genai",
-    "version": "2.25.0",
+    "version": "2.26.0",
     "license": "Apache-2.0",
     "source": "site-packages",
     "license_files": [
@@ -570,7 +570,7 @@
   },
   {
     "name": "openai",
-    "version": "3.19.2",
+    "version": "3.22.1",
     "license": "Apache-2.0",
     "source": "site-packages",
     "license_files": [
@@ -580,6 +580,19 @@
     "legal_document_hashes": [
       "154759c1e9eb58e42643ee43ec59d556def4d1d702d911a484c469e02f85dd5d",
       "fb34962916248c2e011077fb64b82d585814631bd291f2b78e37eccea9a9fe78"
+    ]
+  },
+  {
+    "name": "opentelemetry-api",
+    "version": "1.45.0",
+    "license": "Apache-2.0",
+    "source": "site-packages",
+    "license_files": [
+      "licenses/THIRD_PARTY_NOTICES.txt"
+    ],
+    "license_fingerprint": "e8b19a3f0c88161c8a9ef2183a1c9f57ec753c3ea9ba469a9c17e76bb453bf96",
+    "legal_document_hashes": [
+      "50e6751797c50dedd75ef1b8a0d9e42f5f8472e9fbce91f34718e9f97b0c780a"
     ]
   },
   {
@@ -766,7 +779,7 @@
   },
   {
     "name": "python-dotenv",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "license": "BSD-3-Clause",
     "source": "site-packages",
     "license_files": [
@@ -831,7 +844,7 @@
   },
   {
     "name": "pythonnet",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "license": "MIT",
     "source": "site-packages",
     "license_files": [
