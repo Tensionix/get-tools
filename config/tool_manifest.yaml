@@ -191,8 +191,10 @@ x-package-fields: &package_fields
     default: []
     options:
       - value: "windows-feature:NetFx3"
-        label: ".NET Framework 3.5 (Windows feature)"
-        label_ru: ".NET Framework 3.5 (компонент Windows)"
+        label: ".NET Framework 3.5"
+        label_ru: ".NET Framework 3.5"
+        tooltip: "A feature of Windows itself, not a package: it is switched on through DISM, and Windows Update brings its files."
+        tooltip_ru: "Компонент самой Windows, а не пакет: включается через DISM, файлы приносит Центр обновления."
       - value: "Microsoft.DotNet.DesktopRuntime.6"
         label: ".NET Desktop Runtime 6"
         label_ru: ".NET Desktop Runtime 6"
@@ -765,6 +767,8 @@ x-ai-llm-fields: &ai_llm_fields
     searchable: true
     options_source: "system_core.services.winget_ai_service:openai_api_key_options"
     cache_seconds: 30
+    visible_when:
+      provider: "openai"
   - id: openai_model
     section: "provider"
     type: "select"
@@ -774,8 +778,15 @@ x-ai-llm-fields: &ai_llm_fields
     tooltip_ru: "Выберите кэшированную или найденную через API модель OpenAI для сборки плана."
     default: ""
     searchable: true
+    # A list of a hundred models and more: a drop-down with a search, the pinned first. The list
+    # is asked with the key chosen above it, and anew when the key changes.
+    view: "dropdown"
+    pins: "system_core.services.winget_ai_service:pin_option"
+    depends_on: ["openai_api_key_ref"]
     options_source: "system_core.services.winget_ai_service:openai_model_options"
     cache_seconds: 3600
+    visible_when:
+      provider: "openai"
   - id: openai_model_override
     section: "provider"
     type: "text"
@@ -784,6 +795,8 @@ x-ai-llm-fields: &ai_llm_fields
     tooltip: "Optional manual model ID. Use it when the model is valid but not yet present in the cache."
     tooltip_ru: "Необязательный ручной ID модели. Полезно, если модель уже доступна, но ещё не попала в кэш."
     default: ""
+    visible_when:
+      provider: "openai"
   - id: openai_reasoning
     section: "provider"
     type: "radio"
@@ -803,6 +816,8 @@ x-ai-llm-fields: &ai_llm_fields
       - value: "high"
         label: "Deep"
         label_ru: "Глубже"
+    visible_when:
+      provider: "openai"
   - id: gemini_api_key_ref
     section: "provider"
     type: "select"
@@ -814,6 +829,8 @@ x-ai-llm-fields: &ai_llm_fields
     searchable: true
     options_source: "system_core.services.winget_ai_service:gemini_api_key_options"
     cache_seconds: 30
+    visible_when:
+      provider: "gemini"
   - id: gemini_model
     section: "provider"
     type: "select"
@@ -823,8 +840,13 @@ x-ai-llm-fields: &ai_llm_fields
     tooltip_ru: "Выберите кэшированную или найденную через API модель Gemini для сборки плана."
     default: ""
     searchable: true
+    view: "dropdown"
+    pins: "system_core.services.winget_ai_service:pin_option"
+    depends_on: ["gemini_api_key_ref"]
     options_source: "system_core.services.winget_ai_service:gemini_model_options"
     cache_seconds: 3600
+    visible_when:
+      provider: "gemini"
   - id: gemini_model_override
     section: "provider"
     type: "text"
@@ -833,6 +855,8 @@ x-ai-llm-fields: &ai_llm_fields
     tooltip: "Optional manual Gemini model ID. Use it when the model is valid but not yet present in the cache."
     tooltip_ru: "Необязательный ручной ID модели Gemini. Полезно, если модель уже доступна, но ещё не попала в кэш."
     default: ""
+    visible_when:
+      provider: "gemini"
   - id: ai_prompt_ref
     section: "prompt"
     type: "select"
@@ -848,6 +872,7 @@ x-ai-llm-fields: &ai_llm_fields
   - id: ai_prompt
     section: "prompt"
     type: "markdown_editor"
+    rows: 3
     label: "AI planner instruction"
     label_ru: "Инструкция AI-планировщика"
     tooltip: "Rules for how the AI should reason and format the plan: propose options first, validate WinGet IDs, mention risks, and avoid installing at this step."
@@ -913,8 +938,8 @@ operation_groups:
   - id: install_selected_packages
     title: "Install selected"
     title_ru: "Установить выбранные"
-    description: "Scan the system, show only missing packages, and install checked IDs without Y/N/Q prompts."
-    description_ru: "Просканировать систему, показать только отсутствующие пакеты и установить отмеченные ID без консольных Y/N/Q."
+    description: "Install every package ticked in the catalogue. A package that is already installed is passed by: WinGet is called with --no-upgrade."
+    description_ru: "Установить все пакеты, отмеченные в каталоге. Уже установленный пакет пропускается: WinGet вызывается с --no-upgrade."
     service: "system_core.services.winget_service:run_selected_packages"
     kind: "dangerous"
     parameters:
@@ -950,8 +975,8 @@ operation_groups:
   - id: update_selected_packages
     title: "Update selected"
     title_ru: "Обновить выбранные"
-    description: "Show available updates by project groups and update only checked IDs."
-    description_ru: "Показать доступные обновления по группам проекта и обновить только отмеченные ID."
+    description: "Update the packages ticked in the catalogue. A package that is not installed or has no update is passed by with a [SKIP] line."
+    description_ru: "Обновить пакеты, отмеченные в каталоге. Пакет, который не установлен или не устарел, пропускается строкой [SKIP]."
     service: "system_core.services.winget_service:run_selected_packages"
     kind: "dangerous"
     parameters:
@@ -1269,6 +1294,17 @@ operation_groups:
                 default: "Подготовь Windows-машину для Dev/Media: Git, VS Code, Python, FFmpeg, OBS, HandBrake, LosslessCut, 7-Zip."
                 rows: 3
                 span: "full"
+              - id: search_limit
+                section: "generation"
+                type: "number"
+                label: "Search candidates"
+                label_ru: "Кандидатов поиска"
+                tooltip: "Maximum WinGet search candidates collected per proposed package."
+                tooltip_ru: "Сколько кандидатов WinGet search собирать для каждого предложенного пакета."
+                default: 5
+                min: 1
+                max: 20
+                step: 1
               - id: include_installed_scan
                 section: "generation"
                 type: "checkbox"
@@ -1287,17 +1323,6 @@ operation_groups:
                 tooltip_ru: "Передать LLM кураторские группы пакетов Audion как контекст для более точных предложений."
                 default: true
                 span: "half"
-              - id: search_limit
-                section: "generation"
-                type: "number"
-                label: "Search candidates"
-                label_ru: "Кандидатов поиска"
-                tooltip: "Maximum WinGet search candidates collected per proposed package."
-                tooltip_ru: "Сколько кандидатов WinGet search собирать для каждого предложенного пакета."
-                default: 5
-                min: 1
-                max: 20
-                step: 1
 
           - id: ai_check_model
             title: "Check model"
@@ -1554,245 +1579,6 @@ operation_groups:
                 default: ""
                 placeholder: "Microsoft.PowerShell"
 
-  - id: portable
-    title: "Portable Browsers"
-    title_ru: "Portable-браузеры"
-    description: "Download portable browser archives into output and build or update Google Chrome Portable."
-    description_ru: "Скачать portable-архивы браузеров в output и собрать или обновить Google Chrome Portable."
-    tooltip: "Portable mode writes ready archives to the selected output folder and does not install browsers into Windows."
-    tooltip_ru: "Portable-режим кладёт готовые архивы в выбранную папку output и не устанавливает браузеры в Windows."
-    children:
-      - id: portable_install_google_chrome_web
-        title: "Google Chrome (web installer)"
-        title_ru: "Google Chrome (веб-установщик)"
-        description: "Download the Google Chrome web installer for this system language and architecture, then install it silently."
-        description_ru: "Скачать веб-установщик Google Chrome под язык и разрядность системы и установить его без вопросов."
-        tooltip: "The ~12 MB web installer picks the locale and the x64/ARM64 build itself at install time, so it always matches the current system. This is a normal Windows install, not a portable build."
-        tooltip_ru: "Веб-установщик (~12 МБ) сам подбирает локаль и сборку x64/ARM64 в момент установки, поэтому всегда соответствует текущей системе. Это обычная установка в Windows, а не portable-сборка."
-        service: "system_core.services.portable_browser_service:install_google_chrome_web"
-        kind: "dangerous"
-
-      - id: portable_download_google_chrome_web
-        title: "Google Chrome (download only)"
-        title_ru: "Google Chrome (только скачать)"
-        description: "Download the Google Chrome web installer into the portable archives folder without installing it."
-        description_ru: "Скачать веб-установщик Google Chrome в папку portable-архивов, ничего не устанавливая."
-        tooltip: "Same ~12 MB web installer, saved to output\\Portable\\_archives\\ChromeSetup.exe and left there."
-        tooltip_ru: "Тот же веб-установщик (~12 МБ), сохраняется в output\\Portable\\_archives\\ChromeSetup.exe и остаётся там."
-        service: "system_core.services.portable_browser_service:download_google_chrome_web"
-        kind: "safe"
-
-      - id: portable_install_7zip
-        title: "Check / install portable 7-Zip"
-        title_ru: "Проверить / установить portable 7-Zip"
-        description: "Check Tools\\7zip\\bin\\7za.exe and run install\\Install-Portable-7Zip.cmd when it is missing."
-        description_ru: "Проверить Tools\\7zip\\bin\\7za.exe и запустить install\\Install-Portable-7Zip.cmd, если 7-Zip отсутствует."
-        service: "system_core.services.portable_browser_service:install_portable_7zip"
-        kind: "dangerous"
-
-      - id: portable_download_browsers
-        title: "Download portable browsers"
-        title_ru: "Скачать portable-браузеры"
-        description: "Download selected portable browser packages and place ready ZIP/SFX artifacts into output\\Portable."
-        description_ru: "Скачать выбранные portable-браузеры и положить готовые ZIP/SFX-артефакты в output\\Portable."
-        service: "system_core.services.portable_browser_service:download_portable_browsers"
-        kind: "safe"
-        fields:
-          - id: portable_browsers
-            type: "checkboxes"
-            label: "Portable browsers"
-            label_ru: "Portable-браузеры"
-            tooltip: "Choose which portable browser packages to download. Cent Browser is kept as its official portable SFX."
-            tooltip_ru: "Выберите portable-браузеры для скачивания. Cent Browser сохраняется как официальный portable SFX."
-            default:
-              - "ungoogled_chromium_portable"
-              - "zen_browser_portable"
-              - "cent_browser_portable"
-            min_selected: 1
-            grid_min_px: 300
-            options:
-              - value: "ungoogled_chromium_portable"
-                label: "Ungoogled Chromium Portable"
-                label_ru: "Ungoogled Chromium Portable"
-              - value: "zen_browser_portable"
-                label: "Zen Browser Portable"
-                label_ru: "Zen Browser Portable"
-              - value: "cent_browser_portable"
-                label: "Cent Browser Portable x64"
-                label_ru: "Cent Browser Portable x64"
-          - id: keep_temp
-            type: "checkbox"
-            label: "Keep temp"
-            label_ru: "Сохранить temp"
-            tooltip: "Leave output\\Portable\\_tmp after the operation for inspection or manual packaging checks."
-            tooltip_ru: "Оставить output\\Portable\\_tmp после операции для проверки распаковки или ручного контроля упаковки."
-            default: false
-            span: "half"
-
-      - id: portable_build_google_chrome
-        title: "Build Google Chrome Portable"
-        title_ru: "Собрать Google Chrome Portable"
-        description: "Download Chrome++ and Google Chrome standalone, place Chrome-bin contents into App, and publish output\\Portable\\Google Chrome Portable. Archive only when enabled."
-        description_ru: "Скачать Chrome++ и Google Chrome standalone, положить содержимое Chrome-bin в App и опубликовать output\\Portable\\Google Chrome Portable. Архивировать только если включено."
-        service: "system_core.services.portable_browser_service:build_google_chrome_portable"
-        kind: "safe"
-        parameters:
-          chrome_download_url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
-        fields:
-          - id: chrome_source_preset
-            type: "profile_buttons"
-            label: "Chrome source"
-            label_ru: "Источник Chrome"
-            tooltip: "Quickly restore the official Google Chrome standalone x64 installer URL."
-            tooltip_ru: "Быстро вернуть официальную ссылку Google Chrome standalone x64."
-            presets:
-              - id: "chrome_standalone_x64"
-                label: "Standalone x64"
-                label_ru: "Standalone x64"
-                tooltip: "Official Google stable standalone installer. Usually this URL does not need to be changed."
-                tooltip_ru: "Официальный стабильный standalone-установщик Google. Обычно эту ссылку менять не нужно."
-                values:
-                  chrome_download_url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
-          - id: chrome_download_url
-            type: "text"
-            label: "Chrome download URL"
-            label_ru: "Ссылка Chrome"
-            tooltip: "Direct URL to the Google Chrome standalone installer that contains Chrome.7z. Change only when Google moves the payload or you want a custom source."
-            tooltip_ru: "Прямая ссылка на standalone-установщик Google Chrome, внутри которого ожидается Chrome.7z. Меняйте только если Google перенёс payload или нужен свой источник."
-            default: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
-            span: "full"
-          - id: chrome_plus_arch
-            type: "select"
-            label: "Chrome++ arch"
-            label_ru: "Архитектура Chrome++"
-            tooltip: "Which Chrome++ wrapper folder to use from the Chrome++ archive. The Chrome runtime URL must match the selected architecture."
-            tooltip_ru: "Какую папку оболочки Chrome++ взять из архива Chrome++. URL рантайма Chrome должен соответствовать выбранной архитектуре."
-            default: "x64"
-            span: "half"
-            options:
-              - value: "x64"
-                label: "x64"
-                label_ru: "x64"
-              - value: "x86"
-                label: "x86"
-                label_ru: "x86"
-              - value: "arm64"
-                label: "ARM64"
-                label_ru: "ARM64"
-          - id: package_archive
-            type: "checkbox"
-            label: "Pack archive"
-            label_ru: "Упаковать в архив"
-            tooltip: "When disabled, publish a ready-to-use Google Chrome Portable folder. When enabled, also package it as ZIP or 7Z."
-            tooltip_ru: "Если выключено, публикуется готовая папка Google Chrome Portable. Если включено, результат упаковывается в ZIP или 7Z."
-            default: false
-            span: "half"
-          - id: archive_format
-            type: "select"
-            label: "Archive format"
-            label_ru: "Формат архива"
-            tooltip: "Archive format used only when Pack archive is enabled."
-            tooltip_ru: "Формат используется только если включено «Упаковать в архив»."
-            default: "zip"
-            span: "half"
-            options:
-              - value: "zip"
-                label: "ZIP"
-                label_ru: "ZIP"
-              - value: "7z"
-                label: "7Z"
-                label_ru: "7Z"
-          - id: keep_temp
-            type: "checkbox"
-            label: "Keep temp"
-            label_ru: "Сохранить temp"
-            tooltip: "Leave output\\Portable\\_tmp after the operation for inspection or manual packaging checks."
-            tooltip_ru: "Оставить output\\Portable\\_tmp после операции для проверки распаковки или ручного контроля упаковки."
-            default: false
-            span: "half"
-
-      - id: portable_update_google_chrome
-        title: "Update Google Chrome Portable"
-        title_ru: "Обновить Google Chrome Portable"
-        description: "Copy Google Chrome Portable from the selected input folder, clear only App, preserve Data and Cache, then publish the updated folder. Archive only when enabled."
-        description_ru: "Скопировать Google Chrome Portable из выбранного input, очистить только App, сохранить Data и Cache, затем опубликовать обновлённую папку. Архивировать только если включено."
-        service: "system_core.services.portable_browser_service:update_google_chrome_portable"
-        kind: "safe"
-        parameters:
-          chrome_download_url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
-        fields:
-          - id: chrome_source_preset
-            type: "profile_buttons"
-            label: "Chrome source"
-            label_ru: "Источник Chrome"
-            tooltip: "Quickly restore the official Google Chrome standalone x64 installer URL."
-            tooltip_ru: "Быстро вернуть официальную ссылку Google Chrome standalone x64."
-            presets:
-              - id: "chrome_standalone_x64"
-                label: "Standalone x64"
-                label_ru: "Standalone x64"
-                tooltip: "Official Google stable standalone installer. Usually this URL does not need to be changed."
-                tooltip_ru: "Официальный стабильный standalone-установщик Google. Обычно эту ссылку менять не нужно."
-                values:
-                  chrome_download_url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
-          - id: chrome_download_url
-            type: "text"
-            label: "Chrome download URL"
-            label_ru: "Ссылка Chrome"
-            tooltip: "Direct URL to the Google Chrome standalone installer that contains Chrome.7z. Change only when Google moves the payload or you want a custom source."
-            tooltip_ru: "Прямая ссылка на standalone-установщик Google Chrome, внутри которого ожидается Chrome.7z. Меняйте только если Google перенёс payload или нужен свой источник."
-            default: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"
-            span: "full"
-          - id: chrome_plus_arch
-            type: "select"
-            label: "Chrome++ arch"
-            label_ru: "Архитектура Chrome++"
-            tooltip: "Which Chrome++ wrapper folder to use from the Chrome++ archive. The Chrome runtime URL must match the selected architecture."
-            tooltip_ru: "Какую папку оболочки Chrome++ взять из архива Chrome++. URL рантайма Chrome должен соответствовать выбранной архитектуре."
-            default: "x64"
-            span: "half"
-            options:
-              - value: "x64"
-                label: "x64"
-                label_ru: "x64"
-              - value: "x86"
-                label: "x86"
-                label_ru: "x86"
-              - value: "arm64"
-                label: "ARM64"
-                label_ru: "ARM64"
-          - id: package_archive
-            type: "checkbox"
-            label: "Pack archive"
-            label_ru: "Упаковать в архив"
-            tooltip: "When disabled, publish a ready-to-use Google Chrome Portable folder. When enabled, also package it as ZIP or 7Z."
-            tooltip_ru: "Если выключено, публикуется готовая папка Google Chrome Portable. Если включено, результат упаковывается в ZIP или 7Z."
-            default: false
-            span: "half"
-          - id: archive_format
-            type: "select"
-            label: "Archive format"
-            label_ru: "Формат архива"
-            tooltip: "Archive format used only when Pack archive is enabled."
-            tooltip_ru: "Формат используется только если включено «Упаковать в архив»."
-            default: "zip"
-            span: "half"
-            options:
-              - value: "zip"
-                label: "ZIP"
-                label_ru: "ZIP"
-              - value: "7z"
-                label: "7Z"
-                label_ru: "7Z"
-          - id: keep_temp
-            type: "checkbox"
-            label: "Keep temp"
-            label_ru: "Сохранить temp"
-            tooltip: "Leave output\\Portable\\_tmp after the operation for inspection or manual packaging checks."
-            tooltip_ru: "Оставить output\\Portable\\_tmp после операции для проверки распаковки или ручного контроля упаковки."
-            default: false
-            span: "half"
-
   - id: vendor_downloads
     title: "Vendor Downloads"
     title_ru: "Загрузки от вендоров"
@@ -1823,6 +1609,18 @@ operation_groups:
             accent: "#e8552b"
             tooltip: "TechPowerUp's catalog with the whole version history of every entry: AMD, Intel and Qualcomm drivers, tuning utilities (DDU, NVCleanstall, ThrottleStop...), monitors (GPU-Z, CPU-Z, AIDA64), benchmarks and video BIOS flashers. NVIDIA drivers and DLSS stay on the NVIDIA tab."
             tooltip_ru: "Каталог TechPowerUp со всей историей версий каждой записи: драйверы AMD, Intel и Qualcomm, утилиты настройки (DDU, NVCleanstall, ThrottleStop...), мониторинг (GPU-Z, CPU-Z, AIDA64), бенчмарки и прошивальщики BIOS видеокарт. Драйверы NVIDIA и DLSS остаются на вкладке NVIDIA."
+          - value: "mscatalog"
+            label: "Windows Update"
+            label_ru: "Windows Update"
+            accent: "#0f9d8a"
+            tooltip: "The drivers Windows Update gives, taken by hand from the Microsoft Update Catalog: bare WHQL drivers signed by Microsoft, without the vendor's programs. Realtek, MediaTek, Qualcomm, Broadcom, Killer and Marvell network, Wi-Fi, Bluetooth and sound drivers, Intel Management Engine and RST. The list is searched by the hardware id of this PC's own device; the newest driver for it is ticked unless the device runs it already. A package is checked for Microsoft's signature and unpacked into its folder."
+            tooltip_ru: "Драйверы, которые ставит Центр обновления Windows, взятые вручную из Каталога обновлений Microsoft: чистые драйверы WHQL с подписью Microsoft, без программ производителя. Сеть, Wi-Fi, Bluetooth и звук Realtek, MediaTek, Qualcomm, Broadcom, Killer и Marvell, Intel Management Engine и RST. Список ищется по идентификатору устройства этого ПК; новейший драйвер для него отмечается, если устройство ещё не работает на нём. У пакета проверяется подпись Microsoft, затем он распаковывается в свою папку."
+          - value: "intelchipset"
+            label: "Intel Chipset"
+            label_ru: "Чипсет Intel"
+            accent: "#0071c5"
+            tooltip: "Intel Chipset Device Software - the chipset INF: the package that names the devices of an Intel board to Windows. Every package from 10.0.13 on. The Intel devices of this PC choose the package: the newest one that carries their INF files is ticked. The sources in turn: Intel's own server, then unofficial ones - the web archive's copy, station-drivers.com, the archive of FirstEverTech's Universal Intel Chipset Updater. Whatever the source, every installer is checked for the signature of Intel Corporation, and a zip is unpacked into its folder."
+            tooltip_ru: "Intel Chipset Device Software - INF чипсета: пакет, который называет Windows устройства платы Intel. Все пакеты начиная с 10.0.13. Пакет выбирают устройства Intel этого ПК: отмечается новейший, в котором есть их INF-файлы. Источники по очереди: сервер самой Intel, затем неофициальные - копия из архива веба, station-drivers.com, архив Universal Intel Chipset Updater от FirstEverTech. Откуда бы ни пришёл файл, у каждого установщика проверяется подпись Intel Corporation, а zip распаковывается в свою папку."
           - value: "nvidia"
             label: "NVIDIA"
             label_ru: "NVIDIA"
@@ -1835,6 +1633,182 @@ operation_groups:
             label: "Affinity"
             label_ru: "Affinity"
             accent: "#9b6cff"
+          - value: "programs"
+            label: "Programs"
+            label_ru: "Программы"
+            accent: "#d18a3c"
+            tooltip: "Programs taken as files, the newest their makers publish: the installer, or the portable build with the Portable button. Boot media (Media Creation Tool, Rufus, Ventoy), system utilities, tools for tests of FPS, memory and cooling, game launchers. A file comes from its maker - a release page on GitHub, a fixed address, or WinGet's own download; nothing is installed. The list is config\\programs.yaml."
+            tooltip_ru: "Программы файлом, новейшие от их производителей: установщик, а с кнопкой «Портативные» - портативная сборка. Установочный носитель (Media Creation Tool, Rufus, Ventoy), системные утилиты, инструменты для тестов FPS, памяти и охлаждения, игровые лаунчеры. Файл приходит от производителя - со страницы выпуска на GitHub, по постоянному адресу или загрузкой самого WinGet; ничего не устанавливается. Список лежит в config\\programs.yaml."
+      - id: msc_kind
+        section: "build"
+        type: "radio"
+        label: "Device"
+        label_ru: "Устройство"
+        tooltip: "The kind of device the driver is for. These are the drivers Windows Update installs by itself, taken by hand from the Microsoft Update Catalog: bare INF drivers signed by Microsoft (WHQL), without the vendor's programs. Intel's network, Wi-Fi and Bluetooth drivers are on the AMD, Intel, Qualcomm page - TechPowerUp mirrors Intel's own packages."
+        tooltip_ru: "Вид устройства, для которого нужен драйвер. Это драйверы, которые Центр обновления Windows ставит сам, взятые вручную из Каталога обновлений Microsoft: чистые INF-драйверы с подписью Microsoft (WHQL), без программ производителя. Сетевые, Wi-Fi и Bluetooth драйверы Intel - на странице «AMD, Intel, Qualcomm»: их пакеты зеркалит TechPowerUp."
+        default: "lan"
+        default_from: "system_core.services.vendor_service:default_catalog_kind"
+        span: "full"
+        visible_when:
+          vendor: "mscatalog"
+        options:
+          - value: "lan"
+            label: "Network card"
+            label_ru: "Сетевая карта"
+          - value: "wifi"
+            label: "Wi-Fi"
+            label_ru: "Wi-Fi"
+          - value: "bluetooth"
+            label: "Bluetooth"
+            label_ru: "Bluetooth"
+          - value: "audio"
+            label: "Sound"
+            label_ru: "Звук"
+          - value: "chipset"
+            label: "Chipset and storage"
+            label_ru: "Чипсет и накопители"
+      - id: msc_lan
+        section: "build"
+        type: "radio"
+        label: "Vendor"
+        label_ru: "Производитель"
+        tooltip: "Whose chip the device has. The list below is searched in the Microsoft Update Catalog by the hardware id of this PC's own device of that kind; when the PC has none, the general list of the kind is shown and nothing is ticked."
+        tooltip_ru: "Чей чип стоит в устройстве. Список ниже ищется в Каталоге обновлений Microsoft по идентификатору устройства этого ПК; если такого устройства на ПК нет, показывается общий список вида и ничего не отмечается."
+        default: "Realtek LAN"
+        default_from: "system_core.services.vendor_service:default_catalog_driver"
+        span: "full"
+        visible_when:
+          vendor: "mscatalog"
+          msc_kind: "lan"
+        options:
+          - value: "Realtek LAN"
+            label: "Realtek"
+            label_ru: "Realtek"
+          - value: "Killer Ethernet"
+            label: "Killer"
+            label_ru: "Killer"
+          - value: "Broadcom NetXtreme"
+            label: "Broadcom NetXtreme"
+            label_ru: "Broadcom NetXtreme"
+          - value: "Marvell AQtion"
+            label: "Marvell AQtion"
+            label_ru: "Marvell AQtion"
+      - id: msc_wifi
+        section: "build"
+        type: "radio"
+        label: "Vendor"
+        label_ru: "Производитель"
+        tooltip: "Whose chip the device has. The list below is searched in the Microsoft Update Catalog by the hardware id of this PC's own device of that kind; when the PC has none, the general list of the kind is shown and nothing is ticked."
+        tooltip_ru: "Чей чип стоит в устройстве. Список ниже ищется в Каталоге обновлений Microsoft по идентификатору устройства этого ПК; если такого устройства на ПК нет, показывается общий список вида и ничего не отмечается."
+        default: "Realtek Wi-Fi"
+        default_from: "system_core.services.vendor_service:default_catalog_driver"
+        span: "full"
+        visible_when:
+          vendor: "mscatalog"
+          msc_kind: "wifi"
+        options:
+          - value: "Realtek Wi-Fi"
+            label: "Realtek"
+            label_ru: "Realtek"
+          - value: "MediaTek Wi-Fi"
+            label: "MediaTek"
+            label_ru: "MediaTek"
+          - value: "Qualcomm Wi-Fi"
+            label: "Qualcomm"
+            label_ru: "Qualcomm"
+          - value: "Broadcom Wi-Fi"
+            label: "Broadcom"
+            label_ru: "Broadcom"
+          - value: "Killer Wi-Fi"
+            label: "Killer"
+            label_ru: "Killer"
+      - id: msc_bluetooth
+        section: "build"
+        type: "radio"
+        label: "Vendor"
+        label_ru: "Производитель"
+        tooltip: "Whose chip the device has. The list below is searched in the Microsoft Update Catalog by the hardware id of this PC's own device of that kind; when the PC has none, the general list of the kind is shown and nothing is ticked."
+        tooltip_ru: "Чей чип стоит в устройстве. Список ниже ищется в Каталоге обновлений Microsoft по идентификатору устройства этого ПК; если такого устройства на ПК нет, показывается общий список вида и ничего не отмечается."
+        default: "Realtek Bluetooth"
+        default_from: "system_core.services.vendor_service:default_catalog_driver"
+        span: "full"
+        visible_when:
+          vendor: "mscatalog"
+          msc_kind: "bluetooth"
+        options:
+          - value: "Realtek Bluetooth"
+            label: "Realtek"
+            label_ru: "Realtek"
+          - value: "MediaTek Bluetooth"
+            label: "MediaTek"
+            label_ru: "MediaTek"
+          - value: "Qualcomm Bluetooth"
+            label: "Qualcomm"
+            label_ru: "Qualcomm"
+          - value: "Broadcom Bluetooth"
+            label: "Broadcom"
+            label_ru: "Broadcom"
+      - id: msc_audio
+        section: "build"
+        type: "radio"
+        label: "Vendor"
+        label_ru: "Производитель"
+        tooltip: "Whose chip the device has. The list below is searched in the Microsoft Update Catalog by the hardware id of this PC's own device of that kind; when the PC has none, the general list of the kind is shown and nothing is ticked."
+        tooltip_ru: "Чей чип стоит в устройстве. Список ниже ищется в Каталоге обновлений Microsoft по идентификатору устройства этого ПК; если такого устройства на ПК нет, показывается общий список вида и ничего не отмечается."
+        default: "Realtek Audio"
+        default_from: "system_core.services.vendor_service:default_catalog_driver"
+        span: "full"
+        visible_when:
+          vendor: "mscatalog"
+          msc_kind: "audio"
+        options:
+          - value: "Realtek Audio"
+            label: "Realtek"
+            label_ru: "Realtek"
+      - id: msc_chipset
+        section: "build"
+        type: "radio"
+        label: "Driver"
+        label_ru: "Драйвер"
+        tooltip: "Intel Management Engine: the driver of the ME interface of an Intel board. Intel RST VMD: the driver of an Intel RAID or VMD storage controller - the one Windows setup asks for when it sees no disks on such a machine."
+        tooltip_ru: "Intel Management Engine: драйвер интерфейса ME платы на Intel. Intel RST VMD: драйвер контроллера накопителей Intel RAID или VMD - тот, который просит установщик Windows, когда не видит дисков на такой машине."
+        default: "Intel Management Engine"
+        default_from: "system_core.services.vendor_service:default_catalog_driver"
+        span: "full"
+        visible_when:
+          vendor: "mscatalog"
+          msc_kind: "chipset"
+        options:
+          - value: "Intel Management Engine"
+            label: "Intel Management Engine"
+            label_ru: "Intel Management Engine"
+          - value: "Intel RST VMD"
+            label: "Intel RST VMD"
+            label_ru: "Intel RST VMD"
+      - id: prg_kind
+        section: "build"
+        type: "radio"
+        label: "Shelf"
+        label_ru: "Полка"
+        tooltip: "Which programs to list. Each is the newest file its maker publishes - an installer, a portable build, or both; nothing is installed. A portable zip or 7z is unpacked into the Portable folder of its program."
+        tooltip_ru: "Какие программы показать. Каждая - новейший файл от производителя: установщик, портативная сборка или оба; ничего не устанавливается. Портативный zip или 7z распаковывается в папку Portable своей программы."
+        default: "carrier"
+        span: "full"
+        visible_when:
+          vendor: "programs"
+        options:
+          - value: "carrier"
+            label: "Boot media"
+            label_ru: "Носитель"
+          - value: "utilities"
+            label: "Utilities"
+            label_ru: "Утилиты"
+          - value: "tests"
+            label: "Tests"
+            label_ru: "Тесты"
+          - value: "games"
+            label: "Games"
+            label_ru: "Игры"
       - id: tpu_kind
         section: "build"
         type: "radio"
@@ -2056,8 +2030,8 @@ operation_groups:
           - value: "drivers"
             label: "Drivers"
             label_ru: "Драйверы"
-            tooltip: "This machine's drivers: tick, export to output, embed from input."
-            tooltip_ru: "Драйверы этой машины: отметить, выгрузить в output, вшить из input."
+            tooltip: "Drivers for the image: the ticked ones are embedded when the ISO is built; Export drivers writes them to output\\Drivers. The list holds the driver packages found in the source folder and the third-party drivers of this machine, by the kind of device."
+            tooltip_ru: "Драйверы в образ: отмеченные вшиваются при сборке ISO; «Экспорт драйверов» выгружает их в output\\Drivers. В списке - пакеты драйверов из папки-источника и сторонние драйверы этой машины, по видам устройств."
       - id: bmd_platform
         section: "build"
         type: "radio"
@@ -2202,6 +2176,25 @@ operation_groups:
           - value: "DLSS Ray Reconstruction DLL"
             label: "DLSS Ray Rec"
             label_ru: "DLSS Ray Rec"
+      - id: nv_source
+        section: "build"
+        type: "radio"
+        label: "Source"
+        label_ru: "Источник"
+        tooltip: "Where the list of Game Ready drivers comes from. NVIDIA: NVIDIA's own service, a list by chip generation - My cards, the notebook list, the driver for the card of this PC ticked; the service stalls now and then. TechPowerUp, for when it does: one page with every release since 2017 - the list arrives at once, the file is compared with the SHA256 of its page and checked for NVIDIA's signature. The site does not say which cards a version is for: there is no choice of a generation, and nothing is ticked for the card of this PC. Studio drivers always come from NVIDIA: TechPowerUp does not keep them."
+        tooltip_ru: "Откуда берётся список драйверов Game Ready. NVIDIA: служба самой NVIDIA, список по поколению чипов - «Мои карты», ноутбучный список, отметка драйвера для карты этого ПК; служба временами подолгу молчит. TechPowerUp - на этот случай: одна страница со всеми выпусками с 2017 года, список приходит сразу, файл сверяется с SHA256 своей страницы и проверяется на подпись NVIDIA. Сайт не говорит, для каких карт версия: выбора поколения нет, и по карте этого ПК ничего не отмечается. Драйверы Studio всегда идут от NVIDIA: TechPowerUp их не держит."
+        default: "nvidia"
+        span: "full"
+        visible_when:
+          vendor: "nvidia"
+          nv_product: "Game Ready Driver"
+        options:
+          - value: "nvidia"
+            label: "NVIDIA"
+            label_ru: "NVIDIA"
+          - value: "techpowerup"
+            label: "TechPowerUp"
+            label_ru: "TechPowerUp"
       - id: nv_series
         section: "build"
         type: "radio"
@@ -2214,6 +2207,9 @@ operation_groups:
         visible_when:
           vendor: "nvidia"
           nv_product: ["Game Ready Driver", "Studio Driver"]
+        hidden_when:
+          nv_product: "Game Ready Driver"
+          nv_source: "techpowerup"
         options:
           - value: "*"
             label: "My cards"
@@ -2259,6 +2255,7 @@ operation_groups:
         tooltip: "The chip generations in your own machines. 'My cards' in the generation row shows only the driver versions NVIDIA published for every ticked generation, so one file serves them all. The ticks are remembered in config\\vendor_nvidia.yaml and come back on the next start."
         tooltip_ru: "Поколения чипов в ваших машинах. «Мои карты» в ряду поколений показывает только версии драйвера, которые NVIDIA выпустила для всех отмеченных поколений разом, то есть один файл на все. Отметки запоминаются в config\\vendor_nvidia.yaml и возвращаются при следующем запуске."
         default: []
+        default_from: "system_core.services.vendor_service:default_my_generations"
         grid_min_px: 110
         span: "full"
         options_source: "system_core.services.vendor_service:nvidia_my_generation_options"
@@ -2266,6 +2263,9 @@ operation_groups:
         visible_when:
           vendor: "nvidia"
           nv_series: "*"
+        hidden_when:
+          nv_product: "Game Ready Driver"
+          nv_source: "techpowerup"
       - id: nv_form
         section: "build"
         type: "radio"
@@ -2274,10 +2274,14 @@ operation_groups:
         tooltip: "Desktop cards or notebook GPUs: NVIDIA keeps separate driver lists for the two."
         tooltip_ru: "Настольные карты или ноутбучные GPU: у NVIDIA это два разных списка драйверов."
         default: "desktop"
+        default_from: "system_core.services.vendor_service:default_nvidia_form"
         span: "full"
         visible_when:
           vendor: "nvidia"
           nv_product: ["Game Ready Driver", "Studio Driver"]
+        hidden_when:
+          nv_product: "Game Ready Driver"
+          nv_source: "techpowerup"
         options:
           - value: "desktop"
             label: "Desktop"
@@ -2907,8 +2911,8 @@ operation_groups:
           vendor: "uupdump"
           uup_view: "drivers"
         type: "checkboxes"
-        label: "Drivers for the image: the ticked ones are embedded when the ISO is built; Export drivers writes them to output\\Drivers"
-        label_ru: "Драйверы в образ: отмеченные вшиваются при сборке ISO; «Экспорт драйверов» выгружает их в output\\Drivers"
+        label: ""
+        label_ru: ""
         tooltip: "Every tick goes into the image when the ISO is built: this machine's drivers are exported with pnputil /export-driver straight into the build's Drivers\\OS, and DISM embeds the packages into install.wim, so Windows Setup installs them with the system. This machine's third-party packages sit under a header per class (Network, Bluetooth, Chipset, Storage, Audio, Display...), the network classes ticked when the list opens, only the newest version of each driver; in-box Microsoft ones are not listed. Packages from elsewhere: put folders with .inf, .sys and .cat anywhere inside the input folder (the Source path at the top of the window) and press Refresh list: they appear on top under Packages under input, ticked. Only unpacked INF packages work, a vendor's .exe installer does not; the bitness must match the image (x64); unsigned drivers need test mode on the target machine. Storage and RAID drivers without which Setup cannot see the disk are not covered here. No tick: the image keeps Microsoft's in-box drivers only."
         tooltip_ru: "Каждая отметка уходит в образ при сборке ISO: драйверы этой машины выгружаются через pnputil /export-driver прямо в Drivers\\OS сборки, DISM вшивает пакеты в install.wim, и установщик Windows ставит их вместе с системой. Сторонние пакеты этой машины разложены по классам с заголовками (Сеть, Bluetooth, Чипсет, Диски, Звук, Видео...), сетевые классы отмечены при открытии, только новейшая версия каждого драйвера; встроенные драйверы Microsoft не показываются. Пакеты откуда-то ещё: положите папки с .inf, .sys и .cat куда угодно внутрь входной папки (путь «Источник» вверху окна) и нажмите «Обновить список»: они появятся сверху под заголовком «Пакеты из input», отмеченные. Работают только распакованные INF-пакеты, exe-установщик вендора не годится; разрядность должна совпадать с образом (x64); неподписанные драйверы потребуют тестового режима на целевой машине. Драйверы дисков и RAID, без которых сам установщик не видит диск, сюда не входят. Без отметок образ остаётся со встроенными драйверами Microsoft."
         default: []
@@ -2933,6 +2937,8 @@ operation_groups:
             label_ru: "Последняя стабильная"
             tooltip: "The newest final release; betas, previews and Insider builds are skipped."
             tooltip_ru: "Самый новый финальный выпуск; беты, preview и Insider пропускаются."
+            visible_when:
+              vendor: ["uupdump", "techpowerup", "mscatalog", "intelchipset", "nvidia", "blackmagic", "affinity"]
             pick:
               vendor_versions: "latest_stable"
           - id: "portable_only"
@@ -2941,7 +2947,7 @@ operation_groups:
             tooltip: "Portable mode: the list keeps only the versions that have a portable build or zip, and a tick now means that file, the one behind the crimson archive icon. Ticks you already made move to the portable file of the same version. Press again for the installers. An empty list means the product has no portable build."
             tooltip_ru: "Режим портативных: в списке остаются только версии, у которых есть портативная сборка или zip, и отметка теперь значит этот файл, тот, что за багровым значком архива. Уже сделанные отметки переходят на портативный файл той же версии. Повторное нажатие возвращает установщики. Пустой список значит, что портативной сборки у продукта нет."
             visible_when:
-              vendor: "techpowerup"
+              vendor: ["techpowerup", "programs"]
             toggle:
               vendor_portable_only: true
           - id: "pick_golden"
@@ -2966,11 +2972,11 @@ operation_groups:
         hidden: true
         label: "Portable builds only"
         label_ru: "Только портативные"
-        tooltip: "The Portable button of the pick row: while on, the version list keeps only versions with a portable build and a tick means that file. Counts on the TechPowerUp tab only."
-        tooltip_ru: "Кнопка «Портативные» ряда выбора: пока включена, в списке версий остаются только версии с портативной сборкой, и отметка значит этот файл. Действует только на вкладке TechPowerUp."
+        tooltip: "The Portable button of the pick row: while on, the version list keeps only versions with a portable build and a tick means that file. Counts on the TechPowerUp and Programs tabs."
+        tooltip_ru: "Кнопка «Портативные» ряда выбора: пока включена, в списке версий остаются только версии с портативной сборкой, и отметка значит этот файл. Действует на вкладках TechPowerUp и «Программы»."
         default: false
         visible_when:
-          vendor: "techpowerup"
+          vendor: ["techpowerup", "programs"]
       - id: vendor_versions
         section: "versions"
         type: "checkboxes"
@@ -2995,6 +3001,7 @@ operation_groups:
           - "aff_platform"
           - "aff_product"
           - "nv_product"
+          - "nv_source"
           - "nv_series"
           - "nv_form"
           - "nv_my_generations"
@@ -3004,6 +3011,13 @@ operation_groups:
           - "tpu_monitor"
           - "tpu_bench"
           - "tpu_bios"
+          - "msc_kind"
+          - "msc_lan"
+          - "msc_wifi"
+          - "msc_bluetooth"
+          - "msc_audio"
+          - "msc_chipset"
+          - "prg_kind"
           - "vendor_portable_only"
           - "uup_platform"
           - "uup_product"
@@ -3015,18 +3029,18 @@ operation_groups:
         section: "options"
         type: "checkbox"
         hidden_when:
-          vendor: "uupdump"
+          vendor: ["uupdump", "mscatalog", "intelchipset"]
         label: "Unpack zip"
         label_ru: "Распаковать zip"
-        tooltip: "Unpack the archive into its folder, so the installer is at hand. When everything in the zip sits in one root folder, that folder is dropped and the files land at the top. Only zip; exe, msix, dmg and tar stay as they are."
-        tooltip_ru: "Распаковать архив в его папку, чтобы установщик был под рукой. Если всё в zip лежит в одной корневой папке, она отбрасывается и файлы ложатся наверх. Только zip; exe, msix, dmg и tar остаются как есть."
+        tooltip: "Unpack the archive into its folder, so the installer is at hand. When everything in the archive sits in one root folder, that folder is dropped and the files land at the top. A zip, and a 7z through the tar of Windows; exe, msix, dmg and tar stay as they are."
+        tooltip_ru: "Распаковать архив в его папку, чтобы установщик был под рукой. Если всё в архиве лежит в одной корневой папке, она отбрасывается и файлы ложатся наверх. Архивы zip, а также 7z - через tar из состава Windows; exe, msix, dmg и tar остаются как есть."
         default: true
         span: "half"
       - id: vendor_delete_zip
         section: "options"
         type: "checkbox"
         hidden_when:
-          vendor: "uupdump"
+          vendor: ["uupdump", "mscatalog", "intelchipset"]
         label: "Delete zip after unpacking"
         label_ru: "Удалить zip после распаковки"
         tooltip: "Once unpacked, the archive only doubles the disk use. Off keeps both."
@@ -3418,8 +3432,8 @@ maintenance_operations:
   - id: check_selected_packages
     title: "Check installed IDs"
     title_ru: "Проверить наличие ID"
-    description: "Diagnostic check: run winget list for checked package IDs without installing or updating them."
-    description_ru: "Диагностика: проверить отмеченные ID через winget list без установки и обновления."
+    description: "Check which of the packages ticked in the catalogue are on this machine: winget list for each ID; nothing is installed or updated."
+    description_ru: "Проверить, какие из отмеченных в каталоге пакетов стоят на этой машине: winget list по каждому ID, ничего не устанавливается и не обновляется."
     service: "system_core.services.winget_service:check_selected_packages"
     kind: "safe"
     fields: *package_fields

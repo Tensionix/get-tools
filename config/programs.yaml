@@ -1,0 +1,183 @@
+# Programs taken as files: the installer or the portable build, the newest its maker publishes.
+#
+# A shelf is a page of the window (config\window_layout.yaml fixes `prg_kind` to it); a block is a
+# heading on the page; a program names where its installer and its portable build come from:
+#
+#   {source: github, repo: owner/repo, asset: '<regex of the file name in the latest release>'}
+#   {source: url,    url: <fixed address>, name: <file name, when the address has none>}
+#   {source: winget, id: <package id>, type: zip | portable (for a portable build)}
+#
+# A regex is searched for in the name without regard to case; the first file it finds is the one.
+# The list asks nothing of the network: a source is asked only when its program is downloaded.
+#
+# These are the programs Audion Setup Tools downloads (Manifests\Downloads.psd1) that the WinGet
+# catalogue of this program does not carry. Every source was asked on 10.10.2026: each pattern
+# named a file, each address answered, each package id exists.
+
+shelves:
+
+  # WINDOWS / Boot media
+  carrier:
+    blocks:
+      - title: "Installation media"
+        title_ru: "Установочный носитель"
+        programs:
+          - id: mct
+            name: "Windows 11 Media Creation Tool"
+            installer: {source: url, url: "https://go.microsoft.com/fwlink/?linkid=2156295", name: "MediaCreationTool.exe"}
+          - id: rufus
+            name: "Rufus"
+            installer: {source: github, repo: "pbatard/rufus", asset: '^rufus-[\d.]+\.exe$'}
+            portable: {source: github, repo: "pbatard/rufus", asset: '^rufus-[\d.]+p\.exe$'}
+          - id: ventoy
+            name: "Ventoy"
+            portable: {source: github, repo: "ventoy/Ventoy", asset: '-windows\.zip$'}
+
+  # SYSTEM / Utilities
+  utilities:
+    blocks:
+      - title: "Windows"
+        title_ru: "Windows"
+        programs:
+          - id: vivetool
+            name: "ViVeTool"
+            portable: {source: github, repo: "thebookisclosed/ViVe", asset: '-IntelAmd\.zip$'}
+          - id: soundswitch
+            name: "SoundSwitch"
+            installer: {source: github, repo: "Belphemur/SoundSwitch", asset: '_Installer\.exe$'}
+            portable: {source: github, repo: "Belphemur/SoundSwitch", asset: '^SoundSwitch-v[\d.]+\.zip$'}
+          - id: everything-pt
+            name: "EverythingPowerToys"
+            installer: {source: github, repo: "lin-ycv/EverythingPowerToys", asset: '^EverythingPT-[\d.]+-x64\.exe$'}
+            portable: {source: github, repo: "lin-ycv/EverythingPowerToys", asset: '^EverythingPT-[\d.]+-x64\.zip$'}
+          - id: explorertab
+            name: "ExplorerTabUtility"
+            installer: {source: github, repo: "w4po/ExplorerTabUtility", asset: '_Setup\.exe$'}
+            portable: {source: github, repo: "w4po/ExplorerTabUtility", asset: '_x64_NetFW4\.8\.1\.zip$'}
+          - id: symbolic11
+            name: "Symbolic11"
+            portable: {source: github, repo: "Benisgo/Symbolic11", asset: '^Symbolic11.*\.zip$'}
+          - id: nilesoft
+            name: "Nilesoft Shell"
+            installer: {source: winget, id: "Nilesoft.Shell"}
+          - id: kdeconnect
+            name: "KDE Connect"
+            installer: {source: winget, id: "KDE.KDEConnect"}
+      - title: "Uninstallers"
+        title_ru: "Удаление программ"
+        programs:
+          - id: bcu
+            name: "Bulk Crap Uninstaller"
+            installer: {source: github, repo: "Klocman/Bulk-Crap-Uninstaller", asset: '_setup\.exe$'}
+            portable: {source: github, repo: "Klocman/Bulk-Crap-Uninstaller", asset: '_portable\.7z$'}
+          - id: revo
+            name: "Revo Uninstaller"
+            installer: {source: winget, id: "RevoUninstaller.RevoUninstaller"}
+      - title: "Security"
+        title_ru: "Безопасность"
+        programs:
+          - id: veracrypt
+            name: "VeraCrypt"
+            installer: {source: github, repo: "veracrypt/VeraCrypt", asset: '^VeraCrypt_Setup_x64_[\d.]+\.msi$'}
+            portable: {source: github, repo: "veracrypt/VeraCrypt", asset: '^VeraCrypt\.Portable\.[\d.]+\.exe$'}
+          - id: msert
+            name: "Microsoft Safety Scanner"
+            portable: {source: url, url: "https://go.microsoft.com/fwlink/?LinkId=212732", name: "msert.exe"}
+      - title: "Browser and runtime"
+        title_ru: "Браузер и среда"
+        programs:
+          - id: chrome
+            name: "Google Chrome"
+            installer: {source: url, url: "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe"}
+          - id: webview2
+            name: "Microsoft Edge WebView2 Runtime"
+            installer: {source: url, url: "https://go.microsoft.com/fwlink/?linkid=2124701", name: "MicrosoftEdgeWebView2RuntimeInstallerX64.exe"}
+      - title: "Drivers"
+        title_ru: "Драйверы"
+        programs:
+          - id: intel-dsa
+            name: "Intel Driver and Support Assistant"
+            installer: {source: winget, id: "Intel.IntelDriverAndSupportAssistant"}
+
+  # HARDWARE / Tests
+  tests:
+    blocks:
+      - title: "FPS and latency"
+        title_ru: "FPS и задержка"
+        programs:
+          - id: presentmon
+            name: "Intel PresentMon"
+            installer: {source: github, repo: "GameTechDev/PresentMon", asset: '^PresentMon-[\d.]+\.msi$'}
+            portable: {source: github, repo: "GameTechDev/PresentMon", asset: '^PresentMon-[\d.]+-x64\.exe$'}
+          - id: capframex
+            name: "CapFrameX"
+            installer: {source: github, repo: "CXWorld/CapFrameX", asset: '_installer\.zip$'}
+            portable: {source: github, repo: "CXWorld/CapFrameX", asset: '_portable\.zip$'}
+          - id: pclatency
+            name: "PC Latency View"
+            portable: {source: github, repo: "notch4ff4/pc-latency-view", asset: '^PCLatency\.exe$'}
+      - title: "Memory"
+        title_ru: "Память"
+        programs:
+          - id: testmem5
+            name: "TestMem5"
+            portable: {source: github, repo: "CoolCmd/TestMem5", asset: '^TestMem5\.7z$'}
+      - title: "Cooling"
+        title_ru: "Охлаждение"
+        programs:
+          - id: fancontrol
+            name: "Fan Control"
+            installer: {source: github, repo: "Rem0o/FanControl.Releases", asset: '_net_10_0_Installer\.exe$'}
+            portable: {source: github, repo: "Rem0o/FanControl.Releases", asset: '_net_10_0\.zip$'}
+
+  # MEDIA / Games
+  games:
+    blocks:
+      - title: "Launchers"
+        title_ru: "Лаунчеры"
+        programs:
+          - id: steam
+            name: "Steam"
+            installer: {source: url, url: "https://cdn.cloudflare.steamstatic.com/client/installer/SteamSetup.exe"}
+          - id: epic
+            name: "Epic Games Launcher"
+            installer: {source: url, url: "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi"}
+          - id: ea
+            name: "EA app"
+            installer: {source: url, url: "https://origin-a.akamaihd.net/EA-Desktop-Client-Download/installer-releases/EAappInstaller.exe"}
+          - id: battlenet
+            name: "Battle.net"
+            installer: {source: url, url: "https://downloader.battle.net/download/getInstallerForGame?os=win&gameProgram=BATTLENET_APP&version=Live", name: "Battle.net-Setup.exe"}
+          - id: rockstar
+            name: "Rockstar Games Launcher"
+            installer: {source: url, url: "https://gamedownloads.rockstargames.com/public/installer/Rockstar-Games-Launcher.exe"}
+          - id: riot
+            name: "Riot Client (VALORANT)"
+            installer: {source: url, url: "https://valorant.secure.dyn.riotcdn.net/channels/public/x/installer/current/live.live.eu.exe", name: "Install VALORANT.exe"}
+      - title: "Minecraft"
+        title_ru: "Minecraft"
+        programs:
+          - id: minecraft
+            name: "Minecraft Launcher"
+            installer: {source: url, url: "https://launcher.mojang.com/download/MinecraftInstaller.msi"}
+          - id: prism
+            name: "Prism Launcher"
+            installer: {source: github, repo: "PrismLauncher/PrismLauncher", asset: '-Windows-MSVC-Setup-[\d.]+\.exe$'}
+            portable: {source: github, repo: "PrismLauncher/PrismLauncher", asset: '-Windows-MSVC-Portable-[\d.]+\.zip$'}
+          - id: freesm
+            name: "Freesm Launcher"
+            installer: {source: github, repo: "FreesmTeam/FreesmLauncher", asset: '-Windows-MSVC-Setup-[\d.]+\.exe$'}
+            portable: {source: github, repo: "FreesmTeam/FreesmLauncher", asset: '-Windows-MSVC-Portable-[\d.]+\.zip$'}
+          - id: modrinth
+            name: "Modrinth App"
+            installer: {source: winget, id: "Modrinth.ModrinthApp"}
+          - id: curseforge
+            name: "CurseForge"
+            installer: {source: winget, id: "Overwolf.CurseForge"}
+      - title: "Accounts"
+        title_ru: "Учётные записи"
+        programs:
+          - id: tcno
+            name: "TcNo Account Switcher"
+            installer: {source: github, repo: "TCNOco/TcNo-Acc-Switcher", asset: 'Installer_[\d_-]+\.exe$'}
+            portable: {source: github, repo: "TCNOco/TcNo-Acc-Switcher", asset: '^TcNo-Acc-Switcher_[\d_-]+\.zip$'}

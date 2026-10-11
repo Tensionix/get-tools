@@ -11,6 +11,8 @@ exactly what a person would have made by hand.
 from __future__ import annotations
 
 from pathlib import Path, PurePosixPath, PureWindowsPath
+import hashlib
+import json
 import os
 import re
 import shutil
@@ -18,16 +20,23 @@ import subprocess
 import time
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
+from urllib.parse import unquote
 from urllib.request import Request, urlopen
 import zipfile
 
-from system_core.core.jobs import JobContext
-from system_core.vendors import VENDOR_IDS, RegistrationRequired, VendorBuild, VendorProvider, get_provider
+from system_core.core import pc_devices
+from system_core.core.jobs import JobContext, hidden_subprocess_kwargs
+from system_core.core.rights import is_elevated
+from system_core.services.external_tools_service import start_on_its_own
+from system_core.core.live_line import download_line
+from system_core.vendors import VENDOR_IDS, BuildSource, RegistrationRequired, VendorBuild, VendorProvider, get_provider
 from system_core.vendors.blackmagic import REGISTRATION_FIELDS
 
 
 VENDORS_DIRECTORY_NAME = "Vendors"
 USER_AGENT = "Audion-Get-Vendors"
+# What a build with several sources is asked for by: sites that hand a file to a person refuse a program's name.
+SOURCE_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AudionGetTools"
 CHUNK_BYTES = 1024 * 1024
 WHOLE_CATALOG = "*"
 DEFAULT_VENDOR = VENDOR_IDS[0]
@@ -38,10 +47,17 @@ DEFAULT_VENDOR = VENDOR_IDS[0]
 VENDOR_FIELDS: dict[str, tuple[str, str, dict[str, str]]] = {
     "blackmagic": ("bmd_platform", "bmd_product", {}),
     "affinity": ("aff_platform", "aff_product", {}),
-    "nvidia": ("", "nv_product", {"series": "nv_series", "form": "nv_form", "mine": "nv_my_generations"}),
+    "nvidia": ("", "nv_product", {"series": "nv_series", "form": "nv_form", "mine": "nv_my_generations", "source": "nv_source"}),
     # TechPowerUp: no single product field; `kind` names which of the per-kind product fields is read.
     "techpowerup": ("", "", {"kind": "tpu_kind", "drivers": "tpu_driver", "tools": "tpu_tool", "monitor": "tpu_monitor", "bench": "tpu_bench", "bios": "tpu_bios"}),
     "uupdump": ("uup_platform", "uup_product", {"lang": "uup_lang", "edition": "uup_edition", "virtual": "uup_virtual"}),
+    # The Microsoft catalog: the kind of device names which of the per-kind driver fields is read, as with TechPowerUp.
+    "mscatalog": ("", "", {"kind": "msc_kind", "lan": "msc_lan", "wifi": "msc_wifi", "bluetooth": "msc_bluetooth",
+                           "audio": "msc_audio", "chipset": "msc_chipset"}),
+    # One product, nothing to choose but the version.
+    "intelchipset": ("", "", {}),
+    # Programs as files: the shelf is the product, its programs are the list.
+    "programs": ("", "prg_kind", {}),
 }
 
 UrlOpener = Callable[..., Any]
@@ -85,6 +101,10 @@ def selection(values: dict[str, Any] | None, vendor: str) -> tuple[str, str, dic
     if not product and str(extra.get("kind") or "") in extra:
         # A kind switch (drivers / tools / ...) with one product field per kind: the switch says which field counts.
         product = str(extra[str(extra["kind"])] or "").strip()
+    if not product and not product_key and "kind" not in extra_keys:
+        # A vendor of one product has no field for it: that product is the choice.
+        names = provider.products(platform)
+        product = names[0] if len(names) == 1 else ""
     return platform, product, extra
 
 
@@ -117,6 +137,266 @@ def remember_my_generations(values: dict[str, Any]) -> None:
         DriverMarks.save_my_generations(marks_path, chosen)
 
 
+PREVIEW_WORDS = re.compile(r"\b(beta|preview|insider|rs_prerelease)\b", re.IGNORECASE)
+GENERATION_NAME = re.compile(r"^(\d{2})H([12])$", re.IGNORECASE)
+
+
+# Generations that are never gold. The owner, 10.10.2026: "26H1 - off the chosen ones".
+PLAIN_GENERATIONS = {"26H1"}
+
+
+def _generation_rank(name: str) -> tuple[int, int, int]:
+    """Newest generation first: 26H2, 26H1, 25H2... What is no generation by its name stands after them, in the order of the catalogue."""
+    match = GENERATION_NAME.match(name)
+    return (0, -int(match.group(1)), -int(match.group(2))) if match else (1, 0, 0)
+
+
+def windows_build_options(builds: list[VendorBuild]) -> list[dict[str, Any]]:
+    """The builds of Windows by generation: each generation a block under its heading, the newest generation on top.
+
+    A generation (22H2, 24H2, 25H2...) gets new cumulative builds for years. The heading names the
+    product and the generation once, so a card under it says only what tells it from its
+    neighbours: the build, the date, the language and the edition. Inside a generation the order
+    is the catalogue's - newest first; the newest final build of each generation is gold (but for
+    the generations of PLAIN_GENERATIONS), and the first of them, at the top of the list, is the
+    latest. A preview is marked so that "the latest stable" passes it by whatever its card says.
+    """
+    groups: dict[str, list[VendorBuild]] = {}
+    for build in builds:
+        groups.setdefault(str(build.version or "").split(" ", 1)[0].strip().upper(), []).append(build)
+    options: list[dict[str, Any]] = []
+    latest_given = False
+    for generation in sorted(groups, key=_generation_rank):
+        members = groups[generation]
+        title = f"{members[0].product} {generation}".strip() + f" ({len(members)})"
+        options.append({"value": "", "label": title, "label_ru": title, "header": True})
+        gold_given = False
+        for build in members:
+            label = build.label
+            if generation and label.upper().startswith(generation + " "):
+                label = label[len(generation) + 1:]
+            option: dict[str, Any] = _option(build.download_id, label)
+            if build.beta or PREVIEW_WORDS.search(f"{build.product} {build.label}"):
+                option["beta"] = True
+            if generation and generation not in PLAIN_GENERATIONS and not gold_given and not build.beta and not PREVIEW_WORDS.search(build.label):
+                gold_given = True
+                if not latest_given:
+                    latest_given = True
+                    label = f"{label} - latest"
+                option["label"] = option["label_ru"] = f"★ {label}"
+            options.append(option)
+    return options
+
+
+# ----- defaults that follow the machine (`default_from` of the manifest) -----
+
+# The devices of this PC, read once a process: every default asks the same list.
+_this_pc = pc_devices.Snapshot()
+
+
+def default_nvidia_form(field: dict[str, Any]) -> str:
+    """A notebook's list of NVIDIA drivers on a notebook that has an NVIDIA card: by the name of the card, else by
+    the kind of the case (Audion Setup Tools, Get-NvidiaSeries). Without such a card - the default of the manifest."""
+    del field
+    from system_core.vendors import nvidia
+
+    card = nvidia.pc_card(_this_pc.devices())
+    if card is None:
+        return ""
+    return nvidia.FORM_NOTEBOOK if nvidia.is_notebook_card(card.name) or pc_devices.is_notebook() else nvidia.FORM_DESKTOP
+
+
+def default_my_generations(field: dict[str, Any]) -> list[str] | None:
+    """'My generations' as config\\vendor_nvidia.yaml has them: the list 'My cards' is read by.
+
+    The window ticks them when the cards of the field arrive; the console command has no cards to
+    wait for, and with nothing ticked 'My cards' is an empty list.
+    """
+    del field
+    from system_core.vendors.nvidia import DriverMarks
+
+    marks_path = getattr(get_provider("nvidia"), "_marks_path", None)
+    mine = list(DriverMarks.load(marks_path).mine) if marks_path else []
+    return mine or None
+
+
+def choice_for_this_pc(choices: list[dict[str, Any]]) -> str:
+    """The first maker of a page of drivers this PC has a device of; '' - none of them, the page opens on its first.
+
+    What a page of the layout names in `choose`. A choice says its source and its product by the
+    values it fixes: NVIDIA, a driver of TechPowerUp, a driver of the Microsoft catalog, the
+    chipset INF of Intel.
+    """
+    from system_core.vendors import intelchipset, mscatalog, nvidia, techpowerup
+
+    devices = _this_pc.devices()
+    for choice in choices:
+        values = dict(choice.get("values") or {})
+        vendor = str(values.get("vendor") or "")
+        here = False
+        if vendor == "nvidia":
+            here = nvidia.pc_card(devices) is not None
+        elif vendor == "techpowerup":
+            detect = techpowerup.DETECT.get(str(values.get("tpu_driver") or ""))
+            here = bool(detect) and bool(pc_devices.find(list(detect), devices))
+        elif vendor == "mscatalog":
+            kind = str(values.get("msc_kind") or "")
+            driver = mscatalog.KINDS.get(kind, {}).get(str(values.get(f"msc_{kind}") or ""))
+            here = driver is not None and bool(pc_devices.find(list(driver.match), devices))
+        elif vendor == "intelchipset":
+            here = bool(intelchipset.intel_device_ids(devices))
+        if here:
+            return str(choice.get("id") or "")
+    return ""
+
+
+def default_catalog_kind(field: dict[str, Any]) -> str:
+    """The first kind of device of the Microsoft catalog this PC has a device of: the page opens on a driver for this PC."""
+    del field
+    from system_core.vendors import mscatalog
+
+    devices = _this_pc.devices()
+    for kind, drivers in mscatalog.KINDS.items():
+        if any(pc_devices.find(list(driver.match), devices) for driver in drivers.values()):
+            return kind
+    return ""
+
+
+def default_catalog_driver(field: dict[str, Any]) -> str:
+    """The driver of a kind (the field `msc_<kind>`) this PC has a device for."""
+    from system_core.vendors import mscatalog
+
+    kind = str(field.get("id") or "").removeprefix("msc_")
+    devices = _this_pc.devices()
+    for name, driver in mscatalog.KINDS.get(kind, {}).items():
+        if pc_devices.find(list(driver.match), devices):
+            return name
+    return ""
+
+
+def _number_key(version: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in re.findall(r"\d+", str(version or "")))
+
+
+def machine_standing(provider: VendorProvider, product: str, builds: list[VendorBuild]) -> dict[str, Any] | None:
+    """The driver this PC's device runs against the newest of the list: for the badge of versions.
+
+    `running` is the driver in the numbers of the list, `newest` the newest final release - of
+    its own line where the kind has lines (Realtek: a line is a chip, and 1168 is not behind
+    1127) - and `behind` says whether the PC is behind it. The driver is found in the list by the
+    mark the provider gave it ("installed"). One the list does not hold is compared by its
+    number only where the numbers of the source are the numbers Windows shows
+    (`numbers_of_windows`); elsewhere it is not judged at all: AMD's driver 32.x says nothing
+    about Adrenalin 25.x. None - no badge.
+    """
+    running = getattr(provider, "running", None)
+    have = [str(version).strip() for version in (running(product) if callable(running) else []) if str(version).strip()]
+    if not have or not builds:
+        return None
+    at = next((index for index, build in enumerate(builds) if re.search(r"\binstalled\b", build.notes or "")), None)
+    if at is not None:
+        shown = builds[at].version
+    elif getattr(provider, "numbers_of_windows", False):
+        shown = max(have, key=_number_key)
+    else:
+        return None
+    line = getattr(provider, "line", None)
+
+    def line_of(version: str) -> str:
+        return str(line(product, version) or "") if callable(line) else ""
+
+    own = line_of(shown)
+    finals = [build for build in builds if not (build.beta or build.preview or PREVIEW_WORDS.search(build.label))]
+    pool = [build for build in finals if not own or line_of(build.version) == own]
+    if not pool:
+        return None
+    newest = pool[0]
+    # The list stands newest first: a newest release above the driver of the PC means the PC is behind.
+    behind = builds.index(newest) < at if at is not None else _number_key(shown) < _number_key(newest.version)
+    return {"running": shown, "newest": newest.version, "behind": behind, "said": have}
+
+
+def note_option(provider: VendorProvider, product: str, builds: list[VendorBuild]) -> dict[str, Any] | None:
+    """The line over a list of versions - where it comes from, which device of this PC it is for - with the badge of the driver the device runs."""
+    note = getattr(provider, "note", None)
+    note_en, note_ru = note(product) if callable(note) else ("", "")
+    if not note_en:
+        return None
+    option: dict[str, Any] = {"value": "", "label": note_en, "label_ru": note_ru, "header": True, "note": True}
+    standing = machine_standing(provider, product, builds)
+    if standing:
+        # The badge says the version: the line does not say it once more after the name of the device.
+        for said in standing.pop("said"):
+            option["label"] = option["label"].replace(f" · {said}", "")
+            option["label_ru"] = option["label_ru"].replace(f" · {said}", "")
+        option.update(standing)
+    return option
+
+
+def catalog_build_options(provider: VendorProvider, product: str, builds: list[VendorBuild]) -> list[dict[str, Any]]:
+    """A kind of driver from the Microsoft catalog.
+
+    Over the list - a note of where it comes from and which device of this PC it is for. Where the
+    kind names its lines of drivers (Realtek: a line is a chip), each line is a block under the
+    chip's name, in the order the newest driver of each came out. The driver the PC's own device
+    wants is ticked.
+    """
+    def card(build: VendorBuild) -> dict[str, Any]:
+        option: dict[str, Any] = _option(build.download_id, build.label)
+        if build.ticked:
+            option["default"] = True
+        return option
+
+    options: list[dict[str, Any]] = []
+    over = note_option(provider, product, builds)
+    if over:
+        options.append(over)
+    lines = provider.lines(product)  # type: ignore[attr-defined]
+    if not lines:
+        return options + [card(build) for build in builds]
+    groups: dict[str, list[VendorBuild]] = {}
+    for build in builds:
+        groups.setdefault(str(build.version).split(".", 1)[0], []).append(build)
+    for line, members in groups.items():
+        title = f"{lines.get(line) or line + '.x'} ({len(members)})"
+        options.append({"value": "", "label": title, "label_ru": title, "header": True})
+        options.extend(card(build) for build in members)
+    return options
+
+
+def program_options(provider: VendorProvider, shelf: str, portable_only: bool) -> list[dict[str, Any]]:
+    """A shelf of programs taken as files: its blocks under their headings, a card for a program.
+
+    A card says which files the program has. A tick means its installer - or its portable build
+    when it has no installer, and for every card while the Portable switch is on: then the
+    programs without a portable build leave the list.
+    """
+    options: list[dict[str, Any]] = []
+    for (title, title_ru), builds in provider.blocks(shelf):  # type: ignore[attr-defined]
+        if portable_only:
+            builds = [build for build in builds if build.portable_id]
+        if not builds:
+            continue
+        options.append({"value": "", "label": f"{title} ({len(builds)})", "label_ru": f"{title_ru} ({len(builds)})", "header": True})
+        for build in builds:
+            both = bool(build.portable_id) and build.download_id != build.portable_id
+            if portable_only or (build.portable_id and not both):
+                what, what_ru = "portable", "портативная"
+            elif both:
+                what, what_ru = "installer, portable", "установщик, портативная"
+            else:
+                what, what_ru = "installer", "установщик"
+            option = _option(build.portable_id if portable_only else build.download_id, f"{build.version} - {what}", f"{build.version} - {what_ru}")
+            if build.portable_id:
+                option["portable_id"] = build.portable_id
+                option["installer_id"] = build.download_id if both else ""
+            options.append(option)
+    if not options:
+        return [_option("", "No portable builds on this page" if portable_only else "No programs on this page",
+                        "Портативных сборок на этой странице нет" if portable_only else "Программ на этой странице нет")]
+    return options
+
+
 def vendor_build_options(root: Path | str | None = None, values: dict[str, Any] | None = None) -> list[dict[str, str]]:
     """Versions of one product, or the whole catalog for the platform with the product in front."""
     del root
@@ -125,6 +405,8 @@ def vendor_build_options(root: Path | str | None = None, values: dict[str, Any] 
     platform, product, extra = selection(values, vendor)
     if vendor == "nvidia":
         remember_my_generations(values or {})
+    if vendor == "programs":
+        return program_options(provider, product, bool((values or {}).get("vendor_portable_only")))  # type: ignore[return-value]
     if not product or product == WHOLE_CATALOG:
         options: list[dict[str, str]] = []
         for name in provider.products(platform):
@@ -139,52 +421,41 @@ def vendor_build_options(root: Path | str | None = None, values: dict[str, Any] 
         builds = [build for build in builds if build.portable_id]
     if not builds:
         return [_option("", f"No {product} builds for {platform}", f"Сборок {product} для {platform} нет")]
-    # A Windows card names its product: "Windows 11 25H2 26200.9278 ..." - 10, 11 and
-    # whatever comes next must not read alike in a list of hundreds.
+    # The builds of Windows are a list of hundreds: by generation, under headings that name the
+    # product - 10, 11 and whatever comes next must not read alike.
     if vendor == "uupdump":
-        options = [_option(build.download_id, f"{build.product} {build.label}") for build in builds]
-    else:
-        options = [_option(build.portable_id if portable_only else build.download_id, build.label) for build in builds]
+        return windows_build_options(builds)
+    if vendor == "mscatalog":
+        return catalog_build_options(provider, product, builds)
+    options = [_option(build.portable_id if portable_only else build.download_id, build.label) for build in builds]
     # A card with two files says which id is which, so its two arrows and the
     # Portable switch can tell the installer from the portable build.
     for option, build in zip(options, builds):
         if build.portable_id:
             option["portable_id"] = build.portable_id
             option["installer_id"] = build.download_id if build.download_id != build.portable_id else ""
+    # What is no release says so: "the latest stable" passes it by whatever its label reads.
+    for option, build in zip(options, builds):
+        if build.preview:
+            option["beta"] = True  # type: ignore[assignment]
     # The newest final release is marked so its card stands out from the rest of the list.
     for option, build in zip(options, builds):
-        if build.beta or re.search(r"\b(beta|preview|insider|rs_prerelease)\b", build.label, re.IGNORECASE):
+        if build.beta or build.preview or PREVIEW_WORDS.search(build.label):
             continue
         if not re.search(r"\blatest\b", build.label):
             option["label"] = option["label_ru"] = f"{option['label']} - latest"
         break
-    if vendor == "uupdump":
-        # A Windows generation (22H2, 24H2, 25H2...) gets new cumulative builds for years;
-        # the newest build of each generation is gold, the rest of that generation is history.
-        seen: set[str] = set()
-        for option, build in zip(options, builds):
-            generation = str(build.version or "").split(" ", 1)[0].strip().upper()
-            if not generation or build.beta or re.search(r"\b(beta|preview|insider|rs_prerelease)\b", build.label, re.IGNORECASE):
-                continue
-            if generation in seen:
-                continue
-            seen.add(generation)
-            for key in ("label", "label_ru"):
-                option[key] = f"★ {option[key]}"
+    # What the provider ticks by itself - the driver this PC's device wants - and its line over the list.
+    for option, build in zip(options, builds):
+        if build.ticked:
+            option["default"] = True  # type: ignore[assignment]
+    over = note_option(provider, product, builds)
+    if over:
+        options.insert(0, over)  # type: ignore[arg-type]
     return options
 
 
 # ----- shared download with resume -----
-
-
-def _human_size(size: float) -> str:
-    units = ("B", "KB", "MB", "GB", "TB")
-    value = float(size)
-    for unit in units:
-        if value < 1024 or unit == units[-1]:
-            return f"{value:.1f} {unit}" if unit != "B" else f"{int(value)} B"
-        value /= 1024
-    return f"{value:.1f} TB"
 
 
 def _progress_between(context: JobContext, start: float, end: float, fraction: float) -> None:
@@ -192,13 +463,66 @@ def _progress_between(context: JobContext, start: float, end: float, fraction: f
     context.progress(start + (end - start) * fraction)
 
 
-def _remote_size(url: str, open_url: UrlOpener) -> int:
-    request = Request(url, method="HEAD", headers={"User-Agent": USER_AGENT})
+def _modified_time(headers: Any) -> float | None:
+    """`Last-Modified` of an answer as a time of this machine's clock; None when the answer names none."""
+    value = str(headers.get("Last-Modified") or "").strip()
+    if not value:
+        return None
+    try:
+        from email.utils import parsedate_to_datetime
+
+        return parsedate_to_datetime(value).timestamp()
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+def _remote_size(url: str, open_url: UrlOpener, headers: dict[str, str] | None = None) -> tuple[int, float | None]:
+    """What the server says of the file without sending it: its size and when it was changed; (0, None) when it does not say."""
+    request = Request(url, method="HEAD", headers=headers or {"User-Agent": USER_AGENT})
     try:
         with open_url(request, timeout=60) as response:
-            return int(response.headers.get("Content-Length") or 0)
-    except (HTTPError, URLError, TimeoutError, OSError):
-        return 0
+            return int(response.headers.get("Content-Length") or 0), _modified_time(response.headers)
+    except (HTTPError, URLError, TimeoutError, OSError, ValueError):
+        return 0, None
+
+
+def _is_the_file(target: Path, size: int, modified: float | None) -> bool:
+    """Whether the file in the folder is the one the server has: the same size, and not older than the server's.
+
+    A maker puts a new build under the old name, often of the very size (a web installer of two
+    megabytes): a file fetched before that is older than it and is fetched again. A file a person
+    already has is newer than its version on the server. A server that names no time is believed
+    by the size alone.
+    """
+    if size <= 0 or not target.is_file():
+        return False
+    found = target.stat()
+    return found.st_size == size and (modified is None or found.st_mtime >= modified)
+
+
+def _strong_etag(headers: Any) -> str:
+    """The ETag of an answer when it names these very bytes; a weak one ("W/...") names any equal-looking file."""
+    etag = str(headers.get("ETag") or "").strip()
+    return "" if not etag or etag.upper().startswith("W/") else etag
+
+
+def _content_range(headers: Any) -> tuple[int, int, int] | None:
+    """`Content-Range: bytes 1000-4999/5000` as (first, last, the whole length); None when the answer names no range."""
+    found = re.match(r"bytes\s+(\d+)-(\d+)/(\d+)$", str(headers.get("Content-Range") or "").strip())
+    return (int(found.group(1)), int(found.group(2)), int(found.group(3))) if found else None
+
+
+def _read_note(part: Path, note_file: Path) -> dict[str, Any] | None:
+    """What was written beside a `.part` when its download began; None when there is nothing to resume by."""
+    if not part.exists() or not note_file.exists():
+        return None
+    try:
+        note = json.loads(note_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(note, dict) or not (str(note.get("etag") or "") or str(note.get("last_modified") or "")):
+        return None
+    return note
 
 
 def download_with_resume(
@@ -211,71 +535,152 @@ def download_with_resume(
     progress_end: float = 1.0,
     open_url: UrlOpener = urlopen,
     expected_size: int = 0,
+    headers: dict[str, str] | None = None,
 ) -> Path:
-    """Fetch `url` into `target`, continuing a `.part` left by an earlier run.
+    """Fetch `url` into `target`; a download that broke off goes on from where it stopped - when it is the same file.
 
-    A finished file is trusted when its size matches the server's and is not
-    fetched again. Cancelling keeps the `.part` so the next run resumes it.
+    `headers` go with every request over the program's own: the Referer a site hands its file to,
+    the name it wants to be asked by.
+
+    A finished file is not fetched again when the server says the same of it: the same size, and a
+    time not later than the file's (`_is_the_file`). A server that names no size on HEAD is asked
+    for the file, and the first lines of its answer decide before a byte of the body is read; when
+    it names no size there either, the file is fetched anew and replaces the one in the folder.
+    Cancelling keeps the `.part`, and the next run resumes it.
+
+    The same file, as Audion Setup Tools decides it (Engine\\Downloads.ps1, Save-DownloadFile): the
+    `.part` keeps a note of what the first answer said of the file - a strong ETag or Last-Modified,
+    and the full size. The resume asks with If-Range, and the piece that comes back must start at
+    the bytes already here, end inside the file, be as long as it says, and name the same full
+    size and the same version; anything else starts over from zero, once. Without a note there is
+    no resume: a fixed address may hold a new version by now, and its bytes glued after the old
+    ones make a file that is neither. A piece that stops short of the end is followed by a request
+    for the rest; the file is published only at its full size.
+
+    One thing is not as there: the address is noted but does not decide. A signed link
+    (TechPowerUp) is another address at every try and a mirror is another host, while the file is
+    the same - If-Range and the size tell that, and a drivers package of 900 MB resumes.
     """
+    # The name of a file is sometimes known only once its address is: asked here once more, before the folder is made.
+    reason = too_long(target, label)
+    if reason:
+        raise RuntimeError(reason)
     target.parent.mkdir(parents=True, exist_ok=True)
-    total = expected_size or _remote_size(url, open_url)
-    if target.exists() and target.stat().st_size > 0 and (total <= 0 or target.stat().st_size == total):
+    asked_with = {"User-Agent": USER_AGENT, **(headers or {})}
+    total, changed = (expected_size, None) if expected_size else _remote_size(url, open_url, asked_with)
+    if _is_the_file(target, total, changed):
         context.log(f"[CACHE] {label}: {target} ({target.stat().st_size} bytes)")
         _progress_between(context, progress_start, progress_end, 1.0)
         return target
+    # A file is here and HEAD named no size (a signed address answers GET alone): the answer to the GET decides.
+    undecided = total <= 0 and target.is_file() and target.stat().st_size > 0
 
     part = target.with_name(target.name + ".part")
-    offset = part.stat().st_size if part.exists() else 0
-    if total > 0 and offset >= total:
-        offset = 0
-        part.unlink()
-    headers = {"User-Agent": USER_AGENT}
-    if offset > 0:
-        headers["Range"] = f"bytes={offset}-"
-        context.log(f"[RESUME] {label}: from {offset} bytes")
-    else:
-        context.log(f"[DOWNLOAD] {label}")
-    context.log(f"[URL] {url.split('?')[0]}")
+    note_file = part.with_name(part.name + ".json")
+    note = _read_note(part, note_file)
+    if note is None:
+        part.unlink(missing_ok=True)
+        note_file.unlink(missing_ok=True)
 
-    request = Request(url, headers=headers)
+    context.log(f"[DOWNLOAD] {label}")
+    context.log(f"[URL] {url.split('?')[0]}")
+    # One start over at most; a server that sends the rest in pieces is asked again while each piece adds bytes.
+    restarts = pieces = 0
     try:
-        with open_url(request, timeout=120) as response:
-            status = int(getattr(response, "status", 200) or 200)
-            if offset > 0 and status != 206:
-                # The server ignored the range: start over rather than glue a full body after a partial one.
-                context.log("[RESUME] server does not resume, starting over")
-                offset = 0
-            if total <= 0:
+        while True:
+            have = part.stat().st_size if note is not None and part.exists() else 0
+            if have > 0 and int(note.get("total") or 0) > 0 and have >= int(note["total"]):  # type: ignore[union-attr]
+                # As long as the file already: nothing to ask the rest of. Fetched anew rather than trusted unseen.
+                part.unlink()
+                note_file.unlink(missing_ok=True)
+                note, have = None, 0
+            request_headers = dict(asked_with)
+            if have > 0:
+                request_headers["Range"] = f"bytes={have}-"
+                request_headers["If-Range"] = str(note.get("etag") or note.get("last_modified"))  # type: ignore[union-attr]
+            with open_url(Request(url, headers=request_headers), timeout=120) as response:
+                status = int(getattr(response, "status", 200) or 200)
                 length = int(response.headers.get("Content-Length") or 0)
-                total = length + offset if length > 0 else 0
-            mode = "ab" if offset > 0 else "wb"
-            downloaded = offset
-            started = time.monotonic()
-            last_log = -10
-            with part.open(mode) as handle:
-                while True:
-                    if context.cancelled():
-                        context.activity("")
-                        raise RuntimeError(f"Cancelled: {label} (partial file kept for resume)")
-                    chunk = response.read(CHUNK_BYTES)
-                    if not chunk:
-                        break
-                    handle.write(chunk)
-                    downloaded += len(chunk)
-                    elapsed = max(0.001, time.monotonic() - started)
-                    speed = (downloaded - offset) / elapsed
-                    if total > 0:
-                        fraction = downloaded / total
-                        _progress_between(context, progress_start, progress_end, fraction)
-                        percent = int(fraction * 100)
-                        context.activity(
-                            f"{label}: {_human_size(downloaded)} / {_human_size(total)} ({percent}%), {_human_size(speed)}/s"
-                        )
-                        if percent >= last_log + 10:
-                            context.log(f"[DOWNLOAD] {label}: {percent}% ({downloaded}/{total} bytes)")
-                            last_log = percent
+                modified = str(response.headers.get("Last-Modified") or "").strip()
+                resumed = have > 0 and status == 206
+                span = _content_range(response.headers) if resumed else None
+                if resumed:
+                    # The piece must continue these very bytes of this very file.
+                    same = (span is not None and span[0] == have and span[0] <= span[1] < span[2]
+                            and (int(note.get("total") or 0) <= 0 or span[2] == int(note["total"]))  # type: ignore[union-attr]
+                            and (not length or length == span[1] - span[0] + 1))
+                    # A server that ignores If-Range still names the version it sends: another one is another file.
+                    etag_now = str(response.headers.get("ETag") or "").strip()
+                    if same and note.get("etag") and etag_now and etag_now != note["etag"]:  # type: ignore[union-attr]
+                        same = False
+                    if same and not note.get("etag") and note.get("last_modified") and modified and modified != note["last_modified"]:  # type: ignore[union-attr]
+                        same = False
+                    if not same:
+                        if restarts >= 1:
+                            raise RuntimeError(f"Download failed: {label} (the server does not give the whole file)")
+                        restarts += 1
+                        context.log("[RESUME] the server gave no continuation of the same file, starting over")
+                        part.unlink(missing_ok=True)
+                        note_file.unlink(missing_ok=True)
+                        note = None
+                        continue
+                    context.log(f"[RESUME] {label}: from {have} bytes")
+                else:
+                    if undecided and have == 0 and status == 200 and _is_the_file(target, length, _modified_time(response.headers)):
+                        context.log(f"[CACHE] {label}: {target} ({target.stat().st_size} bytes)")
+                        _progress_between(context, progress_start, progress_end, 1.0)
+                        return target
+                    # A whole answer: a fresh start - the range was ignored, or the file is another one by now.
+                    if have > 0:
+                        context.log("[RESUME] the server sent the whole file, starting over")
+                    have = 0
+                    etag = _strong_etag(response.headers)
+                    if etag or modified:
+                        note = {"url": url.split("?")[0], "etag": etag, "last_modified": modified, "total": length}
+                        note_file.write_text(json.dumps(note), encoding="utf-8")
                     else:
-                        context.activity(f"{label}: {_human_size(downloaded)}, {_human_size(speed)}/s")
+                        note_file.unlink(missing_ok=True)
+                        note = None
+                # The whole file: a piece names it in Content-Range, a whole answer in its length.
+                whole = span[2] if span is not None else length
+                shown_total = whole or total
+                downloaded = have
+                started = time.monotonic()
+                last_log = int(downloaded / shown_total * 100) // 10 * 10 if shown_total > 0 else -10
+                with part.open("ab" if resumed else "wb") as handle:
+                    while True:
+                        if context.cancelled():
+                            raise RuntimeError(f"Cancelled: {label} (partial file kept for resume)")
+                        chunk = response.read(CHUNK_BYTES)
+                        if not chunk:
+                            break
+                        handle.write(chunk)
+                        downloaded += len(chunk)
+                        speed = (downloaded - have) / max(0.001, time.monotonic() - started)
+                        if shown_total > 0:
+                            fraction = downloaded / shown_total
+                            _progress_between(context, progress_start, progress_end, fraction)
+                            percent = int(fraction * 100)
+                            context.activity(download_line(label, downloaded, shown_total, speed))
+                            if percent >= last_log + 10:
+                                context.log(f"[DOWNLOAD] {label}: {percent}% ({downloaded}/{shown_total} bytes)")
+                                last_log = percent
+                        else:
+                            context.activity(download_line(label, downloaded, 0, speed))
+            got = part.stat().st_size
+            again = "run again to resume" if note is not None else "run again"
+            # The piece itself broke off: the `.part` and its note stay for the next try.
+            piece_end = span[1] + 1 if span is not None else whole
+            if piece_end > 0 and got != piece_end:
+                raise RuntimeError(f"Download incomplete: {label} ({got} of {whole} bytes); {again}")
+            # A whole piece short of the end: the rest is asked for; the file is never published short.
+            if whole > 0 and got < whole:
+                pieces += 1
+                if got <= have or pieces > 64:
+                    raise RuntimeError(f"Download incomplete: {label} ({got} of {whole} bytes); {again}")
+                context.log(f"[RESUME] the server gave a part: {got} of {whole} bytes, asking for the rest")
+                continue
+            break
     except (HTTPError, URLError, TimeoutError) as exc:
         raise RuntimeError(f"Download failed: {label} ({exc})") from exc
     finally:
@@ -285,9 +690,195 @@ def download_with_resume(
     if total > 0 and size != total:
         raise RuntimeError(f"Download incomplete: {label} ({size} of {total} bytes); run again to resume")
     part.replace(target)
+    note_file.unlink(missing_ok=True)
     context.log(f"[OK] {target} ({size} bytes)")
     _progress_between(context, progress_start, progress_end, 1.0)
     return target
+
+
+def safe_file_name(name: str) -> str:
+    """A file name that came from foreign data - an address, a catalog somebody else keeps - as it may be written.
+
+    Read with its %XX decoded, it has no `/`, `\\` or `:` and no control character, is not empty,
+    not `.` or `..`, and does not end with a dot or a space: a name is a name, never a path.
+    Anything else is refused before a byte is written. The unpacking of an archive refuses such
+    names by `zip_destination`; this is the same guard for a download.
+    """
+    text = str(name or "")
+    plain = unquote(text)
+    if (not plain or plain in {".", ".."} or plain[-1] in ". " or any(mark in plain for mark in "/\\:")
+            or any(ord(char) < 32 for char in plain)):
+        raise RuntimeError(f"unsafe file name: {text!r}")
+    return text
+
+
+def safe_folder(root: Path, relative: str) -> Path:
+    """The folder a source names for its build, under the vendor's own: a relative path that stays inside it."""
+    try:
+        return zip_destination(root, str(relative).replace("\\", "/").rstrip("/"))
+    except ValueError:
+        raise RuntimeError(f"unsafe folder name: {relative!r}") from None
+
+
+# The longest path Windows opens for a program that did not ask for long ones: 260 with its closing zero.
+MAX_PATH = 259
+# What a download writes beside its file while it goes on: the part and the note of what the server said of it.
+PART_NOTE_SUFFIX = ".part.json"
+
+
+def too_long(file: Path, name: str) -> str:
+    """Why the file of a build cannot be fetched there - its path is longer than Windows opens - or ''.
+
+    The longest thing a download writes is the note beside the part (`<file>.part.json`). Past 259
+    characters Windows answers "file not found" for a folder that is there, and the run ended with
+    that (the audit of 10.10.2026). The words name the build, the count and what to do; where the
+    folders of a build lie is not changed.
+    """
+    longest = str(file) + PART_NOTE_SUFFIX
+    if len(longest) <= MAX_PATH:
+        return ""
+    return (f"{name}: the path of its file is {len(longest)} characters with what a download writes beside it, and Windows opens {MAX_PATH} at most - "
+            f"choose a downloads folder nearer the root of the drive ({file})")
+
+
+UNTRUSTED_SUFFIX = ".untrusted"
+CHECKING_FOLDER = "_checking"
+UNTRUSTED_FOLDER = "_untrusted"
+
+
+class NotTrusted(RuntimeError):
+    """Every source of a build gave a file the checks refused; `problems` says what was wrong with each."""
+
+    def __init__(self, problems: list[str]) -> None:
+        super().__init__("; ".join(problems))
+        self.problems = list(problems)
+
+
+def set_aside(path: Path) -> Path:
+    """What did not pass a check leaves its own name: `<name>.untrusted` beside it, a former one replaced.
+
+    A person has something to look at; the program has nothing to take for a finished file - the
+    next run downloads anew instead of finding the refused file "in the cache".
+    """
+    aside = path.with_name(path.name + UNTRUSTED_SUFFIX)
+    if aside.is_dir():
+        shutil.rmtree(aside, ignore_errors=True)
+    else:
+        aside.unlink(missing_ok=True)
+    path.replace(aside)
+    return aside
+
+
+def forget_untrusted(folder: Path) -> None:
+    """A build that passed its checks keeps nothing of the tries that did not: its `.untrusted` files and `_untrusted`."""
+    shutil.rmtree(folder / UNTRUSTED_FOLDER, ignore_errors=True)
+    if folder.is_dir():
+        for item in folder.glob("*" + UNTRUSTED_SUFFIX):
+            if item.is_file():
+                item.unlink(missing_ok=True)
+
+
+def download_from_sources(context: JobContext, sources: list[BuildSource], folder: Path, label: str, *,
+                          progress_start: float = 0.0, progress_end: float = 1.0,
+                          accept: Callable[[Path, BuildSource], list[str]] | None = None) -> tuple[Path, BuildSource]:
+    """A build with several sources: they are tried in the order its vendor names them, the first that gives the file is it.
+
+    A source that gives nothing says why and the next one is tried; what the last one says is the
+    failure. A run that was cancelled tries nothing more (Audion Setup Tools, Save-FeedDownloads).
+
+    `accept` is the checks of the file - its hash, the signature of its installers. They belong to
+    the walk: a source whose file is not to be trusted has refused as much as one that gave nothing,
+    and the next one is tried. When the last has refused too, NotTrusted carries what was wrong
+    with each.
+    """
+    if not sources:
+        raise RuntimeError(f"No source for {label}; refresh the version list.")
+    refused: list[str] = []
+    for index, source in enumerate(sources):
+        last = index == len(sources) - 1
+        try:
+            if source.fetch is not None:
+                context.log(f"[SOURCE] {source.host}")
+                folder.mkdir(parents=True, exist_ok=True)
+                target = Path(source.fetch(context, folder))
+                context.log(f"[OK] {target} ({target.stat().st_size} bytes)")
+                _progress_between(context, progress_start, progress_end, 1.0)
+            else:
+                url, referer = source.link()
+                context.log(f"[SOURCE] {source.host}")
+                headers = {"User-Agent": SOURCE_AGENT, **({"Referer": referer} if referer else {})}
+                # A file its source does not name is named by its address; either way the name is foreign data.
+                name = safe_file_name(source.name or unquote(_archive_name(url)))
+                target = download_with_resume(context, url, folder / name, label, progress_start=progress_start,
+                                              progress_end=progress_end, headers=headers)
+        except RuntimeError as exc:
+            if context.cancelled() or (last and not refused):
+                raise
+            if last:
+                raise NotTrusted(refused + [f"{source.host} gave no file ({exc})"]) from exc
+            context.log(f"[WARN] {source.host} gave no file ({exc}); the next source")
+            continue
+        problems = accept(target, source) if accept is not None else []
+        if not problems:
+            return target, source
+        refused += problems
+        if last:
+            raise NotTrusted(refused)
+        context.log(f"[WARN] {source.host} gave a file that is not to be trusted ({'; '.join(problems)}); the next source")
+    raise AssertionError("unreachable")
+
+
+def take_installer(context: JobContext, archive: Path, folder: Path, pattern: str) -> Path:
+    """Only the vendor's installer out of a zip a third party made: the rest of it is not taken.
+
+    The installer lands beside the zip under its own name, the zip goes (Audion Setup Tools,
+    Expand-StationInstaller).
+    """
+    with zipfile.ZipFile(archive) as bundle:
+        for info in bundle.infolist():
+            name = PurePosixPath(info.filename.replace("\\", "/")).name
+            if info.is_dir() or not re.fullmatch(pattern, name, re.IGNORECASE):
+                continue
+            try:
+                target = zip_destination(folder, name)
+            except ValueError:
+                continue
+            with bundle.open(info) as source, target.open("wb") as handle:
+                shutil.copyfileobj(source, handle, CHUNK_BYTES)
+            break
+        else:
+            raise RuntimeError(f"{archive.name}: no installer of the vendor inside")
+    archive.unlink()
+    context.log(f"[EXTRACT] {target.name} taken out of {archive.name}; the rest of the archive is not kept")
+    return target
+
+
+INSTALLER_SUFFIXES = (".exe", ".msi", ".cab")
+
+
+def check_installers(context: JobContext, path: Path, signer: str,
+                     check: Callable[[Path], tuple[str, str]] | None = None) -> list[str]:
+    """The installers of a downloaded package carry the publisher's signature, or the run says: do not run them.
+
+    `path` is the installer or the folder its package was unpacked into; every .exe, .msi and .cab
+    there is asked. What is wrong comes back in words (Audion Setup Tools, Test-DownloadSigner).
+    """
+    if path.is_dir():
+        files = sorted(item for item in path.rglob("*") if item.is_file() and item.suffix.lower() in INSTALLER_SUFFIXES)
+    else:
+        files = [path] if path.suffix.lower() in INSTALLER_SUFFIXES else []
+    if not files:
+        context.log(f"[WARN] {path.name}: no installer in the package - nothing to check the signature of {signer} on")
+        return [f"{path.name}: no installer in the package"]
+    problems: list[str] = []
+    for item in files:
+        confirmed, status = signed_by(item, signer, check or authenticode)
+        if confirmed:
+            context.log(f"[OK] {item.name}: signed by {signer}")
+        else:
+            context.log(f"[WARN] {item.name}: the signature of {signer} is not confirmed ({status}) - do not run it")
+            problems.append(f"{item.name}: signature not confirmed ({status})")
+    return problems
 
 
 def zip_single_root(names: list[str]) -> str:
@@ -367,6 +958,56 @@ def extract_zip(context: JobContext, archive: Path, target_dir: Path) -> int:
     return count
 
 
+def tar_program() -> Path:
+    return Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "tar.exe"
+
+
+def extract_7z(context: JobContext, archive: Path, target_dir: Path) -> int:
+    """Unpack a 7z next to itself; returns the number of files written, 0 when it could not be read.
+
+    The tar of Windows 11 is libarchive: it reads 7z, and by itself refuses an entry that would
+    leave the folder. The promises of a zip are kept: a lone root folder is dropped, and the
+    names are checked before anything is written. Anything wrong with the archive or with tar -
+    the archive stays as it came (Audion Setup Tools, Expand-PortableDownload).
+    """
+    tar = tar_program()
+    if not tar.is_file():
+        context.log(f"[WARN] {archive.name}: Windows has no tar.exe to read a 7z with; the archive is left as it came")
+        return 0
+    listed = subprocess.run([str(tar), "-tf", str(archive)], capture_output=True, text=True, errors="replace", check=False,
+                            **hidden_subprocess_kwargs())
+    names = [line.strip() for line in listed.stdout.splitlines() if line.strip()]
+    if listed.returncode != 0 or not names:
+        context.log(f"[WARN] {archive.name}: tar.exe could not read it (code {listed.returncode}); the archive is left as it came")
+        return 0
+    context.log(f"[EXTRACT] {archive.name} -> {target_dir}")
+    root = zip_single_root(names)
+    if root:
+        context.log(f"[EXTRACT] single root folder '{root}' dropped")
+    files = 0
+    for name in names:
+        relative = name.replace("\\", "/").strip("/")
+        if root:
+            relative = relative[len(root):].lstrip("/")
+            if not relative:
+                continue  # the root folder entry itself
+        try:
+            zip_destination(target_dir, relative)
+        except ValueError:
+            raise RuntimeError(f"Unsafe path in {archive.name}: {name!r} - nothing was extracted") from None
+        files += 0 if name.replace("\\", "/").endswith("/") else 1
+    if context.cancelled():
+        raise RuntimeError("Cancelled during extraction")
+    target_dir.mkdir(parents=True, exist_ok=True)
+    command = [str(tar), "-xf", str(archive), "-C", str(target_dir)] + (["--strip-components", "1"] if root else [])
+    result = subprocess.run(command, capture_output=True, text=True, errors="replace", check=False, **hidden_subprocess_kwargs())
+    if result.returncode != 0:
+        context.log(f"[WARN] {archive.name}: tar.exe ended with code {result.returncode}; the archive is left as it came")
+        return 0
+    context.log(f"[OK] extracted {files} files")
+    return files
+
+
 # ----- jobs -----
 
 
@@ -432,6 +1073,67 @@ def uup_work_root(context: JobContext) -> Path:
         return Path(override)
     drive = context.paths.root.resolve().drive or Path.cwd().resolve().drive
     return Path(f"{drive}\\") / UUP_WORK_DIRECTORY_NAME
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(CHUNK_BYTES), b""):
+            digest.update(chunk)
+    return digest.hexdigest().upper()
+
+
+def authenticode(path: Path) -> tuple[str, str]:
+    """The Authenticode signature of a file as Windows tells it: its status ("Valid") and the subject of the signer.
+
+    Asked of Windows PowerShell 5.1, which every Windows has. The path goes by the environment,
+    not into the command; PSModulePath of the caller is not handed over - under PowerShell 7 it
+    makes 5.1 load the wrong security module.
+    """
+    env = {key: value for key, value in os.environ.items() if key.upper() != "PSMODULEPATH"}
+    env["AUDION_SIGNED_FILE"] = str(path)
+    script = ("$s = Get-AuthenticodeSignature -LiteralPath $env:AUDION_SIGNED_FILE; [string]$s.Status; "
+              "if ($s.SignerCertificate) { [string]$s.SignerCertificate.Subject }")
+    powershell = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+    try:
+        result = subprocess.run([str(powershell), "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", script],
+                                capture_output=True, text=True, errors="replace", timeout=180, env=env, check=False,
+                                **hidden_subprocess_kwargs())
+    except (OSError, subprocess.SubprocessError) as exc:
+        return f"not checked ({exc})", ""
+    lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    return (lines[0] if lines else "not checked", lines[1] if len(lines) > 1 else "")
+
+
+def signed_by(path: Path, signer: str, check: Callable[[Path], tuple[str, str]] = authenticode) -> tuple[bool, str]:
+    """Whether the file carries a valid signature of this publisher, and the status Windows gave."""
+    status, subject = check(path)
+    return status == "Valid" and bool(re.search(r"(^|,\s*)CN=" + re.escape(signer) + r"(,|$)", subject)), status
+
+
+def unpack_driver_cab(context: JobContext, archive: Path, folder: Path, signer: str,
+                      check: Callable[[Path], tuple[str, str]] = authenticode) -> dict[str, Any]:
+    """A driver package of the Microsoft catalog: its signature checked, then unpacked beside itself.
+
+    A package whose signature is not confirmed is not unpacked - what would be installed from it
+    is a driver of the kernel - and leaves its own name (`set_aside`).
+    """
+    confirmed, status = signed_by(archive, signer, check)
+    if not confirmed:
+        aside = set_aside(archive)
+        context.log(f"[WARN] {archive.name}: the signature of {signer} is not confirmed ({status}); the package is kept as {aside.name} - do not install it")
+        return {"signature": status, "archive": str(aside), "problem": f"{archive.name}: signature not confirmed ({status})"}
+    context.log(f"[OK] {archive.name}: signed by {signer}")
+    expand = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "expand.exe"
+    result = subprocess.run([str(expand), "-F:*", str(archive), str(folder)], capture_output=True, text=True, errors="replace",
+                            check=False, **hidden_subprocess_kwargs())
+    if result.returncode != 0:
+        context.log(f"[WARN] {archive.name}: expand.exe ended with code {result.returncode}; the package is left as it came")
+        return {"signature": status, "problem": f"{archive.name}: not unpacked (expand.exe code {result.returncode})"}
+    infs = sorted(item.name for item in folder.glob("*.inf"))
+    archive.unlink()
+    context.log(f"[OK] {folder}: {', '.join(infs) if infs else 'no .inf at the top of the package'}")
+    return {"signature": status, "extracted": len(list(folder.iterdir())), "archive": "", "inf": infs}
 
 
 def _archive_name(url: str) -> str:
@@ -703,12 +1405,11 @@ def run_uup_script(context: JobContext, folder: Path) -> str:
     if restored:
         context.log(f"[ISO] {restored} original update package(s) put back for the downloader")
     downloader = download_only_script(folder)
-    context.log(f"[ISO] step 1: {downloader.name} in a console window downloads Microsoft's files with aria2 (the window asks for administrator rights)")
-    download = subprocess.Popen(
-        ["cmd.exe", "/c", str(downloader)],
-        cwd=str(folder),
-        creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0),
-    )
+    context.log(f"[ISO] step 1: {downloader.name} in a console window downloads Microsoft's files with aria2")
+    # Both consoles leave the job of whoever started this program, as WinUtil does: a window that
+    # fell does not take aria2 and DISM with it, and the console that stays is in plain sight.
+    # STOP reaches them all the same - by their process tree, below.
+    download = start_on_its_own(context, ["cmd.exe", "/c", str(downloader)], cwd=folder, console=True)
     while download.poll() is None:
         if context.cancelled():
             _kill_tree(download.pid)
@@ -735,11 +1436,7 @@ def run_uup_script(context: JobContext, folder: Path) -> str:
     context.log(f"[ISO] step 2: {launcher.name} in a console window builds the ISO")
     # One console, the converter's own: a `cmd /c start /wait` wrapper would sit
     # next to it as an empty black window for the whole build.
-    process = subprocess.Popen(
-        ["cmd.exe", "/c", str(launcher)],
-        cwd=str(folder),
-        creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0),
-    )
+    process = start_on_its_own(context, ["cmd.exe", "/c", str(launcher)], cwd=folder, console=True)
     settled_since: float | None = None
     last_size = -1
     while process.poll() is None:
@@ -949,11 +1646,30 @@ def download_gate(values: dict[str, Any] | None = None) -> str:
     """Label key that explains why 'Download' is off for the current form, or ''.
 
     Only the Windows (UUP dump) vendor is gated: its ISO build needs the ADK's
-    DISM on this machine, so the button waits until the ADK is installed.
+    DISM on this machine, so the button waits until the ADK is installed - and
+    administrator rights: the console of the build asks Windows for them itself and
+    goes on as another process, the one started here ends at once, and the run is
+    told as a download that failed. The rights are what the build needs: with "Build
+    the ISO right away" off the package of scripts is only downloaded and unpacked,
+    and that goes without them.
     """
-    if selected_vendor(values) == "uupdump" and adk_dism_path() is None:
+    if selected_vendor(values) != "uupdump":
+        return ""
+    if adk_dism_path() is None:
         return "gate_adk_missing"
+    if builds_the_iso(values) and not is_elevated():
+        return "gate_admin_missing"
     return ""
+
+
+def builds_the_iso(values: dict[str, Any] | None) -> bool:
+    """`uup_run` of the form as the run will read it; a form that does not say is the default - on."""
+    value = (values or {}).get("uup_run")
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y", "on"}
+    return bool(value)
 
 
 def adk_version_build(version: str) -> int:
@@ -1474,7 +2190,11 @@ def export_driver_packages(context: JobContext, chosen: list[str], destination: 
 
 
 def download_vendor_builds(context: JobContext) -> dict[str, object]:
-    """Fetch the ticked versions into `Vendors\\<Vendor>\\<archive name>`."""
+    """Fetch the ticked versions into `Vendors\\<Vendor>\\<archive name>`.
+
+    A file that did not pass its checks does not stay under its own name (`set_aside`), so the next
+    run downloads anew; the run goes on to the next build and ends as failed.
+    """
     provider = _provider(context)
     builds = _selected_builds(context, provider)
     # A Windows package is a script bundle: it is always unpacked and the zip dropped,
@@ -1485,14 +2205,134 @@ def download_vendor_builds(context: JobContext) -> dict[str, object]:
     clean_cache = _param_bool(context, "uup_clean_cache", False)
     root = _vendor_root(context, provider.name)
     results: list[dict[str, Any]] = []
+    # The builds that were fetched and are not to be trusted, each with what was wrong.
+    failed: list[list[str]] = []
     total = len(builds)
     fetch = getattr(provider, "fetch", None)
+    sources_of = getattr(provider, "sources", None)
+    expected_sha256 = getattr(provider, "expected_sha256", None)
+    vendor_signer = str(getattr(provider, "signer", "") or "")
+    signer_for = getattr(provider, "signer_for", None)
+
+    # Before the first request: every build by the name it goes under - its folder, its file, the note of its part.
+    # A Windows package is built in a short folder of its own, not under the destination.
+    if not callable(fetch) and builds:
+        # The one whose path is the longest is named: with it short enough, so are the rest.
+        longest = max(builds, key=lambda build: len(Path(build.name).stem) + len(build.name))
+        name = safe_file_name(longest.name)
+        reason = too_long(root / Path(name).stem / name, longest.name)
+        if reason:
+            raise RuntimeError(reason)
 
     for index, build in enumerate(builds, start=1):
         start = (index - 1) / total
         end = index / total
         download_end = start + (end - start) * (0.85 if extract else 1.0)
         label = f"{build.name} [{build.platform}]"
+        # Whose signature the installers of this build must carry: the vendor's for all its files, or the build's own.
+        signer = (str(signer_for(build) or "") if callable(signer_for) else "") or vendor_signer
+        entry: dict[str, Any] = {"vendor": provider.id, "name": build.name, "platform": build.platform}
+
+        def settle(archive: Path, source: BuildSource | None, *, folder: Path) -> list[str]:
+            """The file against what its source says of it, then unpacked: what is wrong with it, or nothing.
+
+            Asked once for a build of one source and after every source of a build that has several.
+            What a former source left in the entry goes first.
+            """
+            for key in ("source", "sha256", "signature", "extracted", "inf"):
+                entry.pop(key, None)
+            entry.update(folder=str(folder), archive=str(archive))
+            if source is not None:
+                entry["source"] = source.host
+                wanted, said_by = source.sha256, "the catalog of the packages"
+            else:
+                # Whose page the hash is from, when it is not the vendor's own: NVIDIA's files that come from TechPowerUp.
+                wanted, said_by = (str(expected_sha256(build) or "") if callable(expected_sha256) else ""), str(getattr(provider, "sha256_from", "") or provider.name)
+            if wanted:
+                if file_sha256(archive) != wanted.upper():
+                    aside = set_aside(archive)
+                    context.log(f"[WARN] {archive.name}: SHA256 differs from the one {said_by} gives - the file is not the one; it is kept as {aside.name}, do not run it")
+                    entry.update(sha256="differs", archive=str(aside))
+                    return [f"{archive.name}: SHA256 differs from the one {said_by} gives"]
+                context.log(f"[OK] {archive.name}: SHA256 matches {said_by}")
+                entry["sha256"] = "matches"
+            if source is not None and source.installer and archive.suffix.lower() == ".zip":
+                try:
+                    archive = take_installer(context, archive, folder, source.installer)
+                except (RuntimeError, zipfile.BadZipFile) as exc:
+                    aside = set_aside(archive)
+                    context.log(f"[WARN] {exc}; the archive is kept as {aside.name}")
+                    entry["archive"] = str(aside)
+                    return [str(exc)]
+                entry["archive"] = str(archive)
+            suffix = archive.suffix.lower()
+            if signer and suffix == ".cab":
+                unpacked = unpack_driver_cab(context, archive, folder, signer)
+                problem = str(unpacked.pop("problem", "") or "")
+                entry.update(unpacked)
+                return [problem] if problem else []
+            if signer and suffix in {".zip", ".7z"}:
+                # A package whose installers are checked for a signature is unpacked whatever the switches say - they are
+                # checked as files - and apart: its files reach the folder of the build only once every installer is confirmed.
+                checking = folder / CHECKING_FOLDER
+                shutil.rmtree(checking, ignore_errors=True)
+                try:
+                    count = extract_zip(context, archive, checking) if suffix == ".zip" else extract_7z(context, archive, checking)
+                except (RuntimeError, zipfile.BadZipFile) as exc:
+                    if context.cancelled():
+                        raise
+                    count = 0
+                    context.log(f"[WARN] {archive.name}: {exc}")
+                if not count:
+                    shutil.rmtree(checking, ignore_errors=True)
+                    aside = set_aside(archive)
+                    context.log(f"[WARN] {archive.name}: nothing could be unpacked from it; it is kept as {aside.name}")
+                    entry["archive"] = str(aside)
+                    return [f"{archive.name}: the package could not be unpacked"]
+                unsigned = check_installers(context, checking, signer)
+                archive.unlink()
+                if unsigned:
+                    untrusted = folder / UNTRUSTED_FOLDER
+                    shutil.rmtree(untrusted, ignore_errors=True)
+                    checking.replace(untrusted)
+                    context.log(f"[WARN] {archive.name}: unpacked into {untrusted} and left there - do not run what is in it")
+                    entry.update(signature="not confirmed", archive=str(untrusted))
+                    return unsigned
+                for item in checking.iterdir():
+                    place = folder / item.name
+                    if place.is_dir():
+                        shutil.rmtree(place, ignore_errors=True)
+                    else:
+                        place.unlink(missing_ok=True)
+                    item.replace(place)
+                checking.rmdir()
+                context.log(f"[CLEAN] {archive.name} removed")
+                entry.update(extracted=count, signature="Valid", archive="")
+                return []
+            if signer:
+                unsigned = check_installers(context, archive, signer)
+                if unsigned:
+                    aside = set_aside(archive)
+                    context.log(f"[WARN] {archive.name}: kept as {aside.name}")
+                    entry.update(signature="not confirmed", archive=str(aside))
+                    return unsigned
+                entry["signature"] = "Valid"
+                return []
+            if (extract or build_iso) and suffix == ".zip":
+                entry["extracted"] = extract_zip(context, archive, folder)
+                if delete_zip:
+                    archive.unlink()
+                    context.log(f"[CLEAN] {archive.name} removed")
+                    entry["archive"] = ""
+            elif extract and suffix == ".7z":
+                # What tar could not read stays: an archive is removed only once its files are out.
+                entry["extracted"] = extract_7z(context, archive, folder)
+                if entry["extracted"] and delete_zip:
+                    archive.unlink()
+                    context.log(f"[CLEAN] {archive.name} removed")
+                    entry["archive"] = ""
+            return []
+
         if callable(fetch):
             file_name = build.name
             # Windows packages are unpacked and built in <drive>:\UUP, not under the destination.
@@ -1502,28 +2342,43 @@ def download_vendor_builds(context: JobContext) -> dict[str, object]:
             fetch(build, archive)
             context.log(f"[OK] {archive} ({archive.stat().st_size} bytes)")
             _progress_between(context, start, download_end, 1.0)
+            problems = settle(archive, None, folder=folder)
+        elif callable(sources_of):
+            found = sources_of(build)
+            # The folder its vendor names for the build, else the name of its file.
+            folder = safe_folder(root, found[0].folder) if found and found[0].folder else root / Path(safe_file_name(build.name)).stem
+            folder.mkdir(parents=True, exist_ok=True)
+            try:
+                download_from_sources(context, found, folder, label, progress_start=start, progress_end=download_end,
+                                      accept=lambda archive, source, folder=folder: settle(archive, source, folder=folder))
+                problems = []
+            except NotTrusted as exc:
+                problems = exc.problems
+                entry.setdefault("folder", str(folder))
         else:
             url = _resolve(context, provider, build)
-            file_name = _archive_name(url)
+            # A catalog whose own file names are a guid and a hash names its packages itself.
+            file_name = safe_file_name(build.name if getattr(provider, "names_its_files", False) else _archive_name(url))
             folder = root / Path(file_name).stem
             folder.mkdir(parents=True, exist_ok=True)
             archive = folder / file_name
             download_with_resume(context, url, archive, label, progress_start=start, progress_end=download_end)
-        entry: dict[str, Any] = {"vendor": provider.id, "name": build.name, "platform": build.platform, "folder": str(folder), "archive": str(archive)}
-        if (extract or build_iso) and archive.suffix.lower() == ".zip":
-            entry["extracted"] = extract_zip(context, archive, folder)
-            if delete_zip:
-                archive.unlink()
-                context.log(f"[CLEAN] {archive.name} removed")
-                entry["archive"] = ""
-        if build_iso:
-            iso = Path(run_uup_script(context, folder))
-            verify_iso_build(context, iso, folder, build.version)
-            entry["iso"] = hand_over_iso(context, iso, folder, root, clean_cache=clean_cache)
-            if clean_cache:
-                entry["folder"] = ""
+            problems = settle(archive, None, folder=folder)
+
+        if problems:
+            failed.append(problems)
+        else:
+            forget_untrusted(folder)
+            if build_iso:
+                iso = Path(run_uup_script(context, folder))
+                verify_iso_build(context, iso, folder, build.version)
+                entry["iso"] = hand_over_iso(context, iso, folder, root, clean_cache=clean_cache)
+                if clean_cache:
+                    entry["folder"] = ""
         context.progress(end)
         results.append(entry)
 
+    if failed:
+        raise RuntimeError(f"{len(failed)} of {len(results)} build(s) are not to be trusted: " + "; ".join(problem for problems in failed for problem in problems))
     context.log(f"[DONE] {len(results)} build(s) in {root}")
     return {"downloaded": len(results), "results": results, "output": str(root)}

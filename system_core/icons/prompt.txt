@@ -1,24 +1,26 @@
-{
-  "project": "Audion Get",
-  "source_file": "E:\\TOOLS\\PROJECTS\\_incoming_gpt_image_icons\\Сгенерированное изображение 21.png",
-  "pipeline": "GPT-Image bitmap candidate saved from UI, normalized to 1024 PNG and multi-size ICO",
-  "sizes": {
-    "app.png": "1024x1024",
-    "app.ico": [
-      "16x16",
-      "24x24",
-      "32x32",
-      "48x48",
-      "64x64",
-      "128x128",
-      "256x256"
-    ]
-  },
-  "style_rules": [
-    "background #17212B",
-    "maximum 3 objects",
-    "no repeated objects",
-    "no text",
-    "bitmap-first"
-  ]
-}
+Audion Get Tools - the application icon, put in place on 10.10.2026.
+
+Meaning: collect and install a chosen set of applications.
+Mark: three application modules and a bold download arrow on a graphite rounded tile; the outer
+corners are transparent.
+
+Modules (a surface gradient each; the lighter and the darker stop are derived for the lighting):
+  upper left   Microsoft blue        #71EFFF -> #38C0FF -> #118EE2
+  lower left   NVIDIA green          #B7E94B -> #76B900 -> #4E8500   (the reference is #76B900)
+  lower right  Blackmagic Design     #FAA735 -> #E06E34 -> #BC693D   (measured from BMD-Logo-A-RGB.tif)
+The blue is a lighting reading of the cyan-to-blue Windows mark, not the four-colour Microsoft logo.
+
+Files:
+  app.svg   the editable source, a native SVG, 1024 x 1024
+  app.png   1024 x 1024, rasterized from the SVG with Sharp
+  app.ico   32-bit, frames 16, 20, 24, 32, 40, 48, 64, 96, 128, 256 (Pillow)
+            SHA256 b9ce41ea8a4fe44f81f05eb71e3bd4f368852a39a21629faa21ecb9e314449b2
+
+Made in E:\TOOLS\output\audion-get-tools-icon-v2 (the geometry of v1, the module colours of v2);
+its export script, its palette sources and its check of every frame lie there.
+
+app.ico is the one file the program takes its icon from: the window (Source\AudionGetTools.csproj)
+and Start.exe, which embeds it when it is built (install\Build-StartLauncher.cmd).
+
+The icon before it (2.17.2 and earlier, a bitmap made by GPT-Image) is kept in
+E:\TOOLS\Audion Get Tools NiceGUI\system_core\icons.

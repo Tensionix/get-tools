@@ -8,15 +8,14 @@
   <a href="https://github.com/Tensionix/get-tools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Tensionix/get-tools?style=flat-square&color=5fd08a&logo=apache&logoColor=white&cacheSeconds=3600"></a>
 </p>
 
-**Version 3.0.0** · 2026-10-11 · 74.7 MB
+**Version 3.0.0** · 2026-10-11 · 137.8 MB
 
-- [Direct download](https://dl.audion.dev/get-tools/3.0.0/Audion_Get_Tools_v3.0.0.zip) — unmetered, no rate limits
+- [Direct download](https://audion.dev/get/get-tools/3.0.0/Audion_Get_Tools_v3.0.0_Full.zip) — unmetered, no rate limits
 - [Project page](https://audion.dev/downloads/get-tools) — every version and how to install
-- [GitHub release](https://github.com/Tensionix/get-tools/releases/tag/v3.0.0)
 
 <p align="center"><img src="docs/screenshot.png" alt="The program window" width="560"></p>
 
-`SHA-256: 5bc16b2bb32e2a6ffeb9f6735bcb208ae9eda740ab86c42b58dd5752053d568c`
+`SHA-256: fee48f2a388ca6288701e5de4097d2ae0c289c2025e37da976cbbe6b8f1bb48c`
 
 ---
 
@@ -35,12 +34,11 @@ An **Audion** tool, published by [Tensionix](https://github.com/Tensionix).
   - [Download without installing: installer or portable, fresh from the authors](#download-without-installing-installer-or-portable-fresh-from-the-authors)
   - [Search and work by ID](#search-and-work-by-id)
   - [AI Package Planner](#ai-package-planner)
-  - [Portable browsers](#portable-browsers)
   - [Vendor Downloads](#vendor-downloads)
   - [Visual C++ runtimes](#visual-c-runtimes)
   - [Import and export](#import-and-export)
   - [Service procedures](#service-procedures)
-  - [The workbench](#the-workbench)
+  - [The window](#the-window)
 - [Principles](#principles)
 - [Next](#next)
 - [Technical Reference](#technical-reference)
@@ -69,11 +67,13 @@ wrong version, it takes from the vendor directly.
 
 ## What It Does
 
-One window: the list of operations on the left, the log and a terminal on the
-right. Every operation is a form of switches and cards with a single run button
-at the bottom. Every caption and tooltip exists in English and Russian, the
-language flips with a button in the header. One paragraph per ability below,
-the details are behind the links into the user guide.
+One window: six sections at the top - WINGET, WINDOWS, MEDIA, SYSTEM, DRIVERS,
+HARDWARE - and the pages of a section under them. On the left the page: forms
+of switches and cards and the buttons that run; on the right the terminal with
+the log of the operation. Every button runs an operation that the console
+command `get_cli.cmd` runs just the same. Every caption and tooltip exists in
+English and Russian, the language switches in the header. One paragraph per
+ability below, the details are behind the links into the user guide.
 
 ### WinGet sets: the catalog by groups
 
@@ -91,8 +91,8 @@ added as a line, or with `Add ID to list` straight from the search window.
 
 ### Install, update, pin, remove
 
-`Install selected` scans the system first, shows only what is missing and then
-installs the ticked IDs without the Y/N prompts, with live progress in the log.
+`Install selected` installs everything ticked in the catalogue without the Y/N
+prompts, with live progress in the log; what is already installed is passed by.
 `Update selected`, `Update available` and `Update all available` work from the
 `winget upgrade` list; `Preview updates` only shows it as "name, ID, current,
 available". `Pin selected` keeps `config\pins.txt`: ticked packages get a
@@ -103,9 +103,9 @@ extra checkbox. `Update WinGet` updates the manager itself.
 ### Download without installing: installer or portable, fresh from the authors
 
 Every card carries three small buttons, and that is half the point of the
-program. The green arrow downloads the installer into `output\Downloads`
-without running it. The crimson box downloads the zip or standalone build into
-`output\Portable`, the one that needs no installation; 29 programs of the
+program. The green arrow downloads the installer into `Downloads` of the
+download folder without running it. The crimson box downloads the zip or
+standalone build into `Portable`, the one that needs no installation; 29 programs of the
 catalog have it, Notepad++, Everything, OBS Studio, VLC, Telegram, FFmpeg,
 Node.js, MKVToolNix, Audacity, Sysinternals, Rufus, yt-dlp, SumatraPDF, Rclone
 among them, and it shows only where such a build really exists. The blue arrow
@@ -116,7 +116,7 @@ older version.
 The files come straight from the authors, not from someone's mirror: for
 projects on GitHub the program reads the latest release and picks the right
 file among the assets itself, x64 and portable first; for the rest, the vendor's
-page. So the newest version lands in `output` even when the WinGet catalog lags:
+page. So the newest version lands in the download folder even when the WinGet catalog lags:
 Tabby and RClone Manager are taken from the releases page before they reach the
 catalog, and the installer and the portable build are always the same version.
 More: [user guide](docs/USER_GUIDE_EN.md#downloading-without-installing).
@@ -137,15 +137,13 @@ instruction templates are pinned and reused. Installation goes the usual
 protected way; the LLM runs nothing. More:
 [user guide](docs/USER_GUIDE_EN.md#ai-package-planner).
 
-### Portable browsers
-
-Portable browser archives into `output\Portable` (Ungoogled Chromium, Zen, Cent
-and others), the Google Chrome web installer without running it, a portable
-7-Zip. Separately: building and updating Google Chrome Portable on the Chrome++
-wrapper from the official standalone installer, with an architecture choice and
-packing into ZIP or 7Z.
-
 ### Vendor Downloads
+
+In the window the drivers stand by the kind of device - GPU, Chipset, Wi-Fi,
+Bluetooth, Ethernet, Audio - and every page has a row of makers: Intel and AMD
+first, then Realtek and the rest. Where the file comes from follows from the
+maker, and a page opens on the maker this PC has a device of. Over the list of
+versions stands a badge: the driver the PC runs now and the newest of the list.
 
 A second source next to WinGet: the vendors' own catalogs with every version
 they ever published, not just the current one. Tabs at the top, platforms and
@@ -175,16 +173,41 @@ in the archive is dropped.
   the whole list to portable files. Some of these utilities are in the WinGet
   catalog too: there they install into the system, here any version comes as a
   file.
+- **Windows Update**: the drivers Windows Update installs, taken by hand from
+  the Microsoft Update Catalog - bare WHQL INF drivers without the vendor's
+  programs. Realtek, MediaTek, Qualcomm, Broadcom, Killer and Marvell network,
+  Wi-Fi, Bluetooth and sound, Intel Management Engine and RST. The list is
+  searched by the hardware id of this PC's own device, the newest driver for
+  it is ticked; a package is checked for Microsoft's signature, then unpacked.
+- **Intel Chipset**: Intel Chipset Device Software (the chipset INF), every
+  package from 10.0.13 on. The Intel devices of this PC choose the package.
+  The sources in turn: Intel's server, the web archive, station-drivers, the
+  FirstEverTech archive; every installer is checked for the signature of Intel
+  Corporation. Intel's own addresses are kept in
+  `config\vendor_intel_chipset.yaml`.
 - **NVIDIA**: Game Ready and Studio drivers by chip generation, `My cards` for
   one driver across every card in the house; each version carries its NVENC
-  SDK, the compatible FFmpeg, the CUDA ceiling and ★ "golden" marks. Plus the
-  NVIDIA App, Broadcast, CUDA Toolkit and the three DLSS libraries.
+  SDK, the compatible FFmpeg, the CUDA ceiling and ★ "golden" marks. Game
+  Ready has a `Source` switch: NVIDIA's own service (the default - the list by
+  generation and `My cards`) or TechPowerUp (every release in one list at
+  once, the file compared by SHA256 and checked for NVIDIA's signature).
+  Plus the NVIDIA App, Broadcast, CUDA Toolkit and the three DLSS libraries.
 - **Blackmagic Design**: DaVinci Resolve and Resolve Studio, Fusion, Blackmagic
   RAW, Desktop Video, Camera Setup and the rest of the catalog, 45 products.
   Studio comes without registration; the free Resolve only through the form,
   which is in the window.
 - **Affinity**: the unified Affinity 3 (exe, msix, dmg) and Photo, Designer,
   Publisher 2.
+- **Programs as files**: the newest installer or portable build from its
+  maker, nothing installed - what the WinGet catalogue of the program does not
+  carry. Boot media: Media Creation Tool, Rufus, Ventoy. Utilities: ViVeTool,
+  SoundSwitch, EverythingPowerToys, ExplorerTabUtility, Symbolic11, Nilesoft
+  Shell, KDE Connect, Bulk Crap Uninstaller, Revo Uninstaller, VeraCrypt,
+  Microsoft Safety Scanner, Google Chrome, Edge WebView2 Runtime, Intel Driver
+  and Support Assistant. Tests: PresentMon, CapFrameX, PC Latency View,
+  TestMem5, Fan Control. Games: Steam, Epic, EA app, Battle.net, Rockstar,
+  Riot, Minecraft, Prism, Freesm, Modrinth, CurseForge, TcNo Account Switcher.
+  The list is `config\programs.yaml`.
 
 More: [user guide](docs/USER_GUIDE_EN.md#vendor-downloads), the composition tables
 below in the [technical reference](#windows-install-sets).
@@ -206,23 +229,39 @@ one, with the checkboxes "ignore versions", "do not upgrade installed" and
 
 ### Service procedures
 
-Buttons without a form: the Windows licence state through slmgr, Health /
-Doctor, the MSVC runtime check, checking that IDs exist in the source,
-validating the configuration lists, clearing `input`/`output` and clearing the
-logs. GitHub token: a pop-up field, the token is checked against GitHub and
+Buttons without a form stand where they are needed. In the header: the GitHub
+token, the GitHub quota, Health / Doctor, the validation of the configuration
+lists and the clearing of the logs. The Windows licence state through slmgr is
+in WINDOWS, page "Licence"; the MSVC runtime check in SYSTEM, "Runtimes"; the
+check that IDs exist in WINGET, "Catalogue"; the clearing of the program's
+`input` and `output` beside the row of the download folder. The GitHub token is
+asked for in a pop-up field, the token is checked against GitHub and
 kept in `config\github_token.dpapi` encrypted with Windows DPAPI for this
 account only; with it the release lookups get 5000 API calls an hour instead
 of the anonymous 60. The `GitHub quota` button shows what is left.
 
-### The workbench
+### The window
 
-At the top the `Source` and `Target` paths with history and pinning, buttons to
-add files or a folder, a file list, reset and delete of the I/O contents. On the
-right the operation log with the Logs, Report and Config buttons and a terminal:
-PowerShell or cmd, command history, pinned commands, a working folder with
-folder and file pickers. Dangerous operations ask for confirmation before they
-run. Theme and language switch in the header. Every control and every tooltip
-is described in the
+The header shows the machine in badges: Windows, the computer, the processor,
+the video cards with their drivers, the memory, the free room of the drives and
+the rights of the window. An image of Windows needs administrator rights:
+`Start.exe` asks for them at the start, and in a window opened without them a
+click on "Rights: standard" restarts it with the rights. The language RU / EN,
+the four Audion themes and the sheets "Settings" and "About" are there too.
+
+Over the terminal stands the download folder: the Downloads of Windows until
+another is chosen; the program's `output` or a folder of your own is picked
+right there or in the settings. The pages that read a folder - the WinGet
+import, the drivers for an image - show the source folder and let it be
+chosen. The catalogue and the list of what is installed have one search for
+all the lists of the page. The terminal shows the log of the operation in the
+colours of the services themselves; beside it are the buttons of the `logs`
+folder, of copying and of clearing, the tiles "operation, time, outcome" and
+`STOP`. Under the terminal stands its command line: PowerShell or cmd, Enter
+runs, the arrows bring the commands before; the list beside it holds the pinned
+commands and the history, and a command may be pinned or removed there. A
+command sent while an operation goes runs after it. Dangerous operations ask for confirmation before they run. Where every
+operation stands and what every control means is in the
 [guide's reference](docs/USER_GUIDE_EN.md#reference-every-window-every-control-every-tooltip).
 
 ## Principles
@@ -253,28 +292,45 @@ and a Russian version.
 ### Running
 
 ```cmd
-Launcher-Audion-Get.cmd      command line
-Launcher-Audion-Get-RU.cmd   the same in Russian
-launcher_gui.cmd             windowed
+Start.exe                    the window
+get_cli.cmd                  the console command: the operations the buttons of the window run
+launcher_project.cmd         the console menu of WinGet by lists
+launcher_project_ru.cmd      the same in Russian
+```
+
+The window is `App\AudionGetTools.exe`, built from `Source\` with its own .NET;
+the engine is Python in `runtime\`. The window installs and downloads nothing
+itself: every button runs an operation of the manifest through `get_cli.cmd`.
+Beside the window stands `App\AudionPs.exe` - the program's own PowerShell 7:
+the command line of the terminal and the console menus of WinGet run with it,
+so the program needs no PowerShell installed on the machine. Examples:
+
+```cmd
+get_cli.cmd describe
+get_cli.cmd run --operation preview_available_updates
+get_cli.cmd run --operation install_package_by_id --set package_id=7zip.7zip
 ```
 
 ### Sets
 
 Package lists live in the configuration as separate files — one per machine
-purpose. Windows, fields and tooltips are described in
-`config\tool_manifest.yaml`; the control reference in the user guide is built
-from it by `tools\docs\build_control_reference.py`.
+purpose. Operations, fields and tooltips are described in
+`config\tool_manifest.yaml`, and the page of the section an operation stands
+on in `config\window_layout.yaml`; the control reference in the user guide is
+built from them by `system_core\build_control_reference.py`.
 
 ### How the downloads section is built
 
 A provider describes one catalog
-(`system_core\vendors\`: Blackmagic Design, Affinity, NVIDIA and Windows through UUP dump; the NVIDIA
+(`system_core\vendors\`: Blackmagic Design, Affinity, NVIDIA, Windows through UUP dump, the Microsoft
+Update Catalog, the Intel chipset and the programs taken as files from `config\programs.yaml`; the NVIDIA
 driver marks sit in `config\vendor_nvidia.yaml`), the shared
 `vendor_service` fetches the chosen builds with resume into a folder per build
-and unpacks zips, and the `Vendor Downloads` screen is one field group in
-`tool_manifest.yaml`: vendor tabs plus fields shown by `visible_when`.
+and unpacks zips, and the form of the downloads is one field group in
+`tool_manifest.yaml`, its fields shown by `visible_when`; a page of the window
+shows it for its own vendor (`fixed` in `window_layout.yaml`).
 A new vendor is one provider file, its platform and product toggles in the
-manifest, and a line in `vendor_service.VENDOR_FIELDS`.
+manifest, a line in `vendor_service.VENDOR_FIELDS` and a page in the layout.
 
 #### Windows install sets
 

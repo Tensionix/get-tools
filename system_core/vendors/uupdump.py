@@ -175,6 +175,18 @@ SHORT_EDITION = {
 }
 
 
+# The edition in the line of a card, as the form of the window names it - Pro, Home - and not as
+# the catalogue spells it: "professional" in every card of a list of a hundred is width for nothing.
+EDITION_WORDS = {
+    "professional": "pro",
+    "core": "home",
+    "professionaln": "pro n",
+    "coren": "home n",
+    "core;professional": "home+pro",
+    "professional;core": "home+pro",
+}
+
+
 def pack_file_name(entry: CatalogEntry, lang: str, edition: str, virtual: tuple[str, ...] = ()) -> str:
     """Short on purpose: the build folder is named after it, and DISM inside the
     converter fails with "file name too long" once the path grows."""
@@ -243,7 +255,7 @@ class UupDumpProvider:
         return None
 
     def _build(self, entry: CatalogEntry, lang: str, edition: str, virtual: tuple[str, ...] = ()) -> VendorBuild:
-        notes = f"{lang} {edition.lower()}"
+        notes = f"{lang} {EDITION_WORDS.get(edition.lower(), edition.lower())}"
         if virtual:
             notes += " +" + " +".join(virtual)
         return VendorBuild(

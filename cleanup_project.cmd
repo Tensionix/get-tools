@@ -37,9 +37,9 @@ for %%A in (%*) do (
   if /I "%%~A"=="--help" goto usage
 )
 
-if not exist "%BASE_DIR%\system_core\ui_nicegui\app.py" (
+if not exist "%BASE_DIR%\system_core\cli.py" (
   echo [ERROR] Project marker not found:
-  echo %BASE_DIR%\system_core\ui_nicegui\app.py
+  echo %BASE_DIR%\system_core\cli.py
   echo.
   echo Cleanup aborted.
   call :WAIT_KEY
@@ -77,13 +77,16 @@ echo   - input, output, logs, report, workspace and release contents
 echo   - runtime, wheelhouse and install\download contents
 echo   - all folders named .runtime, _runtime, ._runtime, __pycache__
 echo   - pytest/mypy/ruff caches, root build/dist folders
-echo   - system_core\fzf.exe and system_core\powershell contents
-echo   - system_core\_pwsh_tmp, system_core\_powershell_tmp, system_core\_fzf_tmp
+echo   - Source\bin, Source\obj, Source\Ps\bin, Source\Ps\obj: what building App leaves
+echo   - system_core\fzf.exe and system_core\_fzf_tmp
+echo   - the state of this machine's window in config: window_settings.json,
+echo     terminal_commands.json, gui_*_cache.json
 echo   - root licenses\ is preserved unchanged
 echo   - generated *.pyc, *.pyo, *.tmp, *.bak, *.log, Thumbs.db, desktop.ini
 echo.
-echo Protected: config, WinGet scripts, GUI/core source, launchers, install scripts,
-echo            README/policies and package list files.
+echo Protected: the rest of config, the keys in it, WinGet scripts, the engine,
+echo            the window and its PowerShell (App and its Source),
+echo            launchers, install scripts, README/policies and package list files.
 echo.
 
 if "%AUTO_YES%"=="1" goto clean
@@ -117,14 +120,22 @@ call :ClearDir "%BASE_DIR%\release"
 call :ClearDir "%BASE_DIR%\runtime"
 call :ClearDir "%BASE_DIR%\wheelhouse"
 call :ClearDir "%BASE_DIR%\install\download"
-call :ClearDir "%BASE_DIR%\system_core\powershell"
-call :RemoveDir "%BASE_DIR%\system_core\_pwsh_tmp"
-call :RemoveDir "%BASE_DIR%\system_core\_powershell_tmp"
 call :RemoveDir "%BASE_DIR%\system_core\_fzf_tmp"
 rem licenses\ is intentionally preserved by release cleanup.
 call :RemoveDir "%BASE_DIR%\build"
 call :RemoveDir "%BASE_DIR%\dist"
+rem The built window, App\, stays: a release carries it as it was built.
+call :RemoveDir "%BASE_DIR%\Source\bin"
+call :RemoveDir "%BASE_DIR%\Source\obj"
+call :RemoveDir "%BASE_DIR%\Source\Ps\bin"
+call :RemoveDir "%BASE_DIR%\Source\Ps\obj"
 call :RemoveFile "%BASE_DIR%\system_core\fzf.exe"
+rem What the window of this machine remembers - its look and folders, the history of the
+rem terminal line, the lists it cached - is not source: a copy made for a release must not carry it.
+rem The keys (api_key_*.txt, *.dpapi) are not touched here: the archiver takes them out of a public archive.
+call :RemoveFile "%BASE_DIR%\config\window_settings.json"
+call :RemoveFile "%BASE_DIR%\config\terminal_commands.json"
+for %%F in ("%BASE_DIR%\config\gui_*_cache.json") do call :RemoveFile "%%~fF"
 
 call :RemoveFilesByPattern "*.pyc"
 call :RemoveFilesByPattern "*.pyo"
@@ -159,7 +170,7 @@ exit /b 0
 
 :cleanup_failed
 echo [ERROR] Cleanup finished with %ERROR_COUNT% error(s).
-echo Close GUI, terminals, Python processes, and try again.
+echo Close the window of the program, terminals, Python processes, and try again.
 if not "%AUTO_YES%"=="1" call :WAIT_KEY
 exit /b 1
 

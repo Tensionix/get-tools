@@ -56,8 +56,6 @@ Why this is useful when a normal install is right there:
 - some programs do more when installed from their own distributive than from their WinGet package. PowerShell from the Microsoft installer adds Explorer context-menu entries and keeps updating itself afterwards, while the WinGet build does not;
 - on the download page you can pick a build by hand: a different architecture, a portable edition, an earlier release.
 
-`Google Chrome (web installer)` has its own download button next to it - it fetches the same web installer without running it.
-
 Where things land:
 
 | Folder | What is there |
@@ -82,8 +80,11 @@ It is one screen for every vendor: the tabs at the top pick whose catalog to bro
 | --- | --- |
 | Windows (UUP dump) | Every Windows 11 and Windows 10 build in the UUP dump catalog, each cumulative update as its own build number with its date, plus Insider; x64 and ARM; language and edition as toggles. A script package is downloaded and the ISO is built on this machine from Microsoft's own files. |
 | TechPowerUp | The site's catalog by section, every entry with its whole version history, date and size. Drivers: AMD Radeon and Ryzen chipset, Intel graphics (Arc, iGPU), Wi-Fi, Bluetooth, Ethernet and NPU, Qualcomm Snapdragon X. Utilities: DDU, NVCleanstall, NVIDIA Profile Inspector, ThrottleStop, DRAM Calculator for Ryzen, Samsung Magician, Visual C++ Runtimes AIO, MemTest64. Monitoring: GPU-Z, CPU-Z, AIDA64 Extreme, ZenTimings, Real Temp. Benchmarks: 3DMark, PCMark 10, Cinebench, FurMark, Prime95, Unigine Superposition and Heaven, GravityMark, Linpack Xtreme, ATTO Disk Benchmark. Video BIOS: NVIDIA NVFlash, AMDVBFlash. The file comes through TechPowerUp's signed link. A version is one card: the green arrow fetches the installer, the crimson archive icon the portable build of the same version, an empty slot means there is no such file; the Portable button keeps the versions with a portable build and a tick then means that file. NVIDIA drivers and DLSS stay on the NVIDIA tab. |
-| NVIDIA | Game Ready and Studio drivers by chip generation: RTX 50, 40, 30, 20, GTX 16, 10, 900, 700, 600, 500, 400, desktop and notebook. NVIDIA App and Broadcast - the current installers. CUDA Toolkit - every release from the archive. DLSS, DLSS Frame Generation and DLSS Ray Reconstruction - every library version from TechPowerUp. |
+| Windows Update | The drivers Windows Update installs, taken by hand from the Microsoft Update Catalog: bare INF drivers signed by Microsoft (WHQL), without the vendor's programs. Realtek, Killer, Broadcom and Marvell AQtion network cards; Realtek, MediaTek, Qualcomm, Broadcom and Killer Wi-Fi and Bluetooth; Realtek sound; Intel Management Engine and RST VMD. The list is searched by the hardware id of this PC's own device, and the newest driver for it is ticked unless the device runs it already; without such a device the general list is shown and nothing is ticked. A package comes as a .cab: Microsoft's signature is checked, then it is unpacked into its folder. |
+| Intel Chipset | Intel Chipset Device Software - the chipset INF, every package from 10.0.13 on. The line over the list names the platform of this PC and the package it wants; that one is ticked. The sources in turn: Intel's own server (its addresses are in `config\vendor_intel_chipset.yaml`), the web archive's copy, station-drivers.com, the archive of FirstEverTech's Universal Intel Chipset Updater. Whatever the source, every installer is checked for the signature of Intel Corporation; when it is not confirmed the operation ends as failed and the log names the file not to run. |
+| NVIDIA | Game Ready and Studio drivers by chip generation: RTX 50, 40, 30, 20, GTX 16, 10, 900, 700, 600, 500, 400, desktop and notebook; Game Ready has a switch of its source - NVIDIA's service (the default) or TechPowerUp's page of every release. NVIDIA App and Broadcast - the current installers. CUDA Toolkit - every release from the archive. DLSS, DLSS Frame Generation and DLSS Ray Reconstruction - every library version from TechPowerUp. |
 | Blackmagic Design | DaVinci Resolve and Resolve Studio, Fusion, Blackmagic RAW, Desktop Video, Camera Setup and the rest of the catalog - 45 products for Windows, Windows ARM, macOS and Linux. |
+| Programs | Programs taken as files, the newest from their makers: the installer, or the portable build with the `Portable` button; nothing is installed. Four shelves: boot media (Media Creation Tool, Rufus, Ventoy), utilities (ViVeTool, SoundSwitch, EverythingPowerToys, ExplorerTabUtility, Symbolic11, Nilesoft Shell, KDE Connect, Bulk Crap Uninstaller, Revo Uninstaller, VeraCrypt, Microsoft Safety Scanner, Google Chrome, Edge WebView2 Runtime, Intel Driver and Support Assistant), tests (PresentMon, CapFrameX, PC Latency View, TestMem5, Fan Control) and games (Steam, Epic, EA app, Battle.net, Rockstar, Riot, Minecraft, Prism, Freesm, Modrinth, CurseForge, TcNo Account Switcher). A file comes from a release page on GitHub, from its maker's fixed address or by WinGet's own download and lands in `output\Vendors\Programs\<Program>`; a portable zip or 7z is unpacked into `Portable` inside it. The list is edited by hand in `config\programs.yaml`; the list itself asks nothing of the network, a source is asked only when its program is downloaded. |
 | Affinity | Affinity 3 by Canva - the unified free app, current release only, exe and msix for x64 and ARM, dmg for macOS. Photo 2, Designer 2 and Publisher 2 - every 2.x release from the Serif updates pages, each Windows version as msix and as exe. |
 
 Windows through UUP dump is the way to get an image "as of a given month", updates already inside, without waiting for Microsoft to refresh its media. Microsoft ships the system as the same UUP files Windows Update installs, and UUP dump keeps a catalog of everything it has seen. A version card here is a build, for example `24H2 26100.9278 - 27 Aug 2026`; type a release or a month into the filter. What is downloaded is a small package with `uup_download_windows.cmd`, and there are two ways from there:
@@ -130,7 +131,9 @@ The `Minimal` set is the four system packages without the tools and the codecs, 
 
 On editions, plainly: through UUP Microsoft ships only the consumer Home and Pro with their N variants, plus Team for Windows 10. Everything else UUP dump derives from Pro while building, and that is the `Additional editions in the ISO` block: Enterprise, IoT Enterprise, IoT Enterprise K, Education, Pro Education, Pro for Workstations and Enterprise multi-session. Ticked ones are added to the same image next to the base edition, and the version card shows them in its caption. LTSC cannot be had this way - it is neither in the catalog nor among the derived editions; Microsoft ships LTSC through corporate channels only. ARM is in the catalog for the same builds, the platform toggle.
 
-NVIDIA drivers are picked by chip generation, not by the exact card: one driver file covers several generations, and the list shows what NVIDIA publishes for the chosen one. `My cards` keeps only the versions published for every generation ticked in the `My generations` row that appears under the switch - one driver for every card in the house; the ticks are remembered in `config\vendor_nvidia.yaml` and come back on the next start. Every version carries its date, size and marks:
+Game Ready drivers have a `Source` switch. `NVIDIA` is the default - NVIDIA's own service: the list by generation, `My cards`, the notebook list and the driver for the card of this PC ticked; the service takes long to answer now and then. `TechPowerUp` is the other source for when it does: one page of the site with every release since 2017, the list arrives at once; the downloaded file is compared with the SHA256 of that page and checked for the signature of NVIDIA Corporation, and without it the operation ends as failed. The site does not say which cards a version is for, so this list has no choice of a generation and nothing is ticked for the card of this PC - only the version the card runs now is marked; betas and hotfix releases keep their word and are not "the latest stable". Studio drivers always come from NVIDIA: TechPowerUp does not keep them.
+
+In NVIDIA's list drivers are picked by chip generation, not by the exact card: one driver file covers several generations, and the list shows what NVIDIA publishes for the chosen one. `My cards` keeps only the versions published for every generation ticked in the `My generations` row that appears under the switch - one driver for every card in the house; the ticks are remembered in `config\vendor_nvidia.yaml` and come back on the next start. Every version carries its date, size and marks:
 
 - `NVENC SDK 13.1` - the nv-codec-headers generation an FFmpeg build was made against: such a build works on this driver and on any newer one; SDK 13.1 wants 610, SDK 13.0 wants 570, SDK 12.2 wants 551.76;
 - `FFmpeg <= 8.0.1` - the newest FFmpeg build from Audion Media Tools whose hardware encoding works on this driver: 9.0.1 wants 610, 8.0.1 and 7.1.1 want 570, 7.1 wants 551.76;
@@ -147,7 +150,7 @@ How it works:
 - versions are cards with checkboxes. Tick the ones you need and press `Download` below - or press the button on a card to take that one build. The `Pick` row above the cards ticks them by rule: `Latest stable` takes the newest final release, skipping betas and Insider builds, `★ Golden` every starred card, `Clear` empties the choice. The star and the gold frame go to NVIDIA drivers from the golden list and, for Windows, to the newest build of each generation, 22H2, 24H2, 25H2 and so on, with its latest cumulative update; the other builds of a generation are history, and in a list of hundreds the gold ones stand out at once. The link button only prints the link to the log and to `report\links.txt`, downloading nothing;
 - every build lands in its own folder, `output\Vendors\<Vendor>\<archive name>`, for example `output\Vendors\Blackmagic Design\DaVinci_Resolve_Studio_21.0.4_Windows` or `output\Vendors\Affinity\affinity-photo-2.6.5`. When the destination folder already is your store for that vendor, enable `Straight into the destination folder`;
 - an interrupted download resumes: run the same build again and the file continues where it stopped. A finished file is never fetched twice;
-- a zip is unpacked into its folder so the installer is at hand, and is deleted after unpacking by default. Both are checkboxes. exe, msix, dmg and tar stay as they are.
+- a zip is unpacked into its folder so the installer is at hand, and is deleted after unpacking by default; a 7z is unpacked the same way - the tar of Windows reads it. Both are checkboxes. exe, msix, dmg and tar stay as they are.
 
 No account is needed anywhere but one place: the free DaVinci Resolve is issued by Blackmagic only after a form (name, e-mail, phone, address). The form fields appear at the bottom of the section while that product is selected; they go straight to blackmagicdesign.com, no account is created, no confirmation mail follows, and nothing is stored here. Signed Blackmagic and Serif links live a few hours; the Affinity 3 links are permanent.
 
@@ -501,7 +504,8 @@ Core rules:
 | File | Purpose |
 | --- | --- |
 | `config\tool_manifest.yaml` | Command, field, tooltip, and GUI group definitions. |
-| `system_core\ui_nicegui\app.py` | Planner/Models tabs, action grid, top CTA, and pending forms. |
+| `config\window_layout.yaml` | The page WINGET → AI of the window: which Planner operations stand on it, and in what order. |
+| `system_core\cli.py` | The console command `get_cli.cmd`: the window runs the Planner operations through it, as it runs every other. |
 | `system_core\services\winget_ai_service.py` | LLM calls, prompt/model/key cache, WinGet search validation, plan reports, exact-ID actions. |
 | `system_core\providers\openai_provider.py` | OpenAI JSON/structured calls. |
 | `system_core\providers\gemini_provider.py` | Gemini structured calls. |
@@ -549,11 +553,64 @@ For a release check, compare the manifest labels with the GUI, command preview, 
 <!-- controls:start -->
 ## Reference: every window, every control, every tooltip
 
-This section is generated from `config\tool_manifest.yaml` by `tools\docs\build_control_reference.py`, so the captions and tooltips here are the window's own, letter for letter. Windows follow the order of the Operations list. Every control shows its type, default, tooltip (what pops up on hover) and, where present, its options and the condition that shows it.
+This section is generated from `config\tool_manifest.yaml` by `system_core\build_control_reference.py`, so the captions and tooltips here are the window's own, letter for letter. First a map: which operation stands on which page of which section (read from `config\window_layout.yaml`); below it the operations by the groups of the manifest. Every control shows its type, default, tooltip (what pops up on hover) and, where present, its options and the condition that shows it.
+
+### Where everything stands in the window
+
+A section is a large button under the header, a page is a button of the row under the sections. After the name of a page come its operations; in brackets, those whose buttons stand in the card of the operation before them. A page of drivers names the row of its makers in square brackets: where the file comes from follows from the maker.
+
+**WINGET** - Packages: install, update, pin, remove
+
+- Catalogue: `Check installed IDs` (`Install selected`, `Update selected`)
+- Updates: `Preview updates`; `Update all available`; `Update WinGet`; `Update available`
+- Installed: `Uninstall selected IDs`; `Pin selected`
+- By ID: `Search`; `Install by ID`; `Uninstall by ID`; `Add ID to list`
+- AI: `Build plan` (`Check model`, `Favorite API key`, `Favorite model`, `Save prompt`); `Run selected from last AI plan`; `Search WinGet`; `Add exact ID to list`; `Install exact ID` (`Update exact ID`, `Uninstall exact ID`)
+- Transfer: `Export JSON`; `Import JSON`
+
+**WINDOWS** - The image of Windows and its licence
+
+- Image: `Download` (`Link only`, `Install ADK`, `Export drivers`)
+- Boot media: `Download` (`Link only`)
+- Licence: `Windows licence state`
+
+**MEDIA** - Editing and graphics, straight from their makers
+
+- Blackmagic Design: `Download` (`Link only`)
+- Affinity: `Download` (`Link only`)
+- Games: `Download` (`Link only`)
+
+**SYSTEM** - Runtimes and system tools
+
+- Runtimes: `Check MSVC runtimes`; `Install MSVC 2015+`; `Update MSVC 2015+`; `Install MSVC Legacy`; `Install MSVC All-in-One (TechPowerUp)`; `MSVC All-in-One (TechPowerUp)`; `Install MSVC AIO (abbodi1406)`; `MSVC AIO (abbodi1406)`
+- Utilities: `Download` (`Link only`)
+- WinUtil: `WinUtil`; `Update WinGet (script)`
+
+**DRIVERS** - Drivers of this machine and of any hardware
+
+- GPU [NVIDIA, AMD, Intel, Qualcomm]: `Download` (`Link only`)
+- Chipset [Intel, AMD Ryzen, Intel ME, Intel RST VMD, Intel NPU]: `Download` (`Link only`)
+- Wi-Fi [Intel, Realtek, MediaTek, Qualcomm, Killer, Broadcom]: `Download` (`Link only`)
+- Bluetooth [Intel, Realtek, MediaTek, Qualcomm, Broadcom]: `Download` (`Link only`)
+- Ethernet [Intel, Realtek, Killer, Marvell AQtion, Broadcom]: `Download` (`Link only`)
+- Audio [Realtek]: `Download` (`Link only`)
+- This machine: `Export drivers`
+
+**HARDWARE** - Monitoring, benchmarks, tuning
+
+- Monitoring: `Download` (`Link only`)
+- Benchmarks: `Download` (`Link only`)
+- Tools: `Download` (`Link only`)
+- BIOS: `Download` (`Link only`)
+- Tests: `Download` (`Link only`)
+
+**The header of the window**: `GitHub token`; `GitHub quota`; `Health / Doctor`; `Validate lists`; `Clear logs`
+
+**Beside the row of the download folder**: `Clear I/O`
 
 ### Install selected
 
-Scan the system, show only missing packages, and install checked IDs without Y/N/Q prompts.
+Install every package ticked in the catalogue. A package that is already installed is passed by: WinGet is called with --no-upgrade.
 
 #### Fields
 
@@ -568,7 +625,7 @@ Scan the system, show only missing packages, and install checked IDs without Y/N
 
 **System** — cards with checkboxes, any set.
 - Default: empty
-- Options (13 items): .NET Framework 3.5 (Windows feature); .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy
+- Options (13 items): .NET Framework 3.5 — A feature of Windows itself, not a package: it is switched on through DISM, and Windows Update brings its files.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy
 
 **Developer tools** — cards with checkboxes, any set.
 - Default: empty
@@ -634,7 +691,7 @@ Tooltip: WinGet ships inside the Microsoft App Installer package and replaces it
 
 ### Update selected
 
-Show available updates by project groups and update only checked IDs.
+Update the packages ticked in the catalogue. A package that is not installed or has no update is passed by with a [SKIP] line.
 
 #### Fields
 
@@ -649,7 +706,7 @@ Show available updates by project groups and update only checked IDs.
 
 **System** — cards with checkboxes, any set.
 - Default: empty
-- Options (13 items): .NET Framework 3.5 (Windows feature); .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy
+- Options (13 items): .NET Framework 3.5 — A feature of Windows itself, not a package: it is switched on through DISM, and Windows Update brings its files.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy
 
 **Developer tools** — cards with checkboxes, any set.
 - Default: empty
@@ -867,34 +924,41 @@ Provider, model, key and prompt controls for package planning.
 - Tooltip: Select an OpenAI key reference from config or cache. Key material is not written into the GUI cache.
 - Default: empty
 - The list is built on the fly: `system_core.services.winget_ai_service:openai_api_key_options`
+- Shown when: Model family = 'OpenAI'
 
 **OpenAI model** — drop-down list.
 - Tooltip: Pick a cached or API-discovered OpenAI model for the package plan.
 - Default: empty
 - The list is built on the fly: `system_core.services.winget_ai_service:openai_model_options`
+- Shown when: Model family = 'OpenAI'
 
 **OpenAI model override** — text box.
 - Tooltip: Optional manual model ID. Use it when the model is valid but not yet present in the cache.
 - Default: empty
+- Shown when: Model family = 'OpenAI'
 
 **OpenAI reasoning** — a row of switches, one choice.
 - Tooltip: Controls reasoning effort for supported OpenAI models: faster answers or deeper planning.
 - Default: Fast
+- Shown when: Model family = 'OpenAI'
 - Options: Fast; Balanced; Deep
 
 **Gemini API key** — drop-down list.
 - Tooltip: Select a Gemini key reference from config or cache. Key material is not written into the GUI cache.
 - Default: empty
 - The list is built on the fly: `system_core.services.winget_ai_service:gemini_api_key_options`
+- Shown when: Model family = 'Gemini'
 
 **Gemini model** — drop-down list.
 - Tooltip: Pick a cached or API-discovered Gemini model for the package plan.
 - Default: empty
 - The list is built on the fly: `system_core.services.winget_ai_service:gemini_model_options`
+- Shown when: Model family = 'Gemini'
 
 **Gemini model override** — text box.
 - Tooltip: Optional manual Gemini model ID. Use it when the model is valid but not yet present in the cache.
 - Default: empty
+- Shown when: Model family = 'Gemini'
 
 **Instruction template** — drop-down list.
 - Tooltip: Saved behavior template for the AI planner. It loads text into the AI planner instruction field; selecting it does not scan or install packages.
@@ -932,124 +996,6 @@ Search, add and execute exact IDs after review.
 
 No fields: a single button.
 
-### Portable Browsers
-
-Download portable browser archives into output and build or update Google Chrome Portable.
-
-Tooltip: Portable mode writes ready archives to the selected output folder and does not install browsers into Windows.
-
-#### Action buttons
-
-##### Google Chrome (web installer)
-
-Download the Google Chrome web installer for this system language and architecture, then install it silently.
-
-Tooltip: The ~12 MB web installer picks the locale and the x64/ARM64 build itself at install time, so it always matches the current system. This is a normal Windows install, not a portable build.
-
-_changes the system, asks for confirmation before it runs_
-
-No fields: a single button.
-
-##### Google Chrome (download only)
-
-Download the Google Chrome web installer into the portable archives folder without installing it.
-
-Tooltip: Same ~12 MB web installer, saved to output\Portable\_archives\ChromeSetup.exe and left there.
-
-_safe action, no confirmation asked_
-
-No fields: a single button.
-
-##### Check / install portable 7-Zip
-
-Check Tools\7zip\bin\7za.exe and run install\Install-Portable-7Zip.cmd when it is missing.
-
-_changes the system, asks for confirmation before it runs_
-
-No fields: a single button.
-
-##### Download portable browsers
-
-Download selected portable browser packages and place ready ZIP/SFX artifacts into output\Portable.
-
-_safe action, no confirmation asked_
-
-**Portable browsers** — cards with checkboxes, any set.
-- Tooltip: Choose which portable browser packages to download. Cent Browser is kept as its official portable SFX.
-- Default: Ungoogled Chromium Portable, Zen Browser Portable, Cent Browser Portable x64
-- At least 1 must be ticked
-- Options: Ungoogled Chromium Portable; Zen Browser Portable; Cent Browser Portable x64
-
-**Keep temp** — checkbox.
-- Tooltip: Leave output\Portable\_tmp after the operation for inspection or manual packaging checks.
-- Default: no
-
-##### Build Google Chrome Portable
-
-Download Chrome++ and Google Chrome standalone, place Chrome-bin contents into App, and publish output\Portable\Google Chrome Portable. Archive only when enabled.
-
-_safe action, no confirmation asked_
-
-**Chrome source** — a row of preset buttons: a press fills the fields below.
-- Tooltip: Quickly restore the official Google Chrome standalone x64 installer URL.
-- Buttons:
-  - **Standalone x64** — Official Google stable standalone installer. Usually this URL does not need to be changed.
-
-**Chrome download URL** — text box.
-- Tooltip: Direct URL to the Google Chrome standalone installer that contains Chrome.7z. Change only when Google moves the payload or you want a custom source.
-- Default: `https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe`
-
-**Chrome++ arch** — drop-down list.
-- Tooltip: Which Chrome++ wrapper folder to use from the Chrome++ archive. The Chrome runtime URL must match the selected architecture.
-- Default: x64
-- Options: x64; x86; ARM64
-
-**Pack archive** — checkbox.
-- Tooltip: When disabled, publish a ready-to-use Google Chrome Portable folder. When enabled, also package it as ZIP or 7Z.
-- Default: no
-
-**Archive format** — drop-down list.
-- Tooltip: Archive format used only when Pack archive is enabled.
-- Default: ZIP
-- Options: ZIP; 7Z
-
-**Keep temp** — checkbox.
-- Tooltip: Leave output\Portable\_tmp after the operation for inspection or manual packaging checks.
-- Default: no
-
-##### Update Google Chrome Portable
-
-Copy Google Chrome Portable from the selected input folder, clear only App, preserve Data and Cache, then publish the updated folder. Archive only when enabled.
-
-_safe action, no confirmation asked_
-
-**Chrome source** — a row of preset buttons: a press fills the fields below.
-- Tooltip: Quickly restore the official Google Chrome standalone x64 installer URL.
-- Buttons:
-  - **Standalone x64** — Official Google stable standalone installer. Usually this URL does not need to be changed.
-
-**Chrome download URL** — text box.
-- Tooltip: Direct URL to the Google Chrome standalone installer that contains Chrome.7z. Change only when Google moves the payload or you want a custom source.
-- Default: `https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe`
-
-**Chrome++ arch** — drop-down list.
-- Tooltip: Which Chrome++ wrapper folder to use from the Chrome++ archive. The Chrome runtime URL must match the selected architecture.
-- Default: x64
-- Options: x64; x86; ARM64
-
-**Pack archive** — checkbox.
-- Tooltip: When disabled, publish a ready-to-use Google Chrome Portable folder. When enabled, also package it as ZIP or 7Z.
-- Default: no
-
-**Archive format** — drop-down list.
-- Tooltip: Archive format used only when Pack archive is enabled.
-- Default: ZIP
-- Options: ZIP; 7Z
-
-**Keep temp** — checkbox.
-- Tooltip: Leave output\Portable\_tmp after the operation for inspection or manual packaging checks.
-- Default: no
-
 ### Vendor Downloads
 
 DaVinci Resolve, Affinity, NVIDIA drivers and tools, Windows images with updates inside: every published version straight from the source, each build into its own folder.
@@ -1061,7 +1007,49 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 **Vendor** — tabs at the top of the form.
 - Tooltip: Whose catalog to browse. Windows (UUP dump): every Windows 11 and 10 build with its cumulative update, as a script package that builds the ISO from Microsoft's own files. TechPowerUp: AMD, Intel and Qualcomm drivers plus the site's utilities, monitors, benchmarks and video BIOS flashers, every version. NVIDIA: Game Ready and Studio drivers by chip generation, NVIDIA App, Broadcast, CUDA Toolkit and DLSS. Blackmagic: Resolve, Fusion, RAW, Desktop Video and the whole catalog. Affinity: Photo, Designer, Publisher 2 and the unified Affinity 3.
 - Default: Windows (UUP dump)
-- Options: Windows (UUP dump); TechPowerUp — TechPowerUp's catalog with the whole version history of every entry: AMD, Intel and Qualcomm drivers, tuning utilities (DDU, NVCleanstall, ThrottleStop...), monitors (GPU-Z, CPU-Z, AIDA64), benchmarks and video BIOS flashers. NVIDIA drivers and DLSS stay on the NVIDIA tab.; NVIDIA; Blackmagic Design; Affinity
+- Options: Windows (UUP dump); TechPowerUp — TechPowerUp's catalog with the whole version history of every entry: AMD, Intel and Qualcomm drivers, tuning utilities (DDU, NVCleanstall, ThrottleStop...), monitors (GPU-Z, CPU-Z, AIDA64), benchmarks and video BIOS flashers. NVIDIA drivers and DLSS stay on the NVIDIA tab.; Windows Update — The drivers Windows Update gives, taken by hand from the Microsoft Update Catalog: bare WHQL drivers signed by Microsoft, without the vendor's programs. Realtek, MediaTek, Qualcomm, Broadcom, Killer and Marvell network, Wi-Fi, Bluetooth and sound drivers, Intel Management Engine and RST. The list is searched by the hardware id of this PC's own device; the newest driver for it is ticked unless the device runs it already. A package is checked for Microsoft's signature and unpacked into its folder.; Intel Chipset — Intel Chipset Device Software - the chipset INF: the package that names the devices of an Intel board to Windows. Every package from 10.0.13 on. The Intel devices of this PC choose the package: the newest one that carries their INF files is ticked. The sources in turn: Intel's own server, then unofficial ones - the web archive's copy, station-drivers.com, the archive of FirstEverTech's Universal Intel Chipset Updater. Whatever the source, every installer is checked for the signature of Intel Corporation, and a zip is unpacked into its folder.; NVIDIA; Blackmagic Design; Affinity; Programs — Programs taken as files, the newest their makers publish: the installer, or the portable build with the Portable button. Boot media (Media Creation Tool, Rufus, Ventoy), system utilities, tools for tests of FPS, memory and cooling, game launchers. A file comes from its maker - a release page on GitHub, a fixed address, or WinGet's own download; nothing is installed. The list is config\programs.yaml.
+
+**Device** — a row of switches, one choice.
+- Tooltip: The kind of device the driver is for. These are the drivers Windows Update installs by itself, taken by hand from the Microsoft Update Catalog: bare INF drivers signed by Microsoft (WHQL), without the vendor's programs. Intel's network, Wi-Fi and Bluetooth drivers are on the AMD, Intel, Qualcomm page - TechPowerUp mirrors Intel's own packages.
+- Default: Network card
+- Shown when: Vendor = 'Windows Update'
+- Options: Network card; Wi-Fi; Bluetooth; Sound; Chipset and storage
+
+**Vendor** — a row of switches, one choice.
+- Tooltip: Whose chip the device has. The list below is searched in the Microsoft Update Catalog by the hardware id of this PC's own device of that kind; when the PC has none, the general list of the kind is shown and nothing is ticked.
+- Default: Realtek
+- Shown when: Vendor = 'Windows Update'; Device = 'Network card'
+- Options: Realtek; Killer; Broadcom NetXtreme; Marvell AQtion
+
+**Vendor** — a row of switches, one choice.
+- Tooltip: Whose chip the device has. The list below is searched in the Microsoft Update Catalog by the hardware id of this PC's own device of that kind; when the PC has none, the general list of the kind is shown and nothing is ticked.
+- Default: Realtek
+- Shown when: Vendor = 'Windows Update'; Device = 'Wi-Fi'
+- Options: Realtek; MediaTek; Qualcomm; Broadcom; Killer
+
+**Vendor** — a row of switches, one choice.
+- Tooltip: Whose chip the device has. The list below is searched in the Microsoft Update Catalog by the hardware id of this PC's own device of that kind; when the PC has none, the general list of the kind is shown and nothing is ticked.
+- Default: Realtek
+- Shown when: Vendor = 'Windows Update'; Device = 'Bluetooth'
+- Options: Realtek; MediaTek; Qualcomm; Broadcom
+
+**Vendor** — a row of switches, one choice.
+- Tooltip: Whose chip the device has. The list below is searched in the Microsoft Update Catalog by the hardware id of this PC's own device of that kind; when the PC has none, the general list of the kind is shown and nothing is ticked.
+- Default: Realtek
+- Shown when: Vendor = 'Windows Update'; Device = 'Sound'
+- Options: Realtek
+
+**Driver** — a row of switches, one choice.
+- Tooltip: Intel Management Engine: the driver of the ME interface of an Intel board. Intel RST VMD: the driver of an Intel RAID or VMD storage controller - the one Windows setup asks for when it sees no disks on such a machine.
+- Default: Intel Management Engine
+- Shown when: Vendor = 'Windows Update'; Device = 'Chipset and storage'
+- Options: Intel Management Engine; Intel RST VMD
+
+**Shelf** — a row of switches, one choice.
+- Tooltip: Which programs to list. Each is the newest file its maker publishes - an installer, a portable build, or both; nothing is installed. A portable zip or 7z is unpacked into the Portable folder of its program.
+- Default: Boot media
+- Shown when: Vendor = 'Programs'
+- Options: Boot media; Utilities; Tests; Games
 
 **Section** — a row of switches, one choice.
 - Tooltip: The section of TechPowerUp's catalog: drivers, tuning utilities, monitoring, benchmarks or video BIOS flashers. The product row below changes with it. NVIDIA drivers and the DLSS libraries stay on the NVIDIA tab.
@@ -1103,7 +1091,7 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Tooltip: The Windows tab in three pages. Version: product, platform, edition, language, image kind and the build cards, the newest of each generation in gold. Apps: which Store apps go into the image. Drivers: what to embed in the image, this machine's drivers and the packages under input. The options row on top applies to all three.
 - Default: Version
 - Shown when: Vendor = 'Windows (UUP dump)'
-- Options: Version — Which Windows: product, platform, edition and language pick the list; every build of the catalog with its cumulative update is a card, tick the one to build.; Apps — Which Store apps go into the image: the sets, the group buttons, the cards.; Drivers — This machine's drivers: tick, export to output, embed from input.
+- Options: Version — Which Windows: product, platform, edition and language pick the list; every build of the catalog with its cumulative update is a card, tick the one to build.; Apps — Which Store apps go into the image: the sets, the group buttons, the cards.; Drivers — Drivers for the image: the ticked ones are embedded when the ISO is built; Export drivers writes them to output\Drivers. The list holds the driver packages found in the source folder and the third-party drivers of this machine, by the kind of device.
 
 **Platform** — a row of switches, one choice.
 - Tooltip: Which build of the Blackmagic catalog to list. Windows ARM is the Snapdragon build.
@@ -1134,6 +1122,12 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Default: Game Ready
 - Shown when: Vendor = 'NVIDIA'
 - Options: Game Ready; Studio; NVIDIA App; Broadcast; CUDA Toolkit; DLSS; DLSS Frame Gen; DLSS Ray Rec
+
+**Source** — a row of switches, one choice.
+- Tooltip: Where the list of Game Ready drivers comes from. NVIDIA: NVIDIA's own service, a list by chip generation - My cards, the notebook list, the driver for the card of this PC ticked; the service stalls now and then. TechPowerUp, for when it does: one page with every release since 2017 - the list arrives at once, the file is compared with the SHA256 of its page and checked for NVIDIA's signature. The site does not say which cards a version is for: there is no choice of a generation, and nothing is ticked for the card of this PC. Studio drivers always come from NVIDIA: TechPowerUp does not keep them.
+- Default: NVIDIA
+- Shown when: Vendor = 'NVIDIA'; Product = 'Game Ready'
+- Options: NVIDIA; TechPowerUp
 
 **Chip generation** — a row of switches, one choice.
 - Tooltip: The generation the driver must support. One driver file usually covers several generations; the list shows what NVIDIA publishes for the chosen one, so the oldest version here is the oldest that still runs those chips. 'My cards' keeps only the versions published for every generation named in config\vendor_nvidia.yaml. GTX 700 and 600 end with the 47x branch, GTX 500 and 400 with the last driver 391.35: NVIDIA files it under Windows 10, it installs on Windows 11 all the same.
@@ -1229,7 +1223,7 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Shown when: Vendor = 'Windows (UUP dump)'; Windows page = 'Apps'; Built-in apps = 'Chosen below'
 - Options (59 items): Microsoft Edge (browser); Microsoft Store; Store purchases; Windows Security; App Installer (WinGet); Notepad; Windows Terminal; Calculator; Snipping Tool; Paint; Camera; Photos; Clock; Sticky Notes; Maps; Sound Recorder; Media Player; Films & TV; Clipchamp; Phone Link; Cross Device; Mail and Calendar; Outlook (new); People; Teams; To Do; Office hub (M365); Cortana; Bing Search; News; Weather; Widgets (web experience); Widgets runtime; Start experiences; Xbox app; Xbox Game Bar; Xbox Game overlay; Xbox speech overlay; Xbox identity; Xbox TCUI; Solitaire; Feedback Hub; Get Help; Tips; Quick Assist; Family; Power Automate; Dev Home; PC Manager; App compatibility enhancements; Codec: Web Media; Codec: RAW images; Codec: HEIF; Codec: HEVC; Codec: VP9; Codec: WebP; Codec: AV1; Codec: MPEG-2; Codec: AVC encoder
 
-**Drivers for the image: the ticked ones are embedded when the ISO is built; Export drivers writes them to output\Drivers** — cards with checkboxes, any set.
+**driver_packages** — cards with checkboxes, any set.
 - Tooltip: Every tick goes into the image when the ISO is built: this machine's drivers are exported with pnputil /export-driver straight into the build's Drivers\OS, and DISM embeds the packages into install.wim, so Windows Setup installs them with the system. This machine's third-party packages sit under a header per class (Network, Bluetooth, Chipset, Storage, Audio, Display...), the network classes ticked when the list opens, only the newest version of each driver; in-box Microsoft ones are not listed. Packages from elsewhere: put folders with .inf, .sys and .cat anywhere inside the input folder (the Source path at the top of the window) and press Refresh list: they appear on top under Packages under input, ticked. Only unpacked INF packages work, a vendor's .exe installer does not; the bitness must match the image (x64); unsigned drivers need test mode on the target machine. Storage and RAID drivers without which Setup cannot see the disk are not covered here. No tick: the image keeps Microsoft's in-box drivers only.
 - Default: empty
 - The list is built on the fly: `system_core.services.vendor_service:machine_driver_options`
@@ -1239,16 +1233,16 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 **Pick** — a row of preset buttons: a press fills the fields below.
 - Tooltip: Ticks version cards by rule instead of by hand. Latest stable: the newest final release, betas and Insider builds skipped. Portable: only the portable builds and zips stay in the list, press again for the installers. Golden: every starred card. Clear: nothing ticked.
 - Buttons:
-  - **Latest stable** — The newest final release; betas, previews and Insider builds are skipped.
-  - **Portable** — Portable mode: the list keeps only the versions that have a portable build or zip, and a tick now means that file, the one behind the crimson archive icon. Ticks you already made move to the portable file of the same version. Press again for the installers. An empty list means the product has no portable build. (shown when: Vendor = 'TechPowerUp')
+  - **Latest stable** — The newest final release; betas, previews and Insider builds are skipped. (shown when: Vendor = 'Windows (UUP dump)' / 'TechPowerUp' / 'Windows Update' / 'Intel Chipset' / 'NVIDIA' / 'Blackmagic Design' / 'Affinity')
+  - **Portable** — Portable mode: the list keeps only the versions that have a portable build or zip, and a tick now means that file, the one behind the crimson archive icon. Ticks you already made move to the portable file of the same version. Press again for the installers. An empty list means the product has no portable build. (shown when: Vendor = 'TechPowerUp' / 'Programs')
   - **★ Golden** — Every starred card. NVIDIA: the drivers marked golden in config\vendor_nvidia.yaml. Windows: the newest build of each generation, 22H2, 24H2, 25H2 and so on, with its latest cumulative update; the rest of a generation is history. (shown when: Vendor = 'NVIDIA' / 'Windows (UUP dump)')
   - **Clear** — No card ticked.
 
 **Portable builds only** — checkbox.
 - Hidden field: its value goes to the operation, another control drives it on screen.
-- Tooltip: The Portable button of the pick row: while on, the version list keeps only versions with a portable build and a tick means that file. Counts on the TechPowerUp tab only.
+- Tooltip: The Portable button of the pick row: while on, the version list keeps only versions with a portable build and a tick means that file. Counts on the TechPowerUp and Programs tabs.
 - Default: no
-- Shown when: Vendor = 'TechPowerUp'
+- Shown when: Vendor = 'TechPowerUp' / 'Programs'
 
 **Versions** — cards with checkboxes, any set.
 - Tooltip: Every version the vendor has for this product and platform, newest first. Tick the ones to fetch, or use the buttons on a card for that one build; the filter box narrows the list. On a card the green arrow fetches the installer, the crimson archive icon fetches the portable build or zip of the same version, the blue link only prints the download link; an empty slot means the version has no such file.
@@ -1257,7 +1251,7 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - At least 1 must be ticked
 
 **Unpack zip** — checkbox.
-- Tooltip: Unpack the archive into its folder, so the installer is at hand. When everything in the zip sits in one root folder, that folder is dropped and the files land at the top. Only zip; exe, msix, dmg and tar stay as they are.
+- Tooltip: Unpack the archive into its folder, so the installer is at hand. When everything in the archive sits in one root folder, that folder is dropped and the files land at the top. A zip, and a 7z through the tar of Windows; exe, msix, dmg and tar stay as they are.
 - Default: yes
 
 **Delete zip after unpacking** — checkbox.
@@ -1466,7 +1460,7 @@ No fields: a single button.
 
 ## Service procedures
 
-Buttons of the Maintenance section. Each runs at once, without a form.
+Buttons without a form: each runs at once. Where each stands is in the map of the window above.
 
 ### GitHub token
 
@@ -1502,7 +1496,7 @@ _safe action, no confirmation asked_
 
 ### Check installed IDs
 
-Diagnostic check: run winget list for checked package IDs without installing or updating them.
+Check which of the packages ticked in the catalogue are on this machine: winget list for each ID; nothing is installed or updated.
 
 _safe action, no confirmation asked_
 

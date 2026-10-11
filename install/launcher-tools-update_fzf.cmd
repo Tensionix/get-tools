@@ -16,7 +16,7 @@ set "PS_EXE="
 
 where pwsh.exe >nul 2>nul && set "PS_EXE=pwsh.exe"
 if not defined PS_EXE where powershell.exe >nul 2>nul && set "PS_EXE=powershell.exe"
-if not defined PS_EXE if exist "%ROOT%\system_core\powershell\pwsh.exe" set "PS_EXE=%ROOT%\system_core\powershell\pwsh.exe"
+if not defined PS_EXE if exist "%ROOT%\App\AudionPs.exe" set "PS_EXE=%ROOT%\App\AudionPs.exe"
 
 if not exist "%DL%\" mkdir "%DL%" >nul 2>nul
 
@@ -60,7 +60,8 @@ mkdir "%TMP%" >nul 2>nul
 
 "%PS_EXE%" -NoLogo -NoProfile -ExecutionPolicy Bypass -Command ^
   "$ErrorActionPreference='Stop';" ^
-  "Expand-Archive -Path '%ZIP%' -DestinationPath '%TMP%' -Force"
+  "Add-Type -AssemblyName System.IO.Compression.FileSystem;" ^
+  "[System.IO.Compression.ZipFile]::ExtractToDirectory('%ZIP%', '%TMP%')"
 if errorlevel 1 goto ERR_EXTRACT
 
 if not exist "%TMP%\fzf.exe" goto ERR_NOEXE

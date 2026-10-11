@@ -18,6 +18,7 @@ import yaml
 from system_core.core.ansi import strip_ansi
 from system_core.core.conpty import ConsoleProcess, ConsoleUnavailable, console_supported
 from system_core.core.jobs import JobContext, hidden_subprocess_kwargs, utf8_subprocess_env
+from system_core.core.live_line import Speed, frame_line
 from system_core.core.output_decode import decode_process_bytes, decode_process_output
 from system_core.core.process_tree import ProcessTree
 from system_core.core.stream_output import StreamAssembler, is_spinner_only
@@ -500,8 +501,8 @@ def _windows_feature_action_result(context: JobContext, action: str, package_id:
     )
     if result.exit_code in DISM_ELEVATION_EXIT_CODES:
         context.log(
-            f"{ANSI_YELLOW}[WARN] DISM needs Administrator rights. Restart Audion Get Tools elevated "
-            f"(launcher_gui.cmd with AUDION_GUI_ELEVATE=1) and enable {feature} again.{ANSI_RESET}"
+            f"{ANSI_YELLOW}[WARN] DISM needs Administrator rights. Start Audion Get Tools by Start.exe, "
+            f"answer \"yes\" to the question of Windows, and enable {feature} again.{ANSI_RESET}"
         )
         return PackageActionResult(result.exit_code, "failed", ("windows_feature_needs_elevation",))
     if result.exit_code == 0:
@@ -750,15 +751,20 @@ def _run_process(
     lines: list[str] = []
     hinted_elevation = False
     trace_state = {"last": 0.0, "interval": CONSOLE_TRACE_INTERVAL_SECONDS}
+    # The live line names what is fetched - the package of the activity, not its verb - and the
+    # program itself when nothing was said of it.
+    live_label = (activity.rsplit(": ", 1)[-1].rstrip(".") if activity else "") or Path(command[0]).stem
+    live_speed = Speed()
 
     def emit(text: str, is_progress: bool) -> None:
         nonlocal hinted_elevation
         if is_progress:
             # Repaint frames belong to the live line, not to the log body: the
             # terminal replaces them in place and the disk log keeps a trail
-            # whose cadence follows the download size.
-            context.activity(text)
+            # whose cadence follows the download size. A frame of a download is
+            # said as every download of the program is (core/live_line.py).
             plain = strip_ansi(text).strip()
+            context.activity(frame_line(live_label, plain, live_speed))
             total_mib = _progress_total_mib(plain)
             if total_mib is not None:
                 trace_state["interval"] = _progress_trace_interval(total_mib)
@@ -812,9 +818,10 @@ def _run_cmd_script(context: JobContext, script: str, args: list[str] | None = N
 
 
 def _resolve_powershell() -> str:
-    bundled_pwsh = Path(__file__).resolve().parents[2] / "system_core" / "powershell" / "pwsh.exe"
-    if bundled_pwsh.exists():
-        return str(bundled_pwsh)
+    """The PowerShell 7 the program carries (App\\AudionPs.exe - pwsh under the program's name), else one of the machine."""
+    own = Path(__file__).resolve().parents[2] / "App" / "AudionPs.exe"
+    if own.exists():
+        return str(own)
     return shutil.which("pwsh.exe") or shutil.which("powershell.exe") or "powershell.exe"
 
 
@@ -3171,14 +3178,23 @@ def validate_config_lists(context: JobContext) -> dict[str, object]:
 
 
 def cleanup_input_output(context: JobContext) -> dict[str, object]:
-    removed = 0
-    for folder in [
+    """Empty the two managed folders of the program, input and output.
+
+    Both are checked before anything is removed, and before either is made: each must lie
+    straight inside the program. Checked one after the other was cleaned, `input` was emptied
+    before `output` turned out to be a folder elsewhere and the operation refused (the audit of
+    10.10.2026).
+    """
+    folders = [
         _project_path(context, context.operation.parameters.get("input_path"), "input"),
         _project_path(context, context.operation.parameters.get("output_path"), "output"),
-    ]:
-        folder.mkdir(parents=True, exist_ok=True)
+    ]
+    for folder in folders:
         if folder.resolve().parent != context.paths.root.resolve():
             raise RuntimeError(f"Refusing to clean outside project root: {folder}")
+    removed = 0
+    for folder in folders:
+        folder.mkdir(parents=True, exist_ok=True)
         for item in folder.iterdir():
             if item.name == ".gitkeep":
                 continue
@@ -3348,44 +3364,48 @@ def _archive_target_dir(context: JobContext, package_id: str) -> Path:
 def _github_latest_assets(repo: str) -> tuple[str, list[tuple[str, str]]]:
     """Tag and `(name, url)` of every asset in the latest release.
 
-    The API answers in one request but allows only 60 anonymous calls an hour,
-    and that runs out on a busy day. The same list is on the release pages,
-    where there is no quota at all, so the HTML is the fallback.
+    The release pages come first: they have no quota at all - the releases/latest redirect names
+    the tag, releases/expanded_assets/<tag> lists the files. The API answers in one request but
+    allows only 60 anonymous calls an hour, and that runs out on a busy day; it is the way back
+    when the pages changed or answered nothing (the order Audion Setup Tools settled on).
     """
+    from urllib.parse import quote, unquote
     from urllib.request import Request, urlopen
 
     from system_core.services.github_auth import github_headers
 
-    headers = github_headers()  # the stored token, when there is one, lifts the 60-an-hour quota
-    try:
-        request = Request(f"https://api.github.com/repos/{repo}/releases/latest", headers=headers)
-        with urlopen(request, timeout=60) as response:
-            release = json.loads(response.read().decode("utf-8"))
-        assets = [
-            (str(item.get("name") or ""), str(item.get("browser_download_url") or ""))
-            for item in release.get("assets", [])
-        ]
-        if assets:
-            return str(release.get("tag_name") or "latest"), assets
-    except Exception:  # noqa: BLE001 - any network or quota trouble falls back
-        pass
-
-    request = Request(f"https://github.com/{repo}/releases/latest", headers={"User-Agent": "Audion-Get"})
-    with urlopen(request, timeout=60) as response:
-        tag = response.geturl().rstrip("/").rsplit("/", 1)[-1]
-    request = Request(
-        f"https://github.com/{repo}/releases/expanded_assets/{tag}",
-        headers={"User-Agent": "Audion-Get"},
-    )
-    with urlopen(request, timeout=60) as response:
-        page = response.read().decode("utf-8", "replace")
+    tag = ""
     seen: list[tuple[str, str]] = []
-    for path in re.findall(r'href="(/[^"]+/releases/download/[^"]+)"', page):
-        name = path.rsplit("/", 1)[-1]
-        pair = (name, f"https://github.com{path}")
-        if pair not in seen:
-            seen.append(pair)
-    return tag, seen
+    try:
+        request = Request(f"https://github.com/{repo}/releases/latest", headers={"User-Agent": "Audion-Get"})
+        with urlopen(request, timeout=60) as response:
+            landed = response.geturl()
+        tag = unquote(landed.split("/releases/tag/", 1)[1]) if "/releases/tag/" in landed else ""
+        if tag:
+            request = Request(
+                f"https://github.com/{repo}/releases/expanded_assets/{quote(tag, safe='')}",
+                headers={"User-Agent": "Audion-Get"},
+            )
+            with urlopen(request, timeout=60) as response:
+                page = response.read().decode("utf-8", "replace")
+            for path in re.findall(r'href="(/[^"]+/releases/download/[^"]+)"', page):
+                pair = (unquote(path.rsplit("/", 1)[-1]), f"https://github.com{path}")
+                if pair not in seen:
+                    seen.append(pair)
+    except Exception:  # noqa: BLE001 - whatever the pages did, the API is asked once
+        seen = []
+    if seen:
+        return tag, seen
+
+    headers = github_headers()  # the stored token, when there is one, lifts the 60-an-hour quota
+    request = Request(f"https://api.github.com/repos/{repo}/releases/latest", headers=headers)
+    with urlopen(request, timeout=60) as response:
+        release = json.loads(response.read().decode("utf-8"))
+    assets = [
+        (str(item.get("name") or ""), str(item.get("browser_download_url") or ""))
+        for item in release.get("assets", [])
+    ]
+    return str(release.get("tag_name") or "latest"), assets
 
 
 def _download_github_build(
@@ -3397,7 +3417,7 @@ def _download_github_build(
     kind: str = "installer",
 ) -> dict[str, object]:
     """Take the build straight from the vendor's release page."""
-    from system_core.services.portable_browser_service import download_file_to
+    from system_core.services.downloads import download_file_to
 
     tag, assets = _github_latest_assets(repo)
     if not assets:

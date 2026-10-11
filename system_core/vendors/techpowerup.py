@@ -15,11 +15,13 @@ height.
 """
 from __future__ import annotations
 
+import dataclasses
 import re
 import time
 from collections.abc import Callable
 from typing import Any
 
+from system_core.core import pc_devices
 from system_core.services import techpowerup_service
 from system_core.vendors import PLATFORM_WINDOWS, VendorBuild
 
@@ -79,6 +81,36 @@ KINDS: dict[str, dict[str, str]] = {
     },
 }
 
+# Which devices of a PC a driver is for (core.pc_devices.matches), as Audion Setup Tools tells them
+# (Manifests\Downloads.psd1, Detect): its newest release is ticked only on a PC that has one. A
+# product not named here is for any PC.
+DETECT: dict[str, tuple[dict[str, str], ...]] = {
+    "AMD Radeon Graphics": ({"id": r"^PCI\\VEN_1002&", "compatible": "CC_03"},),
+    "AMD Ryzen Chipset": ({"id": r"^PCI\\VEN_1022&", "compatible": "CC_0600"},),
+    "Intel Graphics (Arc, iGPU)": ({"id": r"^PCI\\VEN_8086&", "compatible": "CC_03"},),
+    "Intel Wi-Fi": ({"id": r"^PCI\\VEN_8086&", "compatible": "CC_0280"},),
+    "Intel Bluetooth": ({"id": r"^USB\\VID_8087&", "name": "bluetooth"},),
+    "Qualcomm Snapdragon X Graphics": ({"id": r"^ACPI\\(VEN_)?QCOM", "name": "adreno|graphics|display"},),
+}
+
+NOT_A_RELEASE = re.compile(r"\b(beta|preview|alpha|rc\d*)\b", re.IGNORECASE)
+
+
+def same_version(installed: str, listed: str) -> bool:
+    """Whether the driver Windows names `installed` is the release the page names `listed`.
+
+    Windows' number is longer than the page's: Intel graphics 32.0.101.7085 is TechPowerUp's
+    101.7085 (its tail), Intel Wi-Fi 23.160.0.4 is 23.160.0 (its head). Numbers of another
+    scheme (AMD's driver 32.x against Adrenalin 25.x) are never the same.
+    """
+    found = re.match(r"\s*v?(\d+(?:\.\d+)*)", str(listed or ""))
+    have = [part for part in str(installed or "").split(".") if part]
+    want = found.group(1).split(".") if found else []
+    if len(want) < 2 or len(have) < len(want):
+        return False
+    return have[:len(want)] == want or have[-len(want):] == want
+
+
 # Every product of every kind, product name -> slug.
 PRODUCTS: dict[str, str] = {name: slug for items in KINDS.values() for name, slug in items.items()}
 
@@ -124,12 +156,19 @@ class TechPowerUpProvider:
 
     _instance: "TechPowerUpProvider | None" = None
 
-    def __init__(self, tpu_list: TpuListCall | None = None, tpu_resolve: TpuResolveCall | None = None) -> None:
+    def __init__(self, tpu_list: TpuListCall | None = None, tpu_resolve: TpuResolveCall | None = None,
+                 devices: Callable[[], list[pc_devices.Device]] | None = None) -> None:
         self._tpu_list: TpuListCall = tpu_list or techpowerup_service.list_versions
         self._tpu_resolve: TpuResolveCall = tpu_resolve or _default_tpu_resolve
+        self._snapshot = pc_devices.Snapshot(devices or pc_devices.present_devices)
+        # what stands over the list of a driver: which device of this PC it is for
+        self._notes: dict[str, tuple[str, str]] = {}
+        self._running: dict[str, list[str]] = {}
         self._cache: dict[str, tuple[float, list[VendorBuild]]] = {}
         # every single file by id, the cards' own ids and the portable companions alike
         self._files: dict[str, VendorBuild] = {}
+        # the SHA256 the page gives for each file: a download is checked against it
+        self._sha256: dict[str, str] = {}
 
     @classmethod
     def instance(cls) -> "TechPowerUpProvider":
@@ -168,6 +207,8 @@ class TechPowerUpProvider:
         remarks = " - ".join(part for part in (flavour(item.kind), f"portable {item.size}" if portable else item.size) if part)
         build = self._build(product, item.version, download_id, item.file_name, date=item.date, notes=remarks, portable_id=download_id if portable else "")
         self._files[download_id] = build
+        if item.sha256:
+            self._sha256[download_id] = item.sha256.upper()
         return build
 
     def product_builds(self, product: str) -> list[VendorBuild]:
@@ -193,9 +234,44 @@ class TechPowerUpProvider:
                     cards.append(self._build(product, version, build.download_id, build.name, date=date, notes=notes, portable_id=portable_id))
                 for _item, build in portables[len(installers):]:
                     cards.append(build)
-            return cards
+            return self._for_this_pc(product, cards)
 
         return self._cached(f"tpu:{slug}", load)
+
+    def _for_this_pc(self, product: str, cards: list[VendorBuild]) -> list[VendorBuild]:
+        """The newest release ticked - for a driver, only when the PC has its device and does not run it already;
+        the release the device runs marked as installed."""
+        detect = DETECT.get(product)
+        devices = pc_devices.find(list(detect), self._snapshot.devices()) if detect else None
+        installed = [device.driver_version for device in devices or [] if device.driver_version]
+        # For the badge of versions. Windows writes these numbers its own way (Intel graphics 32.0.101.7085
+        # is the page's 101.7085), so the badge is shown only for a driver the list holds - marked below.
+        self._running[product] = sorted(set(installed))
+        if devices is None:
+            self._notes.pop(product, None)
+        elif devices:
+            what = "; ".join(sorted({device.name + (f" · {device.driver_version}" if device.driver_version else "") for device in devices}))
+            self._notes[product] = (f"TechPowerUp · this PC: {what}", f"TechPowerUp · этот ПК: {what}")
+        else:
+            self._notes[product] = ("TechPowerUp · no such device on this PC - nothing ticked",
+                                    "TechPowerUp · подходящего устройства на этом ПК нет - ничего не отмечено")
+        newest = next((card for card in cards if not NOT_A_RELEASE.search(card.version)), None)
+        marked: list[VendorBuild] = []
+        for card in cards:
+            here = any(same_version(version, card.version) for version in installed)
+            tick = card is newest and devices != [] and not here
+            if here or tick:
+                card = dataclasses.replace(card, notes=" - ".join(part for part in (card.notes, "installed" if here else "") if part), ticked=tick)
+            marked.append(card)
+        return marked
+
+    def note(self, product: str) -> tuple[str, str]:
+        """What stands over the list of a driver, English and Russian; ('', '') for a product that is for any PC."""
+        return self._notes.get(product, ("", ""))
+
+    def running(self, product: str) -> list[str]:
+        """The versions of the driver this PC's device runs, as Windows writes them."""
+        return list(self._running.get(product, []))
 
     # ----- VendorProvider -----
 
@@ -219,6 +295,10 @@ class TechPowerUpProvider:
                 self.product_builds(product)
                 return self._files.get(wanted)
         return None
+
+    def expected_sha256(self, build: VendorBuild) -> str:
+        """The SHA256 TechPowerUp's page gives for the file of this build; '' when the page gives none."""
+        return self._sha256.get(build.download_id, "")
 
     def resolve_link(self, build: VendorBuild, registration: dict[str, str] | None = None) -> str:
         del registration  # TechPowerUp never asks for a form

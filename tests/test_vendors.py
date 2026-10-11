@@ -20,7 +20,7 @@ from system_core.core.jobs import JobContext  # noqa: E402
 from system_core.core.manifest import Operation  # noqa: E402
 from system_core.core.paths import get_project_paths  # noqa: E402
 from system_core.services import vendor_service  # noqa: E402
-from system_core.vendors import RegistrationRequired, get_provider  # noqa: E402
+from system_core.vendors import RegistrationRequired, VendorBuild, get_provider  # noqa: E402
 from system_core.vendors.affinity import AffinityProvider, parse_update_page  # noqa: E402
 from system_core.vendors.nvidia import DriverMarks, NvidiaProvider  # noqa: E402
 from system_core.vendors.uupdump import UupDumpProvider, classify_title  # noqa: E402
@@ -355,7 +355,9 @@ class FakeNvidiaHttp:
 def nvidia_with(http: FakeNvidiaHttp, marks: Path | None) -> "NvidiaProvider":
     from system_core.services.techpowerup_service import parse_versions
 
+    # No device of the machine the tests run on: what a PC with an NVIDIA card changes has a test of its own.
     return NvidiaProvider(
+        devices=lambda: [],
         http=http,
         tpu_list=lambda slug: parse_versions(TPU_DDU_PAGE),
         tpu_resolve=lambda slug, file_id: f"https://mirror.techpowerup.com/{slug}/{file_id}.exe?signed",
@@ -452,6 +454,9 @@ class NvidiaTests(unittest.TestCase):
         NvidiaProvider._instance = nvidia_with(FakeNvidiaHttp(), self.marks)
         try:
             options = vendor_service.vendor_build_options(None, {"vendor": "nvidia", "nv_product": "Game Ready Driver", "nv_series": "GTX 10", "nv_form": "notebook"})
+            # Over the cards - the line about the card of this PC (none here).
+            self.assertTrue(options[0]["note"] and "no NVIDIA card on this PC" in options[0]["label"])
+            options = options[1:]
             self.assertEqual(options[0]["value"].split("/")[4], "616.56")
             self.assertIn("★ golden", options[1]["label"])
             tools = vendor_service.vendor_build_options(None, {"vendor": "nvidia", "nv_product": "DLSS DLL"})
@@ -504,7 +509,7 @@ class UupDumpTests(unittest.TestCase):
         provider = UupDumpProvider(http=FakeUupHttp())
         win11 = provider.builds("Windows 11", "Windows", lang="ru-ru", edition="core")
         self.assertEqual([build.version for build in win11], ["24H2 26100.9278", "23H2 22631.7517"])
-        self.assertEqual(win11[0].label, "24H2 26100.9278 - 27 Aug 2026 - ru-ru core")
+        self.assertEqual(win11[0].label, "24H2 26100.9278 - 27 Aug 2026 - ru-ru home")
         self.assertEqual(win11[0].download_id, "uup:aaa:ru-ru:core")
         self.assertEqual(win11[0].name, "Win11_24H2_26100.9278_x64_ru-ru_home.zip")
         arm = provider.builds("Windows 11", "Windows ARM")
@@ -538,7 +543,7 @@ class UupDumpTests(unittest.TestCase):
         provider = UupDumpProvider(http=http)
         builds = provider.builds("Windows 11", "Windows", virtual=["IoTEnterprise", "Enterprise", "Bogus"])
         self.assertEqual(builds[0].download_id, "uup:aaa:en-us:professional:Enterprise+IoTEnterprise")
-        self.assertEqual(builds[0].notes, "en-us professional +Enterprise +IoTEnterprise")
+        self.assertEqual(builds[0].notes, "en-us pro +Enterprise +IoTEnterprise")
         self.assertTrue(builds[0].name.endswith("_pro_plus2.zip"))
         again = provider.build_by_id(builds[0].download_id)
         assert again is not None
@@ -559,13 +564,35 @@ class UupDumpTests(unittest.TestCase):
         UupDumpProvider._instance = UupDumpProvider(http=FakeUupHttp())
         try:
             options = vendor_service.vendor_build_options(None, {"vendor": "uupdump", "uup_platform": "Windows", "uup_product": "Windows 11", "uup_lang": "en-us", "uup_edition": "professional"})
-            labels = [o["label"] for o in options]
-            self.assertTrue(all(label.startswith("★ Windows 11 ") for label in labels), labels)
-            self.assertIn("24H2", labels[0])
-            self.assertIn("latest", labels[0])
-            self.assertIn("23H2", labels[1])
+            heads = [o["label"] for o in options if o.get("header")]
+            cards = [o["label"] for o in options if not o.get("header")]
+            # A generation is a block under its heading; a card under it does not say the product and the generation again.
+            self.assertEqual(heads, ["Windows 11 24H2 (1)", "Windows 11 23H2 (1)"])
+            self.assertEqual(cards[0], "★ 26100.9278 - 27 Aug 2026 - en-us pro - latest")
+            self.assertTrue(cards[1].startswith("★ 22631.7517 - "), cards)
+            self.assertNotIn("latest", cards[1])
         finally:
             UupDumpProvider._instance = saved
+
+    def test_generations_of_windows_stand_newest_first_whatever_the_order_of_the_catalogue(self) -> None:
+        def build(release: str, number: str, product: str = "Windows 11") -> VendorBuild:
+            return VendorBuild(vendor="uupdump", product=product, version=f"{release} {number}", platform="Windows",
+                               date="1 Oct 2026", download_id=f"uup:{release}:{number}", name="x.zip", notes="ru-ru pro")
+
+        options = vendor_service.windows_build_options([
+            build("26H1", "28000.3086"), build("25H2", "26200.7985"), build("25H2", "26200.7781"), build("24H2", "26100.6508"),
+            build("26H2", "26300.9550"), build("rs_prerelease", "10.0.28120.1", "Windows 11 Insider"), build("25H2", "26200.9550"),
+        ])
+        self.assertEqual([o["label"] for o in options if o.get("header")], [
+            "Windows 11 26H2 (1)", "Windows 11 26H1 (1)", "Windows 11 25H2 (3)", "Windows 11 24H2 (1)", "Windows 11 Insider RS_PRERELEASE (1)"])
+        cards = [o["label"] for o in options if not o.get("header")]
+        self.assertEqual(cards[0], "★ 26300.9550 - 1 Oct 2026 - ru-ru pro - latest")
+        # 26H1 is no chosen one: its newest build stands plain.
+        self.assertEqual(cards[1], "28000.3086 - 1 Oct 2026 - ru-ru pro")
+        self.assertEqual(cards[2:5], ["★ 26200.7985 - 1 Oct 2026 - ru-ru pro", "26200.7781 - 1 Oct 2026 - ru-ru pro", "26200.9550 - 1 Oct 2026 - ru-ru pro"])
+        # A preview is no gold and is marked for "the latest stable" to pass by.
+        self.assertEqual(cards[6], "10.0.28120.1 - 1 Oct 2026 - ru-ru pro")
+        self.assertEqual([bool(o.get("beta")) for o in options if not o.get("header")], [False] * 6 + [True])
 
     def test_download_job_uses_fetch_and_refuses_iso_in_a_path_with_spaces(self) -> None:
         saved = UupDumpProvider._instance
@@ -921,15 +948,51 @@ class UupDumpTests(unittest.TestCase):
         self.assertEqual(vendor_service.adk_version_build("garbage"), 0)
 
     def test_download_gate_waits_for_the_adk_only_for_windows(self) -> None:
-        original = vendor_service.adk_dism_path
+        original, rights = vendor_service.adk_dism_path, vendor_service.is_elevated
         try:
+            vendor_service.is_elevated = lambda: True  # type: ignore[assignment]
             vendor_service.adk_dism_path = lambda: None  # type: ignore[assignment]
             self.assertEqual(vendor_service.download_gate({"vendor": "uupdump"}), "gate_adk_missing")
             self.assertEqual(vendor_service.download_gate({"vendor": "nvidia"}), "")
             vendor_service.adk_dism_path = lambda: Path("C:/adk/dism.exe")  # type: ignore[assignment]
             self.assertEqual(vendor_service.download_gate({"vendor": "uupdump"}), "")
+            # The image build needs administrator rights: without them the gate is closed and says so.
+            # The other vendors download files and need none.
+            vendor_service.is_elevated = lambda: False  # type: ignore[assignment]
+            self.assertEqual(vendor_service.download_gate({"vendor": "uupdump"}), "gate_admin_missing")
+            self.assertEqual(vendor_service.download_gate({"vendor": "nvidia"}), "")
+            # The rights are what the build needs: the package alone is downloaded without them.
+            for off in (False, "false", "0"):
+                self.assertEqual(vendor_service.download_gate({"vendor": "uupdump", "uup_run": off}), "", off)
+            for on in (True, "true", None):
+                self.assertEqual(vendor_service.download_gate({"vendor": "uupdump", "uup_run": on}), "gate_admin_missing", on)
+            # The kit is asked for first: it is installed from this very page.
+            vendor_service.adk_dism_path = lambda: None  # type: ignore[assignment]
+            self.assertEqual(vendor_service.download_gate({"vendor": "uupdump"}), "gate_adk_missing")
         finally:
-            vendor_service.adk_dism_path = original  # type: ignore[assignment]
+            vendor_service.adk_dism_path, vendor_service.is_elevated = original, rights  # type: ignore[assignment]
+
+    def test_the_consoles_of_the_image_build_leave_the_job_of_the_caller(self) -> None:
+        # The audit of 10.10.2026: a window that fell took cmd, aria2 and DISM with it.
+        import inspect
+
+        from system_core.services import external_tools_service as tools
+
+        body = inspect.getsource(vendor_service.run_uup_script)
+        self.assertEqual(body.count("start_on_its_own(context, [\"cmd.exe\", \"/c\", "), 2)
+        self.assertNotIn("subprocess.Popen(", body)
+        # What is started is handed back: the build waits for it and stops it by its process tree.
+        with tempfile.TemporaryDirectory() as temp:
+            started = object()
+            self.assertIs(tools.start_on_its_own(RecordingContext(Path(temp)), ["cmd.exe"], cwd=Path(temp), console=True,
+                                                 popen=lambda argv, cwd, creationflags: started), started)
+
+            def refused(argv: list[str], cwd: str, creationflags: int):
+                if creationflags & tools.CREATE_BREAKAWAY_FROM_JOB:
+                    raise PermissionError(13, "Access is denied")
+                return started
+
+            self.assertIs(tools.start_on_its_own(RecordingContext(Path(temp)), ["cmd.exe"], cwd=Path(temp), console=True, popen=refused), started)
 
     def test_iso_build_refuses_to_start_without_the_adk(self) -> None:
         original = vendor_service.adk_dism_path
@@ -972,14 +1035,14 @@ class ExternalToolsTests(unittest.TestCase):
         from system_core.services import external_tools_service as tools
 
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            self.assertEqual(tools.find_powershell(root, which=lambda name: r"C:\pwsh\pwsh.exe" if name.startswith("pwsh") else None), [r"C:\pwsh\pwsh.exe"])
-            portable = root / "system_core" / "powershell"
-            portable.mkdir(parents=True)
-            (portable / "pwsh.exe").write_bytes(b"")
-            self.assertEqual(tools.find_powershell(root, which=lambda name: None), [str(portable / "pwsh.exe")])
+            # A PowerShell of the machine: WinUtil draws its window with WPF, and the PowerShell
+            # the program carries (App\AudionPs.exe) has none.
+            self.assertEqual(tools.find_powershell(which=lambda name: r"C:\pwsh\pwsh.exe" if name.startswith("pwsh") else None), [r"C:\pwsh\pwsh.exe"])
+            installed = Path(temp) / "PowerShell" / "7"
+            installed.mkdir(parents=True)
+            (installed / "pwsh.exe").write_bytes(b"")
+            self.assertEqual(tools.find_powershell(which=lambda name: None, program_files=Path(temp)), [str(installed / "pwsh.exe")])
             fallback = tools.find_powershell(
-                Path(temp) / "elsewhere",
                 which=lambda name: r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" if name == "powershell.exe" else None,
                 program_files=Path(temp) / "no-program-files",
             )
@@ -991,9 +1054,50 @@ class ExternalToolsTests(unittest.TestCase):
         argv = tools.terminal_launch_command(["pwsh.exe"], "irm x | iex", "WinUtil", which=lambda name: r"C:\wt\wt.exe" if name == "wt.exe" else None)
         self.assertEqual(argv[:5], [r"C:\wt\wt.exe", "-w", "new", "--title", "WinUtil"])
         self.assertEqual(argv[5:], ["pwsh.exe", "-NoLogo", "-ExecutionPolicy", "Bypass", "-NoExit", "-Command", "irm x | iex"])
-        plain = tools.terminal_launch_command(["powershell.exe"], "irm x | iex", "WinUtil", which=lambda name: None)
-        self.assertEqual(plain[:4], ["cmd.exe", "/c", "start", "WinUtil"])
-        self.assertEqual(plain[-1], "irm x | iex")
+        self.assertFalse(tools.needs_console(argv))
+
+    def test_without_windows_terminal_the_shell_itself_is_started(self) -> None:
+        # The audit of 10.10.2026, finding 10: `cmd /c start` read the `|` of the command as its own pipe.
+        from system_core.services import external_tools_service as tools
+
+        plain = tools.terminal_launch_command(["powershell.exe"], "irm x | iex", "Win'Util", which=lambda name: None)
+        self.assertEqual(plain[:-1], ["powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass", "-NoExit", "-Command"])
+        self.assertEqual(plain[-1], "$Host.UI.RawUI.WindowTitle = 'Win''Util'; irm x | iex")
+        self.assertNotIn("start", plain)
+        self.assertNotIn("cmd.exe", plain)
+        self.assertTrue(tools.needs_console(plain))
+
+    def test_a_tool_left_running_is_started_out_of_the_job(self) -> None:
+        from system_core.services import external_tools_service as tools
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for console, base in ((True, tools.CREATE_NEW_CONSOLE), (False, 0)):
+                asked: list[tuple[list[str], int]] = []
+                context = RecordingContext(root)
+                tools.start_on_its_own(context, ["tool.exe", "x"], cwd=root, console=console,
+                                       popen=lambda argv, cwd, creationflags: asked.append((argv, creationflags)))
+                self.assertEqual(asked, [(["tool.exe", "x"], base | tools.CREATE_BREAKAWAY_FROM_JOB)])
+                self.assertEqual(context.lines, [])
+
+            # A job that lets nobody out: started as before, and the log says what it means.
+            tries: list[int] = []
+
+            def refused(argv: list[str], cwd: str, creationflags: int) -> None:
+                tries.append(creationflags)
+                if creationflags & tools.CREATE_BREAKAWAY_FROM_JOB:
+                    raise PermissionError(13, "Access is denied")
+
+            context = RecordingContext(root)
+            tools.start_on_its_own(context, ["tool.exe"], cwd=root, console=True, popen=refused)
+            self.assertEqual(tries, [tools.CREATE_NEW_CONSOLE | tools.CREATE_BREAKAWAY_FROM_JOB, tools.CREATE_NEW_CONSOLE])
+            self.assertEqual([line[:6] for line in context.lines], ["[WARN]"])
+
+            # A program that is not there is an error of the operation, not "launched".
+            context = RecordingContext(root)
+            with self.assertRaises(FileNotFoundError):
+                tools.start_on_its_own(context, [str(root / "no-such-shell.exe")], cwd=root, console=True)
+            self.assertEqual(context.lines, [])
 
 
 # ----- resumable download against a local range-aware server -----
@@ -1002,31 +1106,300 @@ PAYLOAD = bytes(range(256)) * 4096  # 1 MiB, distinct bytes
 
 
 class RangeHandler(BaseHTTPRequestHandler):
+    """A server of one file. What it does with a range, and which version of the file it holds, the test sets."""
+
     supports_range = True
     requests: list[str] = []
+    payload = PAYLOAD
+    etag = '"v1"'  # '' - the server names no version: nothing to resume by
+    honours_if_range = True  # False - it sends the rest of whatever it holds now, whatever the caller had
+    piece = 0  # > 0 - a whole answer stops after so many bytes of body while naming the full length
+    head_names_size = True  # False - HEAD says nothing of the size: a signed address that answers GET alone
+    get_names_size = True  # False - a whole answer names no length either
+    modified = ""  # Last-Modified of every answer, when the server names one
 
     def log_message(self, *_args: object) -> None:  # keep the test output quiet
         return
 
     def do_HEAD(self) -> None:  # noqa: N802 - http.server naming
         self.send_response(200)
-        self.send_header("Content-Length", str(len(PAYLOAD)))
+        if self.head_names_size:
+            self.send_header("Content-Length", str(len(self.payload)))
+        if self.modified:
+            self.send_header("Last-Modified", self.modified)
         self.end_headers()
 
     def do_GET(self) -> None:  # noqa: N802 - http.server naming
         range_header = self.headers.get("Range")
         RangeHandler.requests.append(range_header or "")
-        if range_header and self.supports_range:
+        asked = self.headers.get("If-Range")
+        partial = bool(range_header) and self.supports_range and (not self.honours_if_range or not asked or asked == self.etag)
+        if partial:
             start = int(range_header.split("=")[1].split("-")[0])
-            body = PAYLOAD[start:]
+            last = min(len(self.payload), start + self.piece) - 1 if self.piece else len(self.payload) - 1
+            body = self.payload[start:last + 1]
             self.send_response(206)
-            self.send_header("Content-Range", f"bytes {start}-{len(PAYLOAD) - 1}/{len(PAYLOAD)}")
+            self.send_header("Content-Range", f"bytes {start}-{last}/{len(self.payload)}")
         else:
-            body = PAYLOAD
+            body = self.payload
             self.send_response(200)
-        self.send_header("Content-Length", str(len(body)))
+        if self.etag:
+            self.send_header("ETag", self.etag)
+        if self.modified:
+            self.send_header("Last-Modified", self.modified)
+        if partial or self.get_names_size:
+            self.send_header("Content-Length", str(len(body)))
+        else:
+            self.send_header("Connection", "close")
         self.end_headers()
         self.wfile.write(body)
+
+
+class NvidiaThisPcTests(unittest.TestCase):
+    """What the NVIDIA card of the PC changes in the list of drivers."""
+
+    def setUp(self) -> None:
+        self.folder = tempfile.TemporaryDirectory()
+        self.marks = Path(self.folder.name) / "vendor_nvidia.yaml"
+        self.marks.write_text("golden: ['581.57']\nmy_generations: ['RTX 40', 'RTX 50']\n", encoding="utf-8")
+
+    def tearDown(self) -> None:
+        self.folder.cleanup()
+
+    def provider(self, card_name: str = "", driver: str = "") -> "NvidiaProvider":
+        from system_core.core import pc_devices
+
+        card = pc_devices.Device(r"PCI\VEN_10DE&DEV_2786&SUBSYS_00001043&REV_A1\4&1", card_name, (r"PCI\VEN_10DE&CC_030000", r"PCI\CC_0300"), driver)
+        return NvidiaProvider(http=FakeNvidiaHttp(), marks_path=self.marks, devices=lambda: [card] if card_name else [])
+
+    def test_the_card_is_read_by_its_name(self) -> None:
+        from system_core.vendors import nvidia
+
+        self.assertEqual([nvidia.series_of(name) for name in (
+            "NVIDIA GeForce RTX 4070 Laptop GPU", "NVIDIA GeForce GTX 1660 SUPER", "NVIDIA GeForce GTX 1060 6GB",
+            "NVIDIA GeForce GTX 970", "NVIDIA GeForce GTX 750 Ti", "NVIDIA Quadro P2000")], ["RTX 40", "GTX 16", "GTX 10", "GTX 900", "GTX 700", ""])
+        self.assertTrue(nvidia.is_notebook_card("NVIDIA GeForce RTX 4070 Laptop GPU"))
+        self.assertFalse(nvidia.is_notebook_card("NVIDIA GeForce RTX 4070"))
+        # Windows' 32.0.15.8157 is NVIDIA's 581.57.
+        self.assertEqual((nvidia.driver_number("32.0.15.8157"), nvidia.driver_number("31.0.15.3623"), nvidia.driver_number("")), ("581.57", "536.23", ""))
+
+    def test_the_newest_golden_driver_is_ticked_for_the_cards_own_generation(self) -> None:
+        made = self.provider("NVIDIA GeForce RTX 4070", "32.0.15.6636")
+        builds = made.builds("Game Ready Driver", "Windows", series="RTX 40", form="desktop")
+        self.assertEqual([(build.version, build.ticked) for build in builds][:3], [("616.56", False), ("581.57", True), ("566.36", False)])
+        self.assertIn("installed", builds[2].notes)
+        self.assertEqual(made.note("Game Ready Driver")[0], "NVIDIA · this PC: NVIDIA GeForce RTX 4070 · 566.36")
+        # "My cards" holds the generation of the card too.
+        mine = made.builds("Game Ready Driver", "Windows", series="*", form="desktop")
+        self.assertTrue(any(build.ticked for build in mine))
+
+    def test_the_golden_driver_is_not_ticked_when_the_card_runs_it(self) -> None:
+        builds = self.provider("NVIDIA GeForce RTX 4070", "32.0.15.8157").builds("Game Ready Driver", "Windows", series="RTX 40", form="desktop")
+        self.assertFalse(any(build.ticked for build in builds))
+
+    def test_a_list_of_another_generation_ticks_nothing_and_says_why(self) -> None:
+        made = self.provider("NVIDIA GeForce RTX 4070", "32.0.15.6636")
+        builds = made.builds("Game Ready Driver", "Windows", series="GTX 10", form="desktop")
+        self.assertFalse(any(build.ticked for build in builds))
+        self.assertIn("another generation", made.note("Game Ready Driver")[0])
+
+    def test_my_cards_asks_its_generations_side_by_side(self) -> None:
+        import threading
+        import time
+
+        inside = 0
+        most = 0
+        lock = threading.Lock()
+        answer = FakeNvidiaHttp()
+
+        def slow(method: str, url: str, body: str | None, headers: dict[str, str]) -> tuple[int, str]:
+            nonlocal inside, most
+            with lock:
+                inside += 1
+                most = max(most, inside)
+            time.sleep(0.2)
+            with lock:
+                inside -= 1
+            return answer(method, url, body, headers)
+
+        made = NvidiaProvider(http=slow, marks_path=self.marks, devices=lambda: [])
+        builds = made.builds("Game Ready Driver", "Windows", series="*", form="desktop")
+        self.assertTrue(builds)
+        # Two generations of the file: both were inside the service at once - the wait is one answer, not two.
+        self.assertEqual(most, 2)
+        # The list is the first generation's, in its order - as it was when they were asked in turn.
+        alone = NvidiaProvider(http=FakeNvidiaHttp(), marks_path=self.marks, devices=lambda: [])
+        first = alone.builds("Game Ready Driver", "Windows", series="RTX 40", form="desktop")
+        self.assertEqual([build.version for build in builds], [build.version for build in first if build.version in {item.version for item in builds}])
+
+    def test_my_generations_start_as_the_owners_file_has_them(self) -> None:
+        saved = NvidiaProvider._instance
+        NvidiaProvider._instance = self.provider()
+        try:
+            self.assertEqual(vendor_service.default_my_generations({}), ["RTX 40", "RTX 50"])
+            self.marks.write_text("golden: []\n", encoding="utf-8")
+            # A file that names none leaves the default of the manifest.
+            self.assertIsNone(vendor_service.default_my_generations({}))
+        finally:
+            NvidiaProvider._instance = saved
+
+    def test_without_an_nvidia_card_nothing_is_ticked(self) -> None:
+        made = self.provider()
+        self.assertFalse(any(build.ticked for build in made.builds("Game Ready Driver", "Windows", series="RTX 40", form="desktop")))
+        self.assertIn("no NVIDIA card on this PC", made.note("Game Ready Driver")[0])
+        self.assertEqual(made.note("CUDA Toolkit"), ("", ""))
+
+
+class NvidiaFromTechPowerUpTests(unittest.TestCase):
+    """Game Ready drivers from TechPowerUp's page: the list the NVIDIA page opens on."""
+
+    def setUp(self) -> None:
+        self.folder = tempfile.TemporaryDirectory()
+        self.marks = Path(self.folder.name) / "vendor_nvidia.yaml"
+        self.marks.write_text("golden: ['616.92', '581.57']\nmy_generations: ['RTX 40', 'RTX 50']\n", encoding="utf-8")
+        self.asked: list[str] = []
+        self.saved = (NvidiaProvider._instance, vendor_service.download_with_resume, vendor_service.authenticode)
+
+    def tearDown(self) -> None:
+        NvidiaProvider._instance, vendor_service.download_with_resume, vendor_service.authenticode = self.saved  # type: ignore[assignment]
+        self.folder.cleanup()
+
+    def page(self, slug: str) -> list:
+        from system_core.services.techpowerup_service import TechPowerUpFile
+
+        self.asked.append(slug)
+        tail = "64bit-international"
+        return [
+            TechPowerUpFile("617.50 Hotfix", "October 8th, 2026", "", f"617.50-desktop-notebook-win10-win11-{tail}-dch.hf.exe", "9", "945.1 MB", "A9"),
+            TechPowerUpFile("617.42 WHQL", "October 6th, 2026", "", f"617.42-desktop-win10-win11-{tail}-dch-whql.exe", "8", "945.0 MB", "a8"),
+            TechPowerUpFile("616.92 WHQL", "September 9th, 2026", "", f"616.92-desktop-win10-win11-{tail}-dch-whql.exe", "7", "945.0 MB", "A7"),
+            TechPowerUpFile("595.76 Beta", "March 3rd, 2026", "", f"595.76-desktop-win10-win11-{tail}-dch-whql.exe", "6", "930.0 MB", "A6"),
+            TechPowerUpFile("595.59 WHQL", "February 2nd, 2026", "", f"DANGEROUS-DO-NOT-USE-SAVED-FOR-ARCHIVING-AND-RESEARCH-595.59-desktop-win10-win11-{tail}-dch-whql.exe", "5", "930.0 MB", "A5"),
+            TechPowerUpFile("511.17 WHQL", "January 11th, 2022", "Only for RTX 3080 12 GB", f"511.17-desktop-win10-win11-{tail}-dch-whql.exe", "4", "780.0 MB", "A4"),
+            # A version of five files: Windows 7, 32 bits, the Standard and the DCH driver.
+            TechPowerUpFile("472.12 WHQL", "September 20th, 2021", "Standard Driver", f"472.12-desktop-win10-win11-{tail}-whql.exe", "31", "700.0 MB", "A31"),
+            TechPowerUpFile("472.12 WHQL", "September 20th, 2021", "DCH Driver", f"472.12-desktop-win10-win11-{tail}-dch-whql.exe", "32", "720.0 MB", "A32"),
+            TechPowerUpFile("472.12 WHQL", "September 20th, 2021", "", f"472.12-desktop-win8-win7-{tail}-whql.exe", "33", "650.0 MB", "A33"),
+            TechPowerUpFile("391.35 WHQL", "March 27th, 2018", "", "391.35-desktop-win10-32bit-international-whql.exe", "21", "380.0 MB", "A21"),
+            TechPowerUpFile("391.35 WHQL", "March 27th, 2018", "", f"391.35-desktop-win10-{tail}-whql.exe", "22", "450.0 MB", "A22"),
+            TechPowerUpFile("391.35 WHQL", "March 27th, 2018", "", f"391.35-desktop-win8-win7-{tail}-whql.exe", "23", "440.0 MB", "A23"),
+        ]
+
+    def provider(self, card: tuple[str, str] | None = None) -> "NvidiaProvider":
+        from system_core.core import pc_devices
+
+        devices = [pc_devices.Device(r"PCI\VEN_10DE&DEV_2786&SUBSYS_1\4&1", card[0], (r"PCI\VEN_10DE&CC_030000",), card[1])] if card else []
+
+        def no_service(method: str, url: str, body: str | None, headers: dict[str, str]) -> tuple[int, str]:
+            raise AssertionError("NVIDIA's service was asked: " + url)
+
+        def signed_link(slug: str, file_id: str) -> str:
+            # As the site signs it: a host of its own, the name of the file at the end.
+            name = next(item.file_name for item in self.page(slug) if item.file_id == file_id)
+            return f"https://us9-dl.techpowerup.com/files/sig{file_id}/{name}"
+
+        return NvidiaProvider(http=no_service, tpu_list=self.page, tpu_resolve=signed_link, marks_path=self.marks, devices=lambda: devices)
+
+    def test_one_card_a_version_its_driver_for_a_64_bit_windows_10_or_11(self) -> None:
+        from system_core.vendors import nvidia
+
+        made = self.provider()
+        builds = made.builds("Game Ready Driver", "Windows", source="techpowerup", series="*", form="notebook")
+        self.assertEqual(self.asked, [nvidia.GEFORCE_SLUG])
+        # The list is kept: asked for again, the page is not read again.
+        made.builds("Game Ready Driver", "Windows", source="techpowerup")
+        self.assertEqual(len(self.asked), 1)
+        # Newest first, as the page has them. The file kept "for research" is not offered at all.
+        self.assertEqual([build.version for build in builds], ["617.50 Hotfix", "617.42", "616.92", "595.76 Beta", "511.17", "472.12", "391.35"])
+        self.assertEqual([build.preview for build in builds], [True, False, False, True, False, False, False])
+        by_version = {build.version: build for build in builds}
+        # Of the files of one version: the DCH driver; where there is none - the driver for a 64-bit Windows 10.
+        self.assertEqual(by_version["472.12"].download_id, "tpu:nvidia-geforce-graphics-drivers:32")
+        self.assertEqual(by_version["391.35"].name, "391.35-desktop-win10-64bit-international-whql.exe")
+        self.assertEqual(by_version["617.42"].date, "6 Oct 2026")
+        self.assertEqual(by_version["616.92"].notes.split(" - ")[0], "945.0 MB")
+        self.assertIn("★ golden", by_version["616.92"].notes)
+        self.assertIn("Only for RTX 3080 12 GB", by_version["511.17"].notes)
+        self.assertNotIn("DCH Driver", by_version["472.12"].notes)
+        self.assertFalse(any(build.ticked for build in builds))
+        self.assertEqual(made.note("Game Ready Driver")[0], "TechPowerUp · every Game Ready release in one list · no NVIDIA card on this PC")
+        self.assertEqual((made.expected_sha256(by_version["617.42"]), made.signer_for(by_version["617.42"])), ("A8", "NVIDIA Corporation"))
+        self.assertEqual(made.resolve_link(by_version["617.42"]), "https://us9-dl.techpowerup.com/files/sig8/617.42-desktop-win10-win11-64bit-international-dch-whql.exe")
+        self.assertEqual((nvidia.geforce_file_rank("x-desktop-win10-win11-64bit-international-dch-whql.exe"), nvidia.geforce_file_rank("x-desktop-win7-64bit-international-whql.exe")), (3, None))
+        self.assertEqual((nvidia.tpu_date("March 3rd, 2026"), nvidia.tpu_date("May 1st, 2025"), nvidia.tpu_date("soon")), ("3 Mar 2026", "1 May 2025", "soon"))
+
+    def test_the_card_of_the_pc_is_named_and_its_driver_marked_but_nothing_is_ticked(self) -> None:
+        made = self.provider(("NVIDIA GeForce RTX 4070", "32.0.16.1692"))
+        builds = made.builds("Game Ready Driver", "Windows", source="techpowerup")
+        self.assertFalse(any(build.ticked for build in builds))
+        self.assertEqual([build.version for build in builds if "installed" in build.notes], ["616.92"])
+        self.assertIn("nothing ticked · this PC: NVIDIA GeForce RTX 4070 · 616.92", made.note("Game Ready Driver")[0])
+        self.assertIn("ничего не отмечено · этот ПК", made.note("Game Ready Driver")[1])
+
+    def test_a_run_in_another_process_finds_the_build_by_its_id(self) -> None:
+        fresh = self.provider()
+        build = fresh.build_by_id("tpu:nvidia-geforce-graphics-drivers:7")
+        self.assertEqual((build.version, build.name), ("616.92", "616.92-desktop-win10-win11-64bit-international-dch-whql.exe"))  # type: ignore[union-attr]
+        self.assertEqual(fresh.expected_sha256(build), "A7")  # type: ignore[arg-type]
+        self.assertIsNone(fresh.build_by_id("tpu:nvidia-geforce-graphics-drivers:5"))  # the file kept "for research"
+        self.assertIsNone(fresh.build_by_id("tpu:nvidia-geforce-graphics-drivers:404"))
+
+    def test_studio_and_the_switch_to_nvidia_ask_nvidias_own_service(self) -> None:
+        made = NvidiaProvider(http=FakeNvidiaHttp(), tpu_list=self.page, tpu_resolve=lambda slug, file_id: "", marks_path=self.marks, devices=lambda: [])
+        own = made.builds("Game Ready Driver", "Windows", source="nvidia", series="RTX 40", form="desktop")
+        studio = made.builds("Studio Driver", "Windows", source="techpowerup", series="RTX 40", form="desktop")
+        self.assertTrue(own and studio)
+        self.assertEqual(self.asked, [])
+        self.assertTrue(all("download.nvidia.com" in build.download_id for build in own + studio))
+        self.assertEqual((made.signer_for(own[0]), made.expected_sha256(own[0])), ("", ""))
+
+    def test_the_form_marks_the_newest_release_not_the_hotfix_over_it(self) -> None:
+        NvidiaProvider._instance = self.provider()
+        options = vendor_service.vendor_build_options(None, {"vendor": "nvidia", "nv_product": "Game Ready Driver", "nv_source": "techpowerup"})
+        self.assertTrue(options[0].get("note"))
+        cards = options[1:]
+        self.assertEqual((cards[0]["label"].split(" - ")[0], cards[0].get("beta")), ("617.50 Hotfix", True))
+        self.assertTrue(cards[1]["label"].startswith("617.42 - 6 Oct 2026 - 945.0 MB"))
+        self.assertTrue(cards[1]["label"].endswith(" - latest"))
+        self.assertEqual(len([card for card in cards if card["label"].endswith(" - latest")]), 1)
+        self.assertEqual(cards[3].get("beta"), True)  # 595.76 Beta
+
+    def test_the_file_of_the_mirror_is_compared_by_sha256_and_checked_for_nvidias_signature(self) -> None:
+        import hashlib
+
+        payload = b"the driver"
+        made = self.provider()
+        NvidiaProvider._instance = made
+        made.builds("Game Ready Driver", "Windows", source="techpowerup")
+        made._sha256["tpu:nvidia-geforce-graphics-drivers:8"] = hashlib.sha256(payload).hexdigest().upper()  # type: ignore[attr-defined]
+        made._sha256["tpu:nvidia-geforce-graphics-drivers:7"] = hashlib.sha256(payload).hexdigest().upper()  # type: ignore[attr-defined]
+
+        def fake_download(context: JobContext, url: str, target: Path, label: str, **kwargs: object) -> Path:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            return target
+
+        signed = {"617.42-desktop-win10-win11-64bit-international-dch-whql.exe": ("Valid", "CN=NVIDIA Corporation, O=NVIDIA Corporation, L=Santa Clara"),
+                  "616.92-desktop-win10-win11-64bit-international-dch-whql.exe": ("Valid", "CN=Somebody Else, O=Somebody")}
+        vendor_service.download_with_resume = fake_download  # type: ignore[assignment]
+        vendor_service.authenticode = lambda path: signed.get(path.name, ("NotSigned", ""))  # type: ignore[assignment]
+
+        def run(root: Path, file_id: str) -> tuple[dict[str, object], RecordingContext]:
+            context = RecordingContext(root)
+            context.operation = Operation(id="vendor_download", title="t", description="", service="x:y", parameters={
+                "vendor": "nvidia", "nv_product": "Game Ready Driver", "nv_source": "techpowerup",
+                "vendor_versions": [f"tpu:nvidia-geforce-graphics-drivers:{file_id}"], "output_path": str(root / "store")})
+            return vendor_service.download_vendor_builds(context), context
+
+        with tempfile.TemporaryDirectory() as temp:
+            result, context = run(Path(temp), "8")
+            entry = result["results"][0]  # type: ignore[index]
+            self.assertEqual((entry["sha256"], entry["signature"]), ("matches", "Valid"))
+            self.assertIn("[OK] 617.42-desktop-win10-win11-64bit-international-dch-whql.exe: SHA256 matches TechPowerUp", context.lines)
+            self.assertIn("[OK] 617.42-desktop-win10-win11-64bit-international-dch-whql.exe: signed by NVIDIA Corporation", context.lines)
+            # A file that is somebody else's fails the run and is named.
+            with self.assertRaisesRegex(RuntimeError, "signature not confirmed"):
+                run(Path(temp), "7")
 
 
 class TechPowerUpVendorTests(unittest.TestCase):
@@ -1039,7 +1412,7 @@ class TechPowerUpVendorTests(unittest.TestCase):
             calls.append(slug)
             return parse_versions(TPU_DDU_PAGE)
 
-        provider = TechPowerUpProvider(tpu_list=fake_list, tpu_resolve=lambda slug, file_id: f"https://us1-dl.techpowerup.com/{slug}/{file_id}.exe?sig=1")
+        provider = TechPowerUpProvider(tpu_list=fake_list, tpu_resolve=lambda slug, file_id: f"https://us1-dl.techpowerup.com/{slug}/{file_id}.exe?sig=1", devices=lambda: [])
         self.assertEqual(provider.products("Windows"), list(PRODUCTS))
         self.assertEqual(provider.products("Linux"), [])
         builds = provider.builds("Display Driver Uninstaller", "Windows")
@@ -1071,6 +1444,41 @@ class TechPowerUpVendorTests(unittest.TestCase):
         values["tpu_kind"] = "drivers"
         self.assertEqual(vendor_service.selection(values, "techpowerup")[:2], ("Windows", "AMD Ryzen Chipset"))
 
+    def test_a_driver_is_ticked_only_on_a_pc_that_has_its_device(self) -> None:
+        from system_core.core import pc_devices
+        from system_core.services.techpowerup_service import parse_versions
+        from system_core.vendors.techpowerup import TechPowerUpProvider, same_version
+
+        page = TPU_DDU_PAGE.replace("Display Driver Uninstaller (DDU) 18.1.5.7", "Intel Graphics Drivers 101.7085 Beta") \
+            .replace("Display Driver Uninstaller (DDU) 18.1.5.6", "Intel Graphics Drivers 101.7080")
+        card = pc_devices.Device(r"PCI\VEN_8086&DEV_46A8&SUBSYS_22E717AA&REV_0C\3&11583659&0&10", "Intel(R) Iris(R) Xe Graphics",
+                                 (r"PCI\VEN_8086&CC_030000", r"PCI\CC_0300"), "32.0.101.7000")
+
+        def made(devices):
+            return TechPowerUpProvider(tpu_list=lambda slug: parse_versions(page), tpu_resolve=lambda slug, file_id: "", devices=lambda: devices)
+
+        # The PC has the device: the newest release - a beta is none - is ticked, and the list says whose it is.
+        with_card = made([card])
+        builds = with_card.builds("Intel Graphics (Arc, iGPU)", "Windows")
+        self.assertEqual([(build.version, build.ticked) for build in builds], [("101.7085 Beta", False), ("101.7080", True)])
+        self.assertIn("this PC: Intel(R) Iris(R) Xe Graphics · 32.0.101.7000", with_card.note("Intel Graphics (Arc, iGPU)")[0])
+        # The device runs that release already (Windows' 32.0.101.7080 is the page's 101.7080): marked, not ticked.
+        current = made([pc_devices.Device(card.device_id, card.name, card.compatible, "32.0.101.7080")]).builds("Intel Graphics (Arc, iGPU)", "Windows")
+        self.assertEqual([(build.ticked, "installed" in build.notes) for build in current], [(False, False), (False, True)])
+        # No such device: nothing is ticked, and the list says so.
+        without = made([])
+        self.assertFalse(any(build.ticked for build in without.builds("Intel Graphics (Arc, iGPU)", "Windows")))
+        self.assertIn("nothing ticked", without.note("Intel Graphics (Arc, iGPU)")[0])
+        # A utility is for any PC: its newest release is ticked, and nothing is said over its list.
+        tools = TechPowerUpProvider(tpu_list=lambda slug: parse_versions(TPU_DDU_PAGE), tpu_resolve=lambda slug, file_id: "", devices=lambda: [])
+        self.assertEqual([build.ticked for build in tools.builds("Display Driver Uninstaller", "Windows")], [True, False])
+        self.assertEqual(tools.note("Display Driver Uninstaller"), ("", ""))
+
+        self.assertTrue(same_version("32.0.101.7085", "101.7085"))
+        self.assertTrue(same_version("23.160.0.4", "23.160.0"))
+        self.assertFalse(same_version("32.0.21025.1024", "26.9.1"))
+        self.assertFalse(same_version("24.70.0.3", "24"))
+
     def test_portable_files_are_told_apart_and_the_switch_flips_the_list(self) -> None:
         from system_core.vendors.techpowerup import TechPowerUpProvider, is_portable_file
         from system_core.services.techpowerup_service import parse_versions
@@ -1083,7 +1491,7 @@ class TechPowerUpVendorTests(unittest.TestCase):
         self.assertTrue(is_portable_file("NVCleanstall", "", "NVCleanstall_1.19.0.exe"))
         self.assertFalse(is_portable_file("Samsung Magician", "", "Samsung_Magician_Installer.exe"))
         saved = TechPowerUpProvider._instance
-        TechPowerUpProvider._instance = TechPowerUpProvider(tpu_list=lambda slug: parse_versions(TPU_DDU_PAGE), tpu_resolve=lambda slug, file_id: "")
+        TechPowerUpProvider._instance = TechPowerUpProvider(tpu_list=lambda slug: parse_versions(TPU_DDU_PAGE), tpu_resolve=lambda slug, file_id: "", devices=lambda: [])
         try:
             base = {"vendor": "techpowerup", "tpu_kind": "tools", "tpu_tool": "Display Driver Uninstaller"}
             options = vendor_service.vendor_build_options(None, base)
@@ -1133,7 +1541,23 @@ class DownloadTests(unittest.TestCase):
     def setUp(self) -> None:
         RangeHandler.requests = []
         RangeHandler.supports_range = True
+        RangeHandler.payload = PAYLOAD
+        RangeHandler.etag = '"v1"'
+        RangeHandler.honours_if_range = True
+        RangeHandler.piece = 0
+        RangeHandler.head_names_size = RangeHandler.get_names_size = True
+        RangeHandler.modified = ""
         vendor_service.CHUNK_BYTES = 64 * 1024
+
+    def broken_off(self, root: Path) -> Path:
+        """A download cancelled part way: the `.part` and its note are left for the next run."""
+        target = root / "out" / "build.zip"
+        with self.assertRaisesRegex(RuntimeError, "Cancelled"):
+            vendor_service.download_with_resume(RecordingContext(root, cancel_after=3), self.url, target, "build")
+        part = target.with_name("build.zip.part")
+        self.assertTrue(0 < part.stat().st_size < len(PAYLOAD))
+        RangeHandler.requests = []
+        return target
 
     def tearDown(self) -> None:
         vendor_service.CHUNK_BYTES = 1024 * 1024
@@ -1154,8 +1578,51 @@ class DownloadTests(unittest.TestCase):
             self.assertEqual(result, target)
             self.assertEqual(target.read_bytes(), PAYLOAD)
             self.assertFalse(part.exists())
+            self.assertFalse(part.with_name(part.name + ".json").exists())
             self.assertTrue(any(request.startswith("bytes=") for request in RangeHandler.requests))
             self.assertTrue(any(line.startswith("[RESUME]") for line in second.lines))
+
+    def test_without_a_version_named_by_the_server_nothing_is_resumed(self) -> None:
+        # A fixed address may hold a new version by now: with nothing to tell the same file by, the download starts over.
+        RangeHandler.etag = ""
+        with tempfile.TemporaryDirectory() as temp:
+            target = self.broken_off(Path(temp))
+            vendor_service.download_with_resume(RecordingContext(Path(temp)), self.url, target, "build")
+            self.assertEqual(target.read_bytes(), PAYLOAD)
+            self.assertEqual(RangeHandler.requests, [""])
+
+    def test_a_file_that_changed_on_the_server_is_fetched_whole(self) -> None:
+        other = bytes(reversed(PAYLOAD))
+        with tempfile.TemporaryDirectory() as temp:
+            target = self.broken_off(Path(temp))
+            RangeHandler.payload, RangeHandler.etag = other, '"v2"'
+            context = RecordingContext(Path(temp))
+            vendor_service.download_with_resume(context, self.url, target, "build")
+            # Not the head of the old file with the tail of the new one.
+            self.assertEqual(target.read_bytes(), other)
+            self.assertTrue(any("starting over" in line for line in context.lines))
+
+    def test_a_server_that_continues_another_file_is_asked_once_more_from_zero(self) -> None:
+        other = bytes(reversed(PAYLOAD))
+        with tempfile.TemporaryDirectory() as temp:
+            target = self.broken_off(Path(temp))
+            # It ignores If-Range and sends the rest of the new file: its ETag tells.
+            RangeHandler.payload, RangeHandler.etag, RangeHandler.honours_if_range = other, '"v2"', False
+            context = RecordingContext(Path(temp))
+            vendor_service.download_with_resume(context, self.url, target, "build")
+            self.assertEqual(target.read_bytes(), other)
+            self.assertEqual(len(RangeHandler.requests), 2)
+            self.assertEqual(RangeHandler.requests[1], "")
+
+    def test_a_server_that_sends_the_rest_in_pieces_is_asked_until_the_file_is_whole(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            target = self.broken_off(Path(temp))
+            RangeHandler.piece = 300_000
+            context = RecordingContext(Path(temp))
+            vendor_service.download_with_resume(context, self.url, target, "build")
+            self.assertEqual(target.read_bytes(), PAYLOAD)
+            self.assertGreater(len(RangeHandler.requests), 2)
+            self.assertTrue(any("asking for the rest" in line for line in context.lines))
 
     def test_complete_file_is_not_fetched_again(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -1166,6 +1633,82 @@ class DownloadTests(unittest.TestCase):
             vendor_service.download_with_resume(context, self.url, target, "build")
             self.assertEqual(RangeHandler.requests, [])
             self.assertTrue(any(line.startswith("[CACHE]") for line in context.lines))
+
+    def finished(self, root: Path, content: bytes, *, changed: float | None = None) -> Path:
+        """A file already in the folder, changed at the given time."""
+        target = root / "build.zip"
+        target.write_bytes(content)
+        if changed is not None:
+            os.utime(target, (changed, changed))
+        return target
+
+    def test_a_server_that_names_no_size_is_asked_and_the_file_is_replaced(self) -> None:
+        # The audit of 10.10.2026, finding 11: no size on HEAD made any file of that name a finished one.
+        RangeHandler.head_names_size = RangeHandler.get_names_size = False
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            target = self.finished(root, b"an installer of last year, another size")
+            context = RecordingContext(root)
+            vendor_service.download_with_resume(context, self.url, target, "build")
+            self.assertEqual(RangeHandler.requests, [""])
+            self.assertEqual(target.read_bytes(), PAYLOAD)
+            self.assertFalse(any(line.startswith("[CACHE]") for line in context.lines))
+
+    def test_a_server_that_names_the_size_only_with_the_file_decides_by_its_answer(self) -> None:
+        # A signed address answers GET alone: its first lines tell the size, and the body is left unread.
+        RangeHandler.head_names_size = False
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            same = bytes(reversed(PAYLOAD))  # the size of the server's file - all a server without a time can be asked
+            target = self.finished(root, same)
+            context = RecordingContext(root)
+            vendor_service.download_with_resume(context, self.url, target, "build")
+            self.assertEqual(RangeHandler.requests, [""])
+            self.assertEqual(target.read_bytes(), same)
+            self.assertTrue(any(line.startswith("[CACHE]") for line in context.lines))
+            self.assertFalse(target.with_name("build.zip.part").exists())
+
+            RangeHandler.requests = []
+            other = self.finished(root, PAYLOAD[:-1])
+            vendor_service.download_with_resume(RecordingContext(root), self.url, other, "build")
+            self.assertEqual(RangeHandler.requests, [""])
+            self.assertEqual(other.read_bytes(), PAYLOAD)
+
+    def test_a_file_of_the_same_size_older_than_the_servers_is_fetched_again(self) -> None:
+        # A maker puts a new build under the old name, of the very size: the time tells them apart.
+        from email.utils import formatdate
+
+        put_out = 1_780_000_000.0
+        RangeHandler.modified = formatdate(put_out, usegmt=True)
+        for names_size_on_head in (True, False):
+            RangeHandler.head_names_size, RangeHandler.requests = names_size_on_head, []
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                target = self.finished(root, bytes(reversed(PAYLOAD)), changed=put_out - 86_400)
+                context = RecordingContext(root)
+                vendor_service.download_with_resume(context, self.url, target, "build")
+                self.assertEqual(RangeHandler.requests, [""], names_size_on_head)
+                self.assertEqual(target.read_bytes(), PAYLOAD, names_size_on_head)
+                self.assertFalse(any(line.startswith("[CACHE]") for line in context.lines))
+
+    def test_a_file_of_the_same_size_not_older_than_the_servers_is_ready(self) -> None:
+        from email.utils import formatdate
+
+        put_out = 1_780_000_000.0
+        RangeHandler.modified = formatdate(put_out, usegmt=True)
+        for names_size_on_head, asked in ((True, []), (False, [""])):
+            RangeHandler.head_names_size, RangeHandler.requests = names_size_on_head, []
+            for changed in (put_out, put_out + 3_600):
+                with tempfile.TemporaryDirectory() as temp:
+                    root = Path(temp)
+                    mine = bytes(reversed(PAYLOAD))
+                    target = self.finished(root, mine, changed=changed)
+                    context = RecordingContext(root)
+                    RangeHandler.requests = []
+                    vendor_service.download_with_resume(context, self.url, target, "build")
+                    self.assertEqual(RangeHandler.requests, asked, (names_size_on_head, changed))
+                    self.assertEqual(target.read_bytes(), mine)
+                    self.assertTrue(any(line.startswith("[CACHE]") for line in context.lines))
 
     def test_server_without_ranges_restarts_from_zero(self) -> None:
         RangeHandler.supports_range = False
@@ -1230,6 +1773,39 @@ class DownloadTests(unittest.TestCase):
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "KEEP ORIGINAL")
             self.assertFalse((target / "readme.txt").exists())
 
+    @unittest.skipUnless(vendor_service.tar_program().is_file(), "the tar of Windows writes the 7z the test reads")
+    def test_extract_7z_unpacks_as_a_zip_does(self) -> None:
+        def pack(source: Path, archive: Path, *names: str) -> None:
+            subprocess.run([str(vendor_service.tar_program()), "--format=7zip", "-cf", str(archive), *names], cwd=source, check=True, capture_output=True)
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "src" / "TestMem5" / "bin").mkdir(parents=True)
+            (root / "src" / "TestMem5" / "TM5.exe").write_bytes(b"exe")
+            (root / "src" / "TestMem5" / "bin" / "cfg.ini").write_bytes(b"ini")
+            (root / "src" / "readme.txt").write_bytes(b"txt")
+            context = RecordingContext(root)
+
+            # One root folder: dropped, the program is at the top of its folder.
+            pack(root / "src", root / "TestMem5.7z", "TestMem5")
+            self.assertEqual(vendor_service.extract_7z(context, root / "TestMem5.7z", root / "one"), 2)
+            self.assertEqual((root / "one" / "TM5.exe").read_bytes(), b"exe")
+            self.assertEqual((root / "one" / "bin" / "cfg.ini").read_bytes(), b"ini")
+            self.assertFalse((root / "one" / "TestMem5").exists())
+
+            # A file beside the folder: nothing is dropped.
+            pack(root / "src", root / "both.7z", "TestMem5", "readme.txt")
+            self.assertEqual(vendor_service.extract_7z(context, root / "both.7z", root / "two"), 3)
+            self.assertEqual((root / "two" / "TestMem5" / "TM5.exe").read_bytes(), b"exe")
+            self.assertEqual((root / "two" / "readme.txt").read_bytes(), b"txt")
+
+            # What is no archive is left as it came, and says so.
+            (root / "broken.7z").write_bytes(b"not an archive at all")
+            self.assertEqual(vendor_service.extract_7z(context, root / "broken.7z", root / "three"), 0)
+            self.assertTrue((root / "broken.7z").is_file())
+            self.assertFalse((root / "three").exists())
+            self.assertIn("left as it came", context.lines[-1])
+
     def test_extract_zip_refuses_drive_and_stream_paths(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             target = Path(temp) / "out"
@@ -1237,6 +1813,241 @@ class DownloadTests(unittest.TestCase):
                 with self.assertRaises(ValueError, msg=bad):
                     vendor_service.zip_destination(target, bad)
             self.assertEqual(vendor_service.zip_destination(target, "sub/ok.txt"), (target / "sub" / "ok.txt").resolve())
+
+
+class CountingHandler(BaseHTTPRequestHandler):
+    """A server of one file: what it gives is set by the test, and every GET is counted."""
+
+    content = b""
+    gets = 0
+
+    def log_message(self, *args: object) -> None:
+        pass
+
+    def do_HEAD(self) -> None:
+        self.send_response(200)
+        self.send_header("Content-Length", str(len(type(self).content)))
+        self.end_headers()
+
+    def do_GET(self) -> None:
+        type(self).gets += 1
+        self.send_response(200)
+        self.send_header("Content-Length", str(len(type(self).content)))
+        self.end_headers()
+        self.wfile.write(type(self).content)
+
+
+class UntrustedTests(unittest.TestCase):
+    """A file the checks refused does not stay under its own name, and the next run downloads anew (S1 of the audit of 10.10.2026)."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), CountingHandler)
+        threading.Thread(target=cls.server.serve_forever, daemon=True).start()
+        cls.base = f"http://127.0.0.1:{cls.server.server_address[1]}"
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.server.shutdown()
+        cls.server.server_close()
+
+    def setUp(self) -> None:
+        self.saved = (vendor_service.get_provider, vendor_service.authenticode)
+        self.signed: dict[str, tuple[str, str]] = {}
+        vendor_service.authenticode = lambda path: self.signed.get(path.name, ("NotSigned", ""))  # type: ignore[assignment]
+        CountingHandler.gets = 0
+
+    def tearDown(self) -> None:
+        vendor_service.get_provider, vendor_service.authenticode = self.saved  # type: ignore[assignment]
+
+    def shelf(self, *, sha256: str = "", signer: str = "", sources: list[str] | None = None) -> None:
+        base = self.base
+        hosts = sources
+
+        class Shelf:
+            id = "affinity"
+            name = "Shelf"
+            platforms = ("Windows",)
+
+            def build_by_id(self, download_id: str) -> VendorBuild:
+                return VendorBuild(vendor=self.id, product="Tool", version="1", platform="Windows", date="", download_id=download_id, name=download_id)
+
+            def resolve_link(self, build: VendorBuild, registration: dict[str, str] | None = None) -> str:
+                return f"{base}/{build.download_id}"
+
+            def expected_sha256(self, build: VendorBuild) -> str:
+                return sha256
+
+        made = Shelf()
+        if signer:
+            made.signer = signer  # type: ignore[attr-defined]
+        if hosts:
+            from system_core.vendors import BuildSource
+
+            made.sources = lambda build: [BuildSource(host=host, name=build.download_id, link=lambda host=host: (f"{base}/{host}/{build.download_id}", ""))  # type: ignore[attr-defined]
+                                          for host in hosts]
+        vendor_service.get_provider = lambda vendor_id: made  # type: ignore[assignment]
+
+    def run_job(self, root: Path, name: str) -> tuple[dict[str, object], RecordingContext]:
+        context = RecordingContext(root)
+        context.operation = Operation(id="vendor_download", title="t", description="", service="x:y",
+                                      parameters={"vendor": "affinity", "vendor_versions": [name], "output_path": str(root / "store")})
+        context.report_dir.mkdir(parents=True, exist_ok=True)
+        return vendor_service.download_vendor_builds(context), context
+
+    def test_a_file_whose_sha256_differs_leaves_its_name_and_the_next_run_downloads_anew(self) -> None:
+        import hashlib
+
+        good = b"the installer as its maker made it"
+        self.shelf(sha256=hashlib.sha256(good).hexdigest())
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "store" / "Vendors" / "Shelf" / "tool-1.0-setup"
+            CountingHandler.content = b"x" * len(good)  # damaged on the way, the same size
+            with self.assertRaisesRegex(RuntimeError, r"1 of 1 build\(s\) are not to be trusted: tool-1.0-setup.exe: SHA256 differs"):
+                self.run_job(Path(temp), "tool-1.0-setup.exe")
+            self.assertEqual(sorted(item.name for item in folder.iterdir()), ["tool-1.0-setup.exe.untrusted"])
+            self.assertEqual(CountingHandler.gets, 1)
+
+            # The server gives the right bytes of the same size: the run asks it again and ends done.
+            CountingHandler.content = good
+            result, context = self.run_job(Path(temp), "tool-1.0-setup.exe")
+            self.assertEqual(CountingHandler.gets, 2)
+            self.assertFalse(any(line.startswith("[CACHE]") for line in context.lines))
+            self.assertEqual(result["results"][0]["sha256"], "matches")  # type: ignore[index]
+            self.assertEqual(sorted(item.name for item in folder.iterdir()), ["tool-1.0-setup.exe"])
+
+    def test_a_path_too_long_for_windows_is_told_before_anything_is_asked_of_the_server(self) -> None:
+        # The audit of 10.10.2026, finding 17: past 259 characters the run ended with "file not found" of a folder that was there.
+        asked: list[str] = []
+        self.shelf()
+        provider = vendor_service.get_provider("affinity")
+        resolve = provider.resolve_link
+        provider.resolve_link = lambda build, registration=None: asked.append(build.name) or resolve(build, registration)  # type: ignore[method-assign]
+        with tempfile.TemporaryDirectory() as temp:
+            deep = Path(temp) / ("a folder of the person with a long name " * 5).strip()
+            context = RecordingContext(Path(temp))
+            context.operation = Operation(id="vendor_download", title="t", description="", service="x:y",
+                                          parameters={"vendor": "affinity", "vendor_versions": ["short.exe", "tool-1.0-setup.exe"], "output_path": str(deep)})
+            context.report_dir.mkdir(parents=True, exist_ok=True)
+            with self.assertRaisesRegex(RuntimeError, r"tool-1\.0-setup\.exe: the path of its file is \d+ characters .* Windows opens 259 at most - choose a downloads folder nearer the root"):
+                vendor_service.download_vendor_builds(context)
+            self.assertEqual((asked, CountingHandler.gets), ([], 0))
+            self.assertFalse(deep.exists())
+            self.assertFalse(any(line.startswith(("[DOWNLOAD]", "[URL]")) for line in context.lines))
+        # The count is of the longest thing a download writes: the note beside the part.
+        edge = Path("E:/") / ("x" * (vendor_service.MAX_PATH - len("E:\\") - len(vendor_service.PART_NOTE_SUFFIX)))
+        self.assertEqual(len(str(edge) + vendor_service.PART_NOTE_SUFFIX), vendor_service.MAX_PATH)
+        self.assertEqual(vendor_service.too_long(edge, "edge"), "")
+        self.assertIn("260 characters", vendor_service.too_long(Path(str(edge) + "y"), "edge"))
+
+    def test_a_file_named_by_its_address_is_measured_before_its_folder_is_made(self) -> None:
+        # A name known only once the address is: the download itself refuses, and no folder is left behind.
+        with tempfile.TemporaryDirectory() as temp:
+            target = Path(temp) / ("deep " * 40).strip() / "from-the-address.exe"
+            with self.assertRaisesRegex(RuntimeError, r"build: the path of its file is \d+ characters"):
+                vendor_service.download_with_resume(RecordingContext(Path(temp)), f"{self.base}/from-the-address.exe", target, "build")
+            self.assertEqual(CountingHandler.gets, 0)
+            self.assertFalse(target.parent.exists())
+
+    def test_an_installer_without_the_signature_leaves_its_name_and_the_next_run_downloads_anew(self) -> None:
+        self.shelf(signer="Intel Corporation")
+        CountingHandler.content = b"an installer"
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "store" / "Vendors" / "Shelf" / "SetupChipset_1.0"
+            with self.assertRaisesRegex(RuntimeError, r"signature not confirmed \(NotSigned\)"):
+                self.run_job(Path(temp), "SetupChipset_1.0.exe")
+            self.assertEqual(sorted(item.name for item in folder.iterdir()), ["SetupChipset_1.0.exe.untrusted"])
+
+            self.signed = {"SetupChipset_1.0.exe": ("Valid", "CN=Intel Corporation, O=Intel Corporation")}
+            result, _context = self.run_job(Path(temp), "SetupChipset_1.0.exe")
+            self.assertEqual(CountingHandler.gets, 2)
+            self.assertEqual(result["results"][0]["signature"], "Valid")  # type: ignore[index]
+            self.assertEqual(sorted(item.name for item in folder.iterdir()), ["SetupChipset_1.0.exe"])
+
+    def test_a_source_whose_file_is_not_signed_hands_over_to_the_next(self) -> None:
+        self.shelf(signer="Intel Corporation", sources=["first.example", "second.example"])
+        CountingHandler.content = b"an installer"
+        asked: list[str] = []
+        verdicts = iter([("NotSigned", ""), ("Valid", "CN=Intel Corporation, O=Intel Corporation")])
+
+        def by_turn(path: Path) -> tuple[str, str]:
+            asked.append(path.name)
+            return next(verdicts)
+
+        vendor_service.authenticode = by_turn  # type: ignore[assignment]
+        with tempfile.TemporaryDirectory() as temp:
+            result, context = self.run_job(Path(temp), "Setup.exe")
+            entry = result["results"][0]  # type: ignore[index]
+            self.assertEqual((entry["source"], entry["signature"]), ("second.example", "Valid"))
+            self.assertEqual(asked, ["Setup.exe", "Setup.exe"])
+            self.assertIn("[WARN] first.example gave a file that is not to be trusted (Setup.exe: signature not confirmed (NotSigned)); the next source", context.lines)
+            folder = Path(temp) / "store" / "Vendors" / "Shelf" / "Setup"
+            self.assertEqual(sorted(item.name for item in folder.iterdir()), ["Setup.exe"])
+
+    def test_a_package_with_an_unsigned_installer_never_reaches_the_folder_of_the_build(self) -> None:
+        self.shelf(signer="Intel Corporation")
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as bundle:
+            bundle.writestr("Setup.exe", b"exe")
+            bundle.writestr("Tool/helper.msi", b"msi")
+            bundle.writestr("Readme.txt", b"txt")
+        CountingHandler.content = buffer.getvalue()
+        self.signed = {"Setup.exe": ("Valid", "CN=Intel Corporation, O=Intel Corporation")}  # helper.msi is nobody's
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "store" / "Vendors" / "Shelf" / "package"
+            with self.assertRaisesRegex(RuntimeError, r"helper.msi: signature not confirmed"):
+                self.run_job(Path(temp), "package.zip")
+            self.assertEqual(sorted(item.name for item in folder.iterdir()), ["_untrusted"])
+            self.assertTrue((folder / "_untrusted" / "Tool" / "helper.msi").is_file())
+
+            # Signed all through: its files are in the folder of the build, and nothing of the refused try is kept.
+            self.signed["helper.msi"] = self.signed["Setup.exe"]
+            result, _context = self.run_job(Path(temp), "package.zip")
+            self.assertEqual((result["results"][0]["extracted"], result["results"][0]["signature"]), (3, "Valid"))  # type: ignore[index]
+            self.assertEqual(sorted(item.name for item in folder.iterdir()), ["Readme.txt", "Setup.exe", "Tool"])
+
+
+class ForeignNameTests(unittest.TestCase):
+    """A file name that comes from foreign data is checked before anything is written (S2 of the audit of 10.10.2026)."""
+
+    def test_a_name_is_a_name_never_a_path(self) -> None:
+        for good in ("rufus-4.15.exe", "Affinity%20x64.exe", "Modrinth App_0.21.9_x64-setup.exe", "TcNo.Account.Switcher.-.Installer_2025-11-20_03.exe", "a..b"):
+            self.assertEqual(vendor_service.safe_file_name(good), good)
+        for bad in ("", ".", "..", r"..\..\x.txt", "../x.txt", "a/b.exe", "C:x.exe", "file.txt:stream", "..%5C..%5Cx.txt", "%2E%2E", "name.", "name ", "a\x07b"):
+            with self.assertRaisesRegex(RuntimeError, "unsafe file name", msg=bad):
+                vendor_service.safe_file_name(bad)
+
+    def test_a_source_cannot_name_a_file_or_a_folder_outside_the_build(self) -> None:
+        from system_core.vendors import BuildSource
+
+        fetched: list[Path] = []
+
+        def fake_download(context: JobContext, url: str, target: Path, label: str, **kwargs: object) -> Path:
+            fetched.append(target)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(b"x")
+            return target
+
+        saved = vendor_service.download_with_resume
+        vendor_service.download_with_resume = fake_download  # type: ignore[assignment]
+        try:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                folder = root / "Vendors" / "Shelf" / "build"
+                context = RecordingContext(root)
+                by_name = [BuildSource("a.example", r"..\..\escaped-by-name.txt", lambda: ("https://a.example/file.exe", ""))]
+                by_address = [BuildSource("a.example", "", lambda: ("https://a.example/..%5C..%5Cescaped-by-url.txt", ""))]
+                for sources in (by_name, by_address):
+                    with self.assertRaisesRegex(RuntimeError, "unsafe file name"):
+                        vendor_service.download_from_sources(context, sources, folder, "build")
+                self.assertEqual(fetched, [])
+                self.assertEqual([item.name for item in root.rglob("*escaped*")], [])
+                for bad in (r"..\up", "a/../../up", "C:/Windows", "//server/share"):
+                    with self.assertRaisesRegex(RuntimeError, "unsafe folder name", msg=bad):
+                        vendor_service.safe_folder(root / "Vendors" / "Shelf", bad)
+                self.assertEqual(vendor_service.safe_folder(root / "Vendors" / "Shelf", "Rufus/Portable"), (root / "Vendors" / "Shelf" / "Rufus" / "Portable").resolve())
+        finally:
+            vendor_service.download_with_resume = saved  # type: ignore[assignment]
 
 
 class JobTests(unittest.TestCase):
@@ -1298,6 +2109,205 @@ class JobTests(unittest.TestCase):
                 self.assertEqual(captured["target"], root / "store" / "Vendors" / "Affinity" / "Affinity x64" / "Affinity x64.exe")
             finally:
                 vendor_service.download_with_resume = original  # type: ignore[assignment]
+
+    @unittest.skipUnless(vendor_service.tar_program().is_file(), "the tar of Windows writes the 7z the test reads")
+    def test_download_job_unpacks_a_7z_and_keeps_one_it_cannot_read(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "src" / "Tool").mkdir(parents=True)
+            (root / "src" / "Tool" / "tool.exe").write_bytes(b"exe")
+            subprocess.run([str(vendor_service.tar_program()), "--format=7zip", "-cf", str(root / "good.7z"), "Tool"], cwd=root / "src", check=True, capture_output=True)
+            payload = {"good": (root / "good.7z").read_bytes(), "bad": b"not an archive at all"}
+
+            def fake_download(ctx: JobContext, url: str, target: Path, label: str, **kwargs: object) -> Path:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(payload["bad" if "bad" in url else "good"])
+                return target
+
+            class Shelf:
+                """A vendor whose builds are whatever address is asked for."""
+
+                id = "affinity"
+                name = "Shelf"
+                platforms = ("Windows",)
+
+                def build_by_id(self, download_id: str) -> VendorBuild:
+                    return VendorBuild(vendor=self.id, product="Tool", version="1", platform="Windows", date="", download_id=download_id, name=download_id.rsplit("/", 1)[-1])
+
+                def resolve_link(self, build: VendorBuild, registration: dict[str, str] | None = None) -> str:
+                    return build.download_id
+
+            original = (vendor_service.download_with_resume, vendor_service.get_provider)
+            vendor_service.download_with_resume = fake_download  # type: ignore[assignment]
+            vendor_service.get_provider = lambda vendor_id: Shelf()  # type: ignore[assignment]
+            try:
+                store = root / "store"
+                ids = ["https://shelf.example/good.7z", "https://shelf.example/bad.7z"]
+                result = vendor_service.download_vendor_builds(self._context(root, vendor="affinity", vendor_versions=ids, output_path=str(store)))
+                good, bad = result["results"]  # type: ignore[misc]
+                self.assertEqual((good["extracted"], good["archive"]), (1, ""))
+                self.assertEqual((store / "Vendors" / "Shelf" / "good" / "tool.exe").read_bytes(), b"exe")
+                self.assertFalse((store / "Vendors" / "Shelf" / "good" / "good.7z").exists())
+                self.assertEqual(bad["extracted"], 0)
+                self.assertTrue((store / "Vendors" / "Shelf" / "bad" / "bad.7z").is_file())
+            finally:
+                vendor_service.download_with_resume, vendor_service.get_provider = original  # type: ignore[assignment]
+
+
+class MakerOfThisPcTests(unittest.TestCase):
+    """A page of drivers opens on the maker this PC has a device of."""
+
+    WIFI = [
+        {"id": "intel", "values": {"vendor": "techpowerup", "tpu_kind": "drivers", "tpu_driver": "Intel Wi-Fi"}},
+        {"id": "realtek", "values": {"vendor": "mscatalog", "msc_kind": "wifi", "msc_wifi": "Realtek Wi-Fi"}},
+        {"id": "mediatek", "values": {"vendor": "mscatalog", "msc_kind": "wifi", "msc_wifi": "MediaTek Wi-Fi"}},
+    ]
+    GPU = [{"id": "nvidia", "values": {"vendor": "nvidia"}},
+           {"id": "amd", "values": {"vendor": "techpowerup", "tpu_kind": "drivers", "tpu_driver": "AMD Radeon Graphics"}}]
+
+    def chosen(self, devices: list, choices: list) -> str:
+        from system_core.core import pc_devices
+
+        kept = vendor_service._this_pc
+        vendor_service._this_pc = pc_devices.Snapshot(lambda: devices)
+        try:
+            return vendor_service.choice_for_this_pc(choices)
+        finally:
+            vendor_service._this_pc = kept
+
+    def test_the_maker_of_the_device_of_this_pc_is_chosen(self) -> None:
+        from system_core.core import pc_devices
+
+        realtek = pc_devices.Device(r"PCI\VEN_10EC&DEV_C852&SUBSYS_1&REV_00\4&1", "Realtek RTL8852CE WiFi 6E PCI-E NIC", (r"PCI\VEN_10EC&CC_028000", r"PCI\CC_0280"), "6001.16.1.0")
+        mediatek = pc_devices.Device(r"PCI\VEN_14C3&DEV_0616&SUBSYS_1&REV_00\4&1", "MediaTek Wi-Fi 6E MT7922", (r"PCI\VEN_14C3&CC_028000", r"PCI\CC_0280"), "3.4.0.1")
+        card = pc_devices.Device(r"PCI\VEN_10DE&DEV_2786&SUBSYS_1\4&1", "NVIDIA GeForce RTX 4070", (r"PCI\VEN_10DE&CC_030000",), "32.0.15.9597")
+        self.assertEqual(self.chosen([realtek], self.WIFI), "realtek")
+        self.assertEqual(self.chosen([mediatek, card], self.WIFI), "mediatek")
+        # Two adapters: the first of the row is the one - the order of the page is the order of the makers.
+        self.assertEqual(self.chosen([mediatek, realtek], self.WIFI), "realtek")
+        self.assertEqual(self.chosen([card], self.GPU), "nvidia")
+        # No device of any maker of the page: nothing is named, and the page opens on its first.
+        self.assertEqual(self.chosen([card], self.WIFI), "")
+        self.assertEqual(self.chosen([], self.GPU), "")
+        # A choice that names a product nobody knows is passed by, not an error.
+        self.assertEqual(self.chosen([realtek], [{"id": "odd", "values": {"vendor": "techpowerup", "tpu_driver": "No such"}}, *self.WIFI]), "realtek")
+
+    def test_a_page_opens_on_its_first_maker_when_the_machine_cannot_be_asked(self) -> None:
+        from system_core.core import window_layout
+
+        choices = window_layout.page_choices({"choices": [{"id": "a", "values": {"vendor": "nvidia"}}, {"id": "b", "values": {"vendor": "nvidia"}}, "not a choice", {"title": "no id"}]})
+        self.assertEqual([choice["id"] for choice in choices], ["a", "b"])
+        self.assertEqual(window_layout.chosen({"choose": "no_such_module:function"}, choices), "a")
+        self.assertEqual(window_layout.chosen({"choose": "system_core.services.vendor_service:no_such_function"}, choices), "a")
+        self.assertEqual(window_layout.chosen({}, choices), "a")
+        self.assertEqual(window_layout.chosen({"choose": "system_core.services.vendor_service:choice_for_this_pc"}, []), "")
+
+
+class MachineStandingTests(unittest.TestCase):
+    """The badge over a list of drivers: the version this PC runs, the newest of the list, behind or not."""
+
+    class Source:
+        """A provider as the service sees it: what this PC runs, the line over the list, and maybe lines of drivers."""
+
+        def __init__(self, running: list[str], *, numbers_of_windows: bool = False, lines: bool = False) -> None:
+            self._running = running
+            if numbers_of_windows:
+                self.numbers_of_windows = True
+            if lines:
+                self.line = lambda product, version: str(version).split(".", 1)[0]
+
+        def running(self, product: str) -> list[str]:
+            return list(self._running)
+
+        def note(self, product: str) -> tuple[str, str]:
+            what = "; ".join(f"Card · {version}" for version in self._running) or "Card"
+            return (f"Source · this PC: {what}", f"Источник · этот ПК: {what}")
+
+    @staticmethod
+    def builds(*rows: str) -> list[VendorBuild]:
+        """Rows are "version" or "version|notes"; a version that ends with "b" is a preview."""
+        made = []
+        for row in rows:
+            version, _, notes = row.partition("|")
+            made.append(VendorBuild(vendor="x", product="p", version=version.rstrip("b"), platform="Windows", date="", download_id=version,
+                                    name=version, notes=notes, preview=version.endswith("b")))
+        return made
+
+    def standing(self, source, *rows: str):
+        return vendor_service.machine_standing(source, "p", self.builds(*rows))
+
+    def test_the_driver_of_the_pc_is_found_in_the_list_by_its_mark(self) -> None:
+        source = self.Source(["32.0.101.7085"])
+        # It runs the newest: not behind. The number is the list's own, not the one Windows writes.
+        self.assertEqual(self.standing(source, "101.7085|installed", "101.7000"),
+                         {"running": "101.7085", "newest": "101.7085", "behind": False, "said": ["32.0.101.7085"]})
+        # A newer release stands above it: behind.
+        self.assertEqual(self.standing(source, "101.8991", "101.7085|installed"),
+                         {"running": "101.7085", "newest": "101.8991", "behind": True, "said": ["32.0.101.7085"]})
+        # What stands above it is a preview, and the newest release is the one it runs: not behind.
+        told = self.standing(source, "101.9000b", "101.7085|installed", "101.7000")
+        self.assertEqual((told["newest"], told["behind"]), ("101.7085", False))
+        # It runs the preview itself, above the newest release: not behind either.
+        told = self.standing(source, "101.9000b|installed", "101.7085")
+        self.assertEqual((told["running"], told["newest"], told["behind"]), ("101.9000", "101.7085", False))
+
+    def test_a_driver_the_list_does_not_hold_is_judged_only_where_the_numbers_are_the_same_scheme(self) -> None:
+        # AMD's driver 32.x says nothing about Adrenalin 25.x: no badge.
+        self.assertIsNone(self.standing(self.Source(["32.0.21025.1"]), "25.10.2", "25.9.1"))
+        # The Microsoft catalog and NVIDIA write the numbers Windows shows: compared as numbers.
+        same = self.Source(["6.0.9764.1"], numbers_of_windows=True)
+        self.assertEqual(self.standing(same, "6.0.10029.1", "6.0.10013.1"),
+                         {"running": "6.0.9764.1", "newest": "6.0.10029.1", "behind": True, "said": ["6.0.9764.1"]})
+        ahead = self.Source(["6.0.10100.1"], numbers_of_windows=True)
+        self.assertFalse(self.standing(ahead, "6.0.10029.1")["behind"])
+        # 10029 is newer than 9764 as a number, not as a word.
+        self.assertTrue(self.standing(self.Source(["6.0.9764.1"], numbers_of_windows=True), "6.0.10029.1")["behind"])
+        # Two devices: the newer of their drivers is the one shown.
+        two = self.Source(["6.0.9000.1", "6.0.9764.1"], numbers_of_windows=True)
+        self.assertEqual(self.standing(two, "6.0.10029.1")["running"], "6.0.9764.1")
+
+    def test_a_driver_is_measured_against_its_own_line(self) -> None:
+        # Realtek: a line is a chip. The PC runs the newest 1127; the 1168 above it is another card's.
+        lined = self.Source(["1127.20.1"], numbers_of_windows=True, lines=True)
+        told = self.standing(lined, "1168.30.1", "1127.20.1|installed", "1127.10.1")
+        self.assertEqual((told["running"], told["newest"], told["behind"]), ("1127.20.1", "1127.20.1", False))
+        told = self.standing(lined, "1168.30.1", "1127.25.1", "1127.20.1|installed")
+        self.assertEqual((told["newest"], told["behind"]), ("1127.25.1", True))
+        # A line the list does not hold at all: nothing to measure against.
+        self.assertIsNone(self.standing(self.Source(["1001.1.1"], numbers_of_windows=True, lines=True), "1168.30.1"))
+        # Without lines the newest of the whole list is the measure.
+        plain = self.Source(["1127.20.1"], numbers_of_windows=True)
+        self.assertEqual(self.standing(plain, "1168.30.1", "1127.20.1|installed")["newest"], "1168.30.1")
+
+    def test_no_device_no_badge(self) -> None:
+        self.assertIsNone(self.standing(self.Source([]), "1.0|installed"))
+        self.assertIsNone(vendor_service.machine_standing(self.Source(["1.0"], numbers_of_windows=True), "p", []))
+        # A provider that does not say what the PC runs has no badge.
+        self.assertIsNone(vendor_service.machine_standing(object(), "p", self.builds("1.0|installed")))  # type: ignore[arg-type]
+        # A list of previews alone has no newest release to measure against.
+        self.assertIsNone(self.standing(self.Source(["1.0"], numbers_of_windows=True), "2.0b"))
+
+    def test_the_line_over_the_list_carries_the_badge_and_does_not_repeat_the_version(self) -> None:
+        source = self.Source(["6.0.9764.1"], numbers_of_windows=True)
+        over = vendor_service.note_option(source, "p", self.builds("6.0.10029.1", "6.0.10013.1"))
+        self.assertEqual(over, {"value": "", "label": "Source · this PC: Card", "label_ru": "Источник · этот ПК: Card", "header": True, "note": True,
+                                "running": "6.0.9764.1", "newest": "6.0.10029.1", "behind": True})
+        # No badge - the line stays as the provider wrote it, the version in it.
+        bare = vendor_service.note_option(self.Source(["32.0.21025.1"]), "p", self.builds("25.10.2"))
+        self.assertEqual((bare["label"], "running" in bare), ("Source · this PC: Card · 32.0.21025.1", False))
+        # A provider with nothing to say over its list has no line at all.
+        self.assertIsNone(vendor_service.note_option(object(), "p", self.builds("1.0")))  # type: ignore[arg-type]
+
+    def test_the_three_sources_of_drivers_say_what_the_pc_runs(self) -> None:
+        # The providers whose lists are for the devices of this PC answer the question the badge asks.
+        for name in ("mscatalog", "techpowerup", "nvidia"):
+            provider = get_provider(name)
+            self.assertTrue(callable(getattr(provider, "running", None)), name)
+            self.assertEqual(provider.running("no such product"), [], name)
+        # ... and the two that write the numbers Windows shows say so.
+        self.assertTrue(get_provider("mscatalog").numbers_of_windows and get_provider("nvidia").numbers_of_windows)
+        self.assertFalse(getattr(get_provider("techpowerup"), "numbers_of_windows", False))
+        self.assertEqual((get_provider("mscatalog").line("Realtek LAN", "1168.30.1"), get_provider("mscatalog").line("no such", "1.2")), ("1168", ""))
 
 
 if __name__ == "__main__":

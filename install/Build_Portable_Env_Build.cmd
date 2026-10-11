@@ -12,7 +12,7 @@ set "INSTALL_DIR=%ROOT%\install"
 set "DOWNLOAD_DIR=%INSTALL_DIR%\download"
 set "RUNTIME_DIR=%ROOT%\runtime"
 set "WHEELHOUSE_DIR=%ROOT%\wheelhouse"
-set "REQ_FILE=%INSTALL_DIR%\requirements_gui.in"
+set "REQ_FILE=%INSTALL_DIR%\requirements.in"
 set "DOCTOR=%ROOT%\system_core\doctor.py"
 set "GET_PIP=%DOWNLOAD_DIR%\get-pip.py"
 set "CMD_ENCODING=%INSTALL_DIR%\Check-CmdEncoding.cmd"
@@ -118,7 +118,7 @@ move /y "%TMP_FILE%" "%PTH_FILE%" >nul
 exit /b 0
 
 :ERR_REQ
-echo [ERROR] requirements_gui.in was not found.
+echo [ERROR] requirements.in was not found.
 if not defined AUDION_NO_PAUSE pause
 exit /b 1
 

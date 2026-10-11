@@ -1,0 +1,421 @@
+# Where every operation stands in the window on Avalonia.
+#
+# config\tool_manifest.yaml says what an operation is: its service, its fields, its texts.
+# This file says where it stands: a section (a large button under the header), a page of the
+# section (the row under the sections), a card of the page. The console door hands it to the
+# window with `describe`.
+#
+#   cards:   a card is one operation with its form; `guests` are operations whose buttons stand
+#            in the same card and read the same fields
+#   fixed:   values the page sets by itself - the fields named are not drawn, and every list,
+#            condition and run of the page sees these values
+#   form:    "none" - the operation runs on its defaults, its fields are not drawn
+#   choices: a row of switches over the form of a page, one of them on: each names the values the
+#            page fixes while it is on (`values`), as `fixed` does for good; `choose` names the function
+#            that says which of them a page opens on ("module:function", it gets the choices) - none
+#            named, or nothing answered: the first
+#   groups:  the blocks of the form of the card in the order they stand in - the names the manifest
+#            gives them in `section`; a block not named stands after them, as its fields come
+#   about:   what a section or a page is for - the second line of the tooltip of its button
+#   icon:    a name of the icon set of the window (Source\Tools\build_icons.py)
+#   tone:    "run" - the main action of its card, a filled button; "burn" - it removes
+#   source:  true - the operations of the page read a folder the person may choose (the JSON of
+#            an import, driver packages for the image): the page shows the row SOURCE over its form,
+#            and the window names the folder to the door (--source)
+#   filter:  true - the page has one search for all its lists, in the bar over the cards: a
+#            catalogue of two hundred packages in fifteen groups
+#   shared:  the fields whose value is one for the whole window. Every other field belongs to its
+#            page: what is set on one page is not seen on another, even when both draw the same form
+#
+# An operation of the manifest that stands nowhere here must be named in `service`, `folders`,
+# `pending` or `retired` - tests\test_cli_door.py counts them.
+
+sections:
+  - id: winget
+    title: "WINGET"
+    about: "Packages: install, update, pin, remove"
+    about_ru: "Пакеты: поставить, обновить, убрать"
+    icon: package
+    pages:
+      - id: catalogue
+        filter: true
+        title: "Catalogue"
+        title_ru: "Каталог"
+        icon: layout-grid
+        cards:
+          - op: check_selected_packages
+            icon: scan-search
+            guests:
+              - {op: install_selected_packages, icon: package-plus, tone: run}
+              - {op: update_selected_packages, icon: refresh-cw}
+      - id: updates
+        title: "Updates"
+        title_ru: "Обновления"
+        icon: refresh-cw
+        cards:
+          - {op: preview_available_updates, icon: list, block: "What is new", block_ru: "Что нового"}
+          - {op: update_all_available_packages, icon: check-check, block: "What is new", block_ru: "Что нового"}
+          - {op: update_app_installer, icon: package, block: "What is new", block_ru: "Что нового"}
+          - {op: update_available_packages, icon: refresh-cw, tone: run, block: "Pick and update", block_ru: "Выбрать и обновить"}
+      - id: installed
+        filter: true
+        title: "Installed"
+        title_ru: "Установлено"
+        icon: hard-drive
+        cards:
+          - {op: uninstall_selected_installed_packages, icon: trash-2, tone: burn, block: "Remove", block_ru: "Удалить"}
+          - {op: pin_selected_packages, icon: pin, tone: run, block: "Pins", block_ru: "Закрепления"}
+      - id: by_id
+        title: "By ID"
+        title_ru: "По ID"
+        icon: search
+        cards:
+          - {op: search_winget, icon: search, block: "Search", block_ru: "Поиск"}
+          - op: install_package_by_id
+            icon: package-plus
+            tone: run
+            block: "One package"
+            block_ru: "Один пакет"
+          - {op: uninstall_package_by_id, icon: trash-2, tone: burn, block: "One package", block_ru: "Один пакет"}
+          - {op: add_package_to_list, icon: list, block: "Into the catalogue", block_ru: "В каталог"}
+      - id: ai
+        title: "AI"
+        title_ru: "AI"
+        icon: sparkles
+        cards:
+          - op: ai_plan_packages
+            icon: sparkles
+            tone: run
+            block: "Plan"
+            block_ru: "План"
+            # The owner, 11.10.2026: "the prompt up, then the instruction, and only then the models and the effort".
+            groups: [request, prompt, provider, generation]
+            guests:
+              - {op: ai_check_model, icon: scan-search}
+              - {op: ai_pin_api_key, icon: pin}
+              - {op: ai_pin_model, icon: pin}
+              - {op: ai_save_prompt, icon: file-text}
+          - {op: ai_run_selected_plan_packages, icon: play, block: "From the plan", block_ru: "Из плана"}
+          - {op: ai_search_winget, icon: search, block: "Exact ID", block_ru: "Точный ID"}
+          - {op: ai_add_exact_package_to_list, icon: list, block: "Exact ID", block_ru: "Точный ID"}
+          # One WinGet ID, three things to do with it: one card, not three with the same field.
+          - op: ai_install_exact_package
+            icon: package-plus
+            block: "Exact ID"
+            block_ru: "Точный ID"
+            guests:
+              - {op: ai_update_exact_package, icon: refresh-cw}
+              - {op: ai_uninstall_exact_package, icon: trash-2, tone: burn}
+      - id: transfer
+        source: true
+        title: "Transfer"
+        title_ru: "Перенос"
+        icon: arrow-left-right
+        cards:
+          - {op: export_winget, icon: upload, tone: run, block: "From this machine", block_ru: "С этой машины"}
+          - {op: import_winget, icon: download, tone: run, block: "Onto this machine", block_ru: "На эту машину"}
+
+  - id: windows
+    title: "WINDOWS"
+    about: "The image of Windows and its licence"
+    about_ru: "Образ Windows и его лицензия"
+    icon: app-window
+    pages:
+      - id: image
+        source: true
+        title: "Image"
+        title_ru: "Образ"
+        icon: disc
+        fixed: {vendor: uupdump}
+        cards:
+          - op: vendor_download
+            icon: download
+            guests:
+              - {op: vendor_link, icon: external-link}
+              - {op: vendor_uup_adk, icon: wrench}
+              - {op: export_selected_drivers, icon: upload}
+      - id: carrier
+        title: "Boot media"
+        title_ru: "Носитель"
+        about: "Media Creation Tool, Rufus, Ventoy - as files, the newest from their makers"
+        about_ru: "Media Creation Tool, Rufus, Ventoy - файлом, новейшие от производителей"
+        icon: usb
+        fixed: {vendor: programs, prg_kind: carrier}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: licence
+        title: "Licence"
+        title_ru: "Лицензия"
+        icon: key-round
+        cards:
+          - {op: check_windows_activation, icon: key-round}
+
+  - id: media
+    title: "MEDIA"
+    about: "Editing and graphics, straight from their makers"
+    about_ru: "Монтаж и графика от производителей"
+    icon: clapperboard
+    pages:
+      - id: blackmagic
+        title: "Blackmagic Design"
+        title_ru: "Blackmagic Design"
+        icon: clapperboard
+        fixed: {vendor: blackmagic}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: affinity
+        title: "Affinity"
+        title_ru: "Affinity"
+        icon: palette
+        fixed: {vendor: affinity}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: games
+        title: "Games"
+        title_ru: "Игры"
+        about: "Game launchers from their makers: Steam, Epic, EA, Battle.net, Rockstar, Riot, Minecraft - the installer as a file"
+        about_ru: "Игровые лаунчеры от производителей: Steam, Epic, EA, Battle.net, Rockstar, Riot, Minecraft - установщик файлом"
+        icon: gamepad-2
+        fixed: {vendor: programs, prg_kind: games}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+
+  - id: system
+    title: "SYSTEM"
+    about: "Runtimes and system tools"
+    about_ru: "Рантаймы и системные утилиты"
+    icon: wrench
+    pages:
+      - id: runtimes
+        title: "Runtimes"
+        title_ru: "Рантаймы"
+        icon: layers
+        cards:
+          - {op: check_msvc_runtimes, icon: scan-search, block: "What is installed", block_ru: "Что установлено"}
+          - {op: install_msvc_2015_script, icon: package-plus, block: "Visual C++ 2015+", block_ru: "Visual C++ 2015+"}
+          - {op: update_msvc_2015_script, icon: refresh-cw, block: "Visual C++ 2015+", block_ru: "Visual C++ 2015+"}
+          - {op: install_msvc_legacy_script, icon: package-plus, block: "Visual C++ 2005-2013", block_ru: "Visual C++ 2005-2013"}
+          - {op: install_msvc_all_in_one, icon: package-plus, block: "All-in-One", block_ru: "All-in-One"}
+          - {op: download_msvc_all_in_one, icon: download, block: "All-in-One", block_ru: "All-in-One"}
+          - {op: install_msvc_aio_abbodi, icon: package-plus, block: "All-in-One", block_ru: "All-in-One"}
+          - {op: download_msvc_aio_abbodi, icon: download, block: "All-in-One", block_ru: "All-in-One"}
+      - id: utilities
+        title: "Utilities"
+        title_ru: "Утилиты"
+        about: "System utilities, uninstallers, security - the installer or the portable build as a file; nothing is installed"
+        about_ru: "Системные утилиты, удаление программ, безопасность - установщик или портативная сборка файлом; ничего не устанавливается"
+        icon: wrench
+        fixed: {vendor: programs, prg_kind: utilities}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: winutil
+        title: "WinUtil"
+        title_ru: "WinUtil"
+        icon: terminal
+        cards:
+          - {op: vendor_winutil, icon: terminal, form: none}
+          - {op: update_winget_self, icon: refresh-cw}
+
+  - id: drivers
+    title: "DRIVERS"
+    about: "Drivers of this machine and of any hardware"
+    about_ru: "Драйверы этой машины и любого железа"
+    icon: circuit-board
+    pages:
+      # By the kind of device (the owner, 11.10.2026: "GPU · Chipset · Wi-Fi · Bluetooth · Ethernet · Audio ·
+      # This machine"). A page has a row of makers: Intel and AMD first, then Realtek, then the rest by how
+      # often they are met ("Intel/AMD - Realtek - the rest by frequency"). Where the file
+      # comes from follows from the maker - the sources do not overlap - and the tooltip of the maker says it.
+      # The page opens on the maker this PC has a device of.
+      - id: gpu
+        title: "GPU"
+        title_ru: "GPU"
+        about: "Video drivers: NVIDIA, AMD, Intel, Qualcomm"
+        about_ru: "Видеодрайверы: NVIDIA, AMD, Intel, Qualcomm"
+        icon: gpu
+        choose: "system_core.services.vendor_service:choice_for_this_pc"
+        choices:
+          - {id: nvidia, title: "NVIDIA", about: "NVIDIA: Game Ready and Studio by the generation of chips, the App, Broadcast, CUDA, DLSS",
+             about_ru: "NVIDIA: Game Ready и Studio по поколению чипов, App, Broadcast, CUDA, DLSS", values: {vendor: nvidia}}
+          - {id: amd, title: "AMD", about: "TechPowerUp: every release with its date", about_ru: "TechPowerUp: все выпуски с датами",
+             values: {vendor: techpowerup, tpu_kind: drivers, tpu_driver: "AMD Radeon Graphics"}}
+          - {id: intel, title: "Intel", about: "TechPowerUp: every release with its date", about_ru: "TechPowerUp: все выпуски с датами",
+             values: {vendor: techpowerup, tpu_kind: drivers, tpu_driver: "Intel Graphics (Arc, iGPU)"}}
+          - {id: qualcomm, title: "Qualcomm", about: "TechPowerUp: every release with its date", about_ru: "TechPowerUp: все выпуски с датами",
+             values: {vendor: techpowerup, tpu_kind: drivers, tpu_driver: "Qualcomm Snapdragon X Graphics"}}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: chipset
+        title: "Chipset"
+        title_ru: "Chipset"
+        about: "The chipset and the devices of the board"
+        about_ru: "Чипсет и устройства платы"
+        icon: microchip
+        choose: "system_core.services.vendor_service:choice_for_this_pc"
+        choices:
+          - {id: intel, title: "Intel", about: "Intel Chipset Device Software, every package: the one the Intel devices of this PC want is ticked. Intel's server first, then the web archive and two mirrors; the signature of Intel is checked",
+             about_ru: "Intel Chipset Device Software, все пакеты: отмечен тот, что нужен устройствам Intel этого ПК. Сначала сервер Intel, затем архив веба и два зеркала; подпись Intel проверяется",
+             values: {vendor: intelchipset}}
+          - {id: amd, title: "AMD Ryzen", about: "TechPowerUp: every release with its date", about_ru: "TechPowerUp: все выпуски с датами",
+             values: {vendor: techpowerup, tpu_kind: drivers, tpu_driver: "AMD Ryzen Chipset"}}
+          - {id: intel_me, title: "Intel ME", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: chipset, msc_chipset: "Intel Management Engine"}}
+          - {id: intel_rst, title: "Intel RST VMD", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: chipset, msc_chipset: "Intel RST VMD"}}
+          - {id: intel_npu, title: "Intel NPU", about: "TechPowerUp: every release with its date", about_ru: "TechPowerUp: все выпуски с датами",
+             values: {vendor: techpowerup, tpu_kind: drivers, tpu_driver: "Intel NPU"}}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: wifi
+        title: "Wi-Fi"
+        title_ru: "Wi-Fi"
+        about: "Wi-Fi adapters"
+        about_ru: "Адаптеры Wi-Fi"
+        icon: wifi
+        choose: "system_core.services.vendor_service:choice_for_this_pc"
+        choices:
+          - {id: intel, title: "Intel", about: "TechPowerUp: every release with its date", about_ru: "TechPowerUp: все выпуски с датами",
+             values: {vendor: techpowerup, tpu_kind: drivers, tpu_driver: "Intel Wi-Fi"}}
+          - {id: realtek, title: "Realtek", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: wifi, msc_wifi: "Realtek Wi-Fi"}}
+          - {id: mediatek, title: "MediaTek", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: wifi, msc_wifi: "MediaTek Wi-Fi"}}
+          - {id: qualcomm, title: "Qualcomm", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: wifi, msc_wifi: "Qualcomm Wi-Fi"}}
+          - {id: killer, title: "Killer", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: wifi, msc_wifi: "Killer Wi-Fi"}}
+          - {id: broadcom, title: "Broadcom", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: wifi, msc_wifi: "Broadcom Wi-Fi"}}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: bluetooth
+        title: "Bluetooth"
+        title_ru: "Bluetooth"
+        about: "Bluetooth adapters"
+        about_ru: "Адаптеры Bluetooth"
+        icon: bluetooth
+        choose: "system_core.services.vendor_service:choice_for_this_pc"
+        choices:
+          - {id: intel, title: "Intel", about: "TechPowerUp: every release with its date", about_ru: "TechPowerUp: все выпуски с датами",
+             values: {vendor: techpowerup, tpu_kind: drivers, tpu_driver: "Intel Bluetooth"}}
+          - {id: realtek, title: "Realtek", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: bluetooth, msc_bluetooth: "Realtek Bluetooth"}}
+          - {id: mediatek, title: "MediaTek", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: bluetooth, msc_bluetooth: "MediaTek Bluetooth"}}
+          - {id: qualcomm, title: "Qualcomm", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: bluetooth, msc_bluetooth: "Qualcomm Bluetooth"}}
+          - {id: broadcom, title: "Broadcom", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: bluetooth, msc_bluetooth: "Broadcom Bluetooth"}}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: ethernet
+        title: "Ethernet"
+        title_ru: "Ethernet"
+        about: "Network cards"
+        about_ru: "Сетевые карты"
+        icon: ethernet-port
+        choose: "system_core.services.vendor_service:choice_for_this_pc"
+        choices:
+          - {id: intel, title: "Intel", about: "TechPowerUp: every release with its date", about_ru: "TechPowerUp: все выпуски с датами",
+             values: {vendor: techpowerup, tpu_kind: drivers, tpu_driver: "Intel Ethernet"}}
+          - {id: realtek, title: "Realtek", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: lan, msc_lan: "Realtek LAN"}}
+          - {id: killer, title: "Killer", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: lan, msc_lan: "Killer Ethernet"}}
+          - {id: marvell, title: "Marvell AQtion", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: lan, msc_lan: "Marvell AQtion"}}
+          - {id: broadcom, title: "Broadcom", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: lan, msc_lan: "Broadcom NetXtreme"}}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: audio
+        title: "Audio"
+        title_ru: "Audio"
+        about: "Sound"
+        about_ru: "Звук"
+        icon: audio-lines
+        choose: "system_core.services.vendor_service:choice_for_this_pc"
+        choices:
+          - {id: realtek, title: "Realtek", about: "Microsoft Update Catalog: the WHQL driver Windows Update installs, without the maker's programs", about_ru: "Каталог обновлений Microsoft: драйвер WHQL, который ставит Центр обновления Windows, без программ производителя",
+             values: {vendor: mscatalog, msc_kind: audio, msc_audio: "Realtek Audio"}}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: this_machine
+        title: "This machine"
+        title_ru: "Эта машина"
+        icon: laptop
+        fixed: {vendor: uupdump, uup_view: drivers}
+        cards:
+          - {op: export_selected_drivers, icon: upload}
+
+  - id: hardware
+    title: "HARDWARE"
+    about: "Monitoring, benchmarks, tuning"
+    about_ru: "Мониторинг, тесты, разгон"
+    icon: cpu
+    pages:
+      - id: monitor
+        title: "Monitoring"
+        title_ru: "Мониторинг"
+        icon: activity
+        fixed: {vendor: techpowerup, tpu_kind: monitor}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: bench
+        title: "Benchmarks"
+        title_ru: "Бенчмарки"
+        icon: gauge
+        fixed: {vendor: techpowerup, tpu_kind: bench}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: tools
+        title: "Tools"
+        title_ru: "Утилиты"
+        icon: wrench
+        fixed: {vendor: techpowerup, tpu_kind: tools}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: bios
+        title: "BIOS"
+        title_ru: "BIOS"
+        icon: cpu
+        fixed: {vendor: techpowerup, tpu_kind: bios}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: tests
+        title: "Tests"
+        title_ru: "Тесты"
+        about: "FPS and latency, memory, cooling: PresentMon, CapFrameX, TestMem5, Fan Control - as files"
+        about_ru: "FPS и задержка, память, охлаждение: PresentMon, CapFrameX, TestMem5, Fan Control - файлом"
+        icon: flask-conical
+        fixed: {vendor: programs, prg_kind: tests}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+
+# What to do with a downloaded archive is decided once, not page by page.
+shared:
+  - vendor_extract
+  - vendor_delete_zip
+  - vendor_flat
+
+# The operations of the program itself: small buttons of the header. "GitHub token" asks for its
+# value in a dialog before it runs (`prompt` of its parameters in the manifest).
+service:
+  - {op: github_token, icon: key-round}
+  - {op: github_token_status, icon: gauge}
+  - {op: health_doctor, icon: shield-check}
+  - {op: validate_config_lists, icon: check-check}
+  - {op: cleanup_logs, icon: eraser}
+
+# The operations of the working folders of the program: buttons beside the row DOWNLOADS. They
+# run without --source and --target - on `input` and `output` of the program itself, whatever
+# folder the downloads go to - and the question before one names both folders by their full paths.
+folders:
+  - {op: cleanup_input_output, icon: trash-2, tone: burn}
+
+# Operations whose place in the window is not built yet, each with the reason.
+pending: {}
+
+# Operations of the manifest the window does not carry. None: portable browsers, the six that
+# stood here, left the manifest with 3.0.0.
+retired: []

@@ -24,6 +24,7 @@ Sources, all without an account:
 
 from __future__ import annotations
 
+import dataclasses
 import re
 import time
 from pathlib import Path
@@ -33,6 +34,7 @@ from urllib.parse import unquote
 from urllib.request import Request, urlopen
 import json
 
+from system_core.core import pc_devices
 from system_core.core.config import load_yaml_or_json
 from system_core.services import techpowerup_service
 
@@ -97,6 +99,40 @@ FORM_DESKTOP = "desktop"
 FORM_NOTEBOOK = "notebook"
 MY_CARDS = "*"  # the series value that means "every generation in my_generations"
 
+# The NVIDIA card of a PC: a display adapter of NVIDIA's vendor id.
+PC_CARD = ({"id": r"^PCI\\VEN_10DE&", "compatible": "CC_03"},)
+
+
+def pc_card(devices: list[pc_devices.Device]) -> pc_devices.Device | None:
+    found = pc_devices.find(list(PC_CARD), devices)
+    return found[0] if found else None
+
+
+def series_of(card_name: str) -> str:
+    """The series a card is of, by its name ("NVIDIA GeForce RTX 4070 Laptop GPU" -> "RTX 40"); '' when the name tells none
+    (Audion Setup Tools, Get-NvidiaSeries)."""
+    name = str(card_name or "")
+    found = re.search(r"(RTX|GTX)\s*(\d{2})(\d{2})", name, re.IGNORECASE)
+    if found:
+        key = f"{found.group(1).upper()} {found.group(2)}"
+        return key if key in SERIES else ""
+    if re.search(r"GTX\s*9\d0", name, re.IGNORECASE):
+        return "GTX 900"
+    found = re.search(r"GTX\s*([4-7])\d0", name, re.IGNORECASE)
+    return f"GTX {found.group(1)}00" if found else ""
+
+
+def is_notebook_card(card_name: str) -> bool:
+    return bool(re.search(r"laptop|notebook|\bmax-q\b", str(card_name or ""), re.IGNORECASE))
+
+
+def driver_number(windows_version: str) -> str:
+    """The driver as NVIDIA numbers it: Windows' 32.0.15.6614 is 566.14 - the last five digits of the last two parts."""
+    digits = "".join(re.findall(r"\d", "".join(str(windows_version or "").split(".")[-2:])))
+    if len(digits) < 5:
+        return ""
+    return f"{digits[-5:-2]}.{digits[-2:]}"
+
 APP_PAGE = "https://www.nvidia.com/en-us/software/nvidia-app/"
 BROADCAST_PAGE = "https://www.nvidia.com/en-us/geforce/broadcasting/broadcast-app/"
 CUDA_ARCHIVE = "https://developer.nvidia.com/cuda-toolkit-archive"
@@ -111,6 +147,35 @@ TPU_SLUGS: dict[str, str] = {
 }
 TPU_PREFIX = "tpu:"
 CUDA_PREFIX = "cuda:"
+
+# Where the list of Game Ready drivers comes from: NVIDIA's own service - the list a page opens on - or
+# TechPowerUp's page of them, the other choice of the form's switch for when the service stalls: every release
+# since 2017 in one answer, each file with its SHA256. That page does not say which cards a version is for,
+# so its list knows no generations.
+SOURCE_NVIDIA = "nvidia"
+SOURCE_TPU = "techpowerup"
+GEFORCE_SLUG = "nvidia-geforce-graphics-drivers"
+# Whose name a driver is signed with: asked of a file that came from a mirror.
+SIGNER = "NVIDIA Corporation"
+
+
+def geforce_file_rank(file_name: str) -> int | None:
+    """How well a file of TechPowerUp's page is the driver of a 64-bit Windows 10 or 11; None - it is not one.
+
+    A version has up to five files there: Windows 7 and 8, 32 bits, the Standard and the DCH driver.
+    The DCH driver for Windows 10 and 11 is the one; a file the site keeps "for research" under a
+    name that says DANGEROUS is never offered.
+    """
+    name = str(file_name or "").lower()
+    if "dangerous" in name or "32bit" in name or "win10" not in name:
+        return None
+    return (2 if "dch" in name else 0) + (1 if "win11" in name else 0)
+
+
+def tpu_date(text: str) -> str:
+    """'October 6th, 2026' -> '6 Oct 2026', as the dates of NVIDIA's own list read; anything else stays."""
+    match = re.match(r"^(\w{3})\w*\s+(\d+)(?:st|nd|rd|th)?,\s*(\d{4})$", str(text or "").strip())
+    return f"{int(match.group(2))} {match.group(1)} {match.group(3)}" if match else str(text or "").strip()
 
 EXE_LINK_PATTERN = re.compile(r'https?://[^"\'\s<>]+\.exe')
 CUDA_ARCHIVE_PATTERN = re.compile(r'href="(/cuda-[\d-]+-download-archive)"[^>]*>\s*CUDA Toolkit\s+([\d.]+)([^<]*)<', re.IGNORECASE)
@@ -274,6 +339,8 @@ class NvidiaProvider:
     id = "nvidia"
     name = "NVIDIA"
     platforms = PLATFORMS
+    # The only hashes this vendor knows are of the files TechPowerUp keeps: the log names their page.
+    sha256_from = "TechPowerUp"
 
     _instance: "NvidiaProvider | None" = None
 
@@ -284,13 +351,20 @@ class NvidiaProvider:
         tpu_resolve: TpuResolveCall | None = None,
         marks_path: Path | None = None,
         clock: Callable[[], float] = time.monotonic,
+        devices: Callable[[], list[pc_devices.Device]] | None = None,
     ) -> None:
+        self._snapshot = pc_devices.Snapshot(devices or pc_devices.present_devices)
+        # what stands over the list of drivers: the card of this PC
+        self._note: tuple[str, str] = ("", "")
+        # ... and the driver it runs, for the badge of versions - when the list is one for this card
+        self._running: list[str] = []
         self._http: HttpCall = http or _default_http
         self._tpu_list: TpuListCall = tpu_list or techpowerup_service.list_versions
         self._tpu_resolve: TpuResolveCall = tpu_resolve or _default_tpu_resolve
         self._marks_path = marks_path
         self._clock = clock
         self._cache: dict[str, tuple[float, list[VendorBuild]]] = {}
+        self._sha256: dict[str, str] = {}
 
     @classmethod
     def instance(cls) -> "NvidiaProvider":
@@ -337,7 +411,15 @@ class NvidiaProvider:
         mine = tuple(name for name in mine if name in SERIES)
         if not mine:
             return []
-        lists = [self.driver_builds(product, series, form) for series in mine]
+        # The service answers each generation in its own seconds, a minute when it stalls: asked side by
+        # side, the wait is the slowest answer, not the sum of them. The order of the answers is the order asked.
+        if len(mine) > 1:
+            from concurrent.futures import ThreadPoolExecutor
+
+            with ThreadPoolExecutor(max_workers=min(4, len(mine))) as pool:
+                lists = list(pool.map(lambda series: self.driver_builds(product, series, form), mine))
+        else:
+            lists = [self.driver_builds(product, series, form) for series in mine]
         common = set.intersection(*(set(build.version for build in builds) for builds in lists))
         return [build for build in lists[0] if build.version in common]
 
@@ -438,9 +520,65 @@ class NvidiaProvider:
                         notes=remarks,
                     )
                 )
+                if item.sha256:
+                    self._sha256[builds[-1].download_id] = item.sha256.upper()
             return builds
 
         return self._cached(f"tpu:{slug}", load)
+
+    def tpu_driver_builds(self) -> list[VendorBuild]:
+        """Game Ready drivers as TechPowerUp keeps them: one page, every release since 2017, newest first.
+
+        One card a version - its DCH driver for a 64-bit Windows 10 or 11. A beta and a hotfix keep
+        their word and are no release. The marks of the owner's file go by the number of a version,
+        as in NVIDIA's own list.
+        """
+        def load() -> list[VendorBuild]:
+            marks = DriverMarks.load(self._marks_path)
+            best: dict[str, tuple[int, techpowerup_service.TechPowerUpFile]] = {}
+            for item in self._tpu_list(GEFORCE_SLUG):
+                rank = geforce_file_rank(item.file_name)
+                if rank is None:
+                    continue
+                number, _, word = item.version.strip().partition(" ")
+                shown = number if word.strip().upper() in ("", "WHQL") else f"{number} {word.strip()}"
+                if shown not in best or rank > best[shown][0]:
+                    best[shown] = (rank, item)
+            builds: list[VendorBuild] = []
+            for shown, (_rank, item) in best.items():
+                number = shown.split(" ", 1)[0]
+                # "DCH Driver" and "Standard Driver" only tell the files of one version apart: the DCH one is taken.
+                kind = "" if item.kind in ("", "DCH Driver", "Standard Driver") else item.kind
+                remarks = " - ".join(part for part in (item.size, kind, *marks.notes(number, item.kind)) if part)
+                build = dataclasses.replace(
+                    self._build(PRODUCT_GAME_READY, shown, f"{TPU_PREFIX}{GEFORCE_SLUG}:{item.file_id}", item.file_name,
+                                date=tpu_date(item.date), notes=remarks),
+                    preview=shown != number)
+                if item.sha256:
+                    self._sha256[build.download_id] = item.sha256.upper()
+                builds.append(build)
+            return builds
+
+        return self._cached(f"tpu:{GEFORCE_SLUG}", load)
+
+    def _tpu_for_this_pc(self, builds: list[VendorBuild]) -> list[VendorBuild]:
+        """TechPowerUp's list on this PC: the driver the card runs is marked as installed. Nothing is ticked -
+        the page does not say which cards a version is for, and a driver is not offered to a card by guess."""
+        card = pc_card(self._snapshot.devices())
+        self._running = []
+        if card is None:
+            self._note = ("TechPowerUp · every Game Ready release in one list · no NVIDIA card on this PC",
+                          "TechPowerUp · все выпуски Game Ready одним списком · видеокарты NVIDIA на этом ПК нет")
+            return builds
+        installed = driver_number(card.driver_version)
+        self._running = [installed] if installed else []
+        what = card.name + (f" · {installed}" if installed else "")
+        self._note = (f"TechPowerUp · every Game Ready release in one list; the site does not say which cards a version is for - nothing ticked · this PC: {what}",
+                      f"TechPowerUp · все выпуски Game Ready одним списком; для каких карт версия, сайт не говорит - ничего не отмечено · этот ПК: {what}")
+        if not installed:
+            return builds
+        return [dataclasses.replace(build, notes=" - ".join(part for part in (build.notes, "installed") if part))
+                if build.version == installed else build for build in builds]
 
     # ----- VendorProvider -----
 
@@ -450,12 +588,16 @@ class NvidiaProvider:
     def builds(self, product: str, platform: str, **selection: Any) -> list[VendorBuild]:
         if platform not in self.platforms:
             return []
+        if product == PRODUCT_GAME_READY and str(selection.get("source") or SOURCE_NVIDIA) == SOURCE_TPU:
+            return self._tpu_for_this_pc(self.tpu_driver_builds())
         if product in DRIVER_PRODUCTS:
             series = str(selection.get("series") or next(iter(SERIES)))
             form = str(selection.get("form") or FORM_DESKTOP)
             raw_mine = selection.get("mine")
             mine = tuple(str(item).strip() for item in raw_mine) if isinstance(raw_mine, (list, tuple)) else None
-            return self.driver_builds(product, series, form, mine)
+            return self._for_this_pc(self.driver_builds(product, series, form, mine), series, mine)
+        self._note = ("", "")
+        self._running = []
         if product == PRODUCT_APP:
             return self._page_installer(product, APP_PAGE)
         if product == PRODUCT_BROADCAST:
@@ -466,6 +608,47 @@ class NvidiaProvider:
             return self.tpu_builds(product)
         return []
 
+    def _for_this_pc(self, builds: list[VendorBuild], series: str, mine: tuple[str, ...] | None) -> list[VendorBuild]:
+        """The driver the card of this PC runs marked as installed; the newest golden driver ticked - the newest
+        one when the list has no golden - when the list is of the card's own generation and the card does not
+        run it already. No NVIDIA card on the PC, or a list of another generation: nothing is ticked."""
+        card = pc_card(self._snapshot.devices())
+        self._running = []
+        if card is None:
+            self._note = ("NVIDIA · no NVIDIA card on this PC - nothing ticked", "NVIDIA · видеокарты NVIDIA на этом ПК нет - ничего не отмечено")
+            return builds
+        own = series_of(card.name)
+        installed = driver_number(card.driver_version)
+        marks = DriverMarks.load(self._marks_path)
+        listed = bool(own) and (series == own or (series == MY_CARDS and own in (mine if mine is not None else marks.mine)))
+        what = card.name + (f" · {installed}" if installed else "")
+        # A list of another generation is not about this card: its driver is not measured against it.
+        self._running = [installed] if listed and installed else []
+        self._note = ((f"NVIDIA · this PC: {what}", f"NVIDIA · этот ПК: {what}") if listed else
+                      (f"NVIDIA · this PC's card ({what}) is of another generation - nothing ticked",
+                       f"NVIDIA · видеокарта этого ПК ({what}) - другого поколения, ничего не отмечено"))
+        golden = next((build for build in builds if build.version in marks.golden), None)
+        pick = (golden or (builds[0] if builds else None)) if listed else None
+        marked: list[VendorBuild] = []
+        for build in builds:
+            here = bool(installed) and build.version == installed
+            tick = build is pick and not here
+            if here or tick:
+                build = dataclasses.replace(build, notes=" - ".join(part for part in (build.notes, "installed" if here else "") if part), ticked=tick)
+            marked.append(build)
+        return marked
+
+    def note(self, product: str) -> tuple[str, str]:
+        """What stands over the list of drivers, English and Russian; ('', '') for what is no driver."""
+        return self._note if product in DRIVER_PRODUCTS else ("", "")
+
+    # The number of a driver is read off the version Windows shows (32.0.15.9597 is 595.97): one scheme.
+    numbers_of_windows = True
+
+    def running(self, product: str) -> list[str]:
+        """The driver the card of this PC runs, when the list is one for this card."""
+        return list(self._running) if product in DRIVER_PRODUCTS else []
+
     def build_by_id(self, download_id: str) -> VendorBuild | None:
         wanted = str(download_id or "").strip()
         for _key, (_stamp, builds) in self._cache.items():
@@ -475,6 +658,8 @@ class NvidiaProvider:
         # Not listed in this session: rebuild what the id itself says.
         if wanted.startswith(TPU_PREFIX):
             _prefix, slug, file_id = wanted.split(":", 2)
+            if slug == GEFORCE_SLUG:
+                return next((build for build in self.tpu_driver_builds() if build.download_id == wanted), None)
             product = next((name for name, item in TPU_SLUGS.items() if item == slug), "")
             if not product:
                 return None
@@ -496,6 +681,14 @@ class NvidiaProvider:
             product = PRODUCT_BROADCAST if "broadcast" in wanted.lower() else PRODUCT_APP
             return self._build(product, match.group(1) if match else "latest", wanted, name)
         return None
+
+    def expected_sha256(self, build: VendorBuild) -> str:
+        """The SHA256 TechPowerUp's page gives for a file that comes from it; '' for a file of NVIDIA's own servers."""
+        return self._sha256.get(build.download_id, "")
+
+    def signer_for(self, build: VendorBuild) -> str:
+        """Whose signature the file must carry: a driver that came from a mirror is checked for NVIDIA's."""
+        return SIGNER if build.download_id.startswith(f"{TPU_PREFIX}{GEFORCE_SLUG}:") else ""
 
     def resolve_link(self, build: VendorBuild, registration: dict[str, str] | None = None) -> str:
         del registration  # NVIDIA never asks for a form

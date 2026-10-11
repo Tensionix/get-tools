@@ -17,13 +17,13 @@ Administrator rights instead of leaving the runtimes half-installed.
 from __future__ import annotations
 
 from pathlib import Path
-import ctypes
 import os
 import re
 import winreg
 import zipfile
 
 from system_core.core.jobs import JobContext
+from system_core.core.rights import is_elevated
 
 # The project's process runner and WinGet reader: logging, cancellation and
 # output decoding in one place. `.cmd` scripts stay on plain pipes by project
@@ -31,8 +31,8 @@ from system_core.core.jobs import JobContext
 from system_core.services.winget_service import _run_process, _run_winget_capture
 
 # One implementation of "download with a live progress line, size and sha256"
-# is enough; the portable service already owns it.
-from system_core.services.portable_browser_service import (
+# is enough: `downloads.py` owns it.
+from system_core.services.downloads import (
     DownloadedAsset,
     _download,
     _github_asset,
@@ -110,10 +110,7 @@ def runtime_state() -> dict[str, str]:
 
 
 def _is_elevated() -> bool:
-    try:
-        return bool(ctypes.windll.shell32.IsUserAnAdmin())  # type: ignore[attr-defined]
-    except Exception:
-        return False
+    return is_elevated()
 
 
 def _require_elevation(context: JobContext) -> None:

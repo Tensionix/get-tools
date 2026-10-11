@@ -19,6 +19,7 @@ from http.cookiejar import CookieJar
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
 from urllib.request import HTTPCookieProcessor, Request, build_opener
+import html as html_text
 import re
 
 from system_core.core.jobs import JobContext
@@ -72,16 +73,43 @@ def fetch_page(slug: str) -> str:
         return response.read().decode("utf-8", errors="replace")
 
 
+def version_names(titles: list[str]) -> list[str]:
+    """The versions of one page by their titles: the name of the program - the words every title starts with -
+    goes, what tells a version from its neighbours stays.
+
+    "AMD Radeon Graphics Drivers 26.9.1 WHQL" -> "26.9.1 WHQL", "Intel Graphics Drivers 101.7085 Beta" ->
+    "101.7085 Beta", "... All-in-One Jun 2026" -> "Jun 2026" (Audion Setup Tools, Get-TechPowerUpVersions).
+    A number alone lost the "Beta": a beta driver stood in the list as a release.
+    """
+    words = [title.split(" ") for title in titles]
+    if len(words) > 1:
+        common = list(words[0])
+        for title in words:
+            same = 0
+            # At least the last word of a title is its version.
+            while same < len(common) and same < len(title) - 1 and common[same] == title[same]:
+                same += 1
+            common = common[:same]
+        return [" ".join(title[len(common):]) for title in words]
+    names: list[str] = []
+    for title in titles:
+        tail = re.search(r"(v?\d+(?:\.\d+)+.*)$", title)
+        names.append(tail.group(1) if tail else title)
+    return names
+
+
 def parse_versions(page: str) -> list[TechPowerUpFile]:
     """Every file of every version on a TechPowerUp download page, newest first."""
     files: list[TechPowerUpFile] = []
-    for block in VERSION_BLOCK_PATTERN.finditer(page):
+    blocks = list(VERSION_BLOCK_PATTERN.finditer(page))
+    titles: list[str] = []
+    for block in blocks:
+        title_match = VERSION_TITLE_PATTERN.search(block.group(1))
+        # The page writes "&amp;" for "&" in its titles and file kinds ("12th gen & arc only").
+        titles.append(html_text.unescape(re.sub(r"\s+", " ", title_match.group(1))).strip() if title_match else "")
+    for block, version in zip(blocks, version_names(titles)):
         html = block.group(1)
-        title_match = VERSION_TITLE_PATTERN.search(html)
         date_match = VERSION_DATE_PATTERN.search(html)
-        title = re.sub(r"\s+", " ", title_match.group(1)).strip() if title_match else ""
-        version_match = re.search(r"v?(\d+(?:\.\d+)+)", title)
-        version = version_match.group(1) if version_match else title
         for file_block in FILE_BLOCK_PATTERN.finditer(html):
             file_html = file_block.group(1)
             id_match = FILE_ID_PATTERN.search(file_html)
@@ -95,8 +123,8 @@ def parse_versions(page: str) -> list[TechPowerUpFile]:
                 TechPowerUpFile(
                     version=version,
                     date=date_match.group(1).strip() if date_match else "",
-                    kind=kind_match.group(1).strip() if kind_match else "",
-                    file_name=name_match.group(1).strip(),
+                    kind=html_text.unescape(kind_match.group(1)).strip() if kind_match else "",
+                    file_name=html_text.unescape(name_match.group(1)).strip(),
                     file_id=id_match.group(1),
                     size=size_match.group(1).strip() if size_match else "",
                     sha256=sha_match.group(1).upper() if sha_match else "",

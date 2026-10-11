@@ -9,19 +9,19 @@
   Removed when present:
     - cached files/folders inside install\download\, except the preserve list
       below;
-    - exact installer staging directories system_core\_pwsh_tmp and
-      system_core\_fzf_tmp;
+    - the installer staging directory system_core\_fzf_tmp;
+    - what building the window leaves in Source\: bin and obj;
     - Python __pycache__ directories and *.pyc/*.pyo files outside payload and
       user-data zones.
 
   Preserved:
     - .gitkeep
     - get-pip.py
-    - 7z*-extra.7z
 
-  The script does not touch runtime\, wheelhouse\, system_core\powershell\,
-  system_core\fzf.exe, input/output/logs/report/data/release/workspace, user
-  config, or project business data.
+  The script does not touch runtime\, wheelhouse\, system_core\fzf.exe, the
+  built window and its PowerShell in App\, the sources of the window,
+  input/output/logs/report/data/release/workspace, user config, or project
+  business data.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -146,7 +146,7 @@ function Get-BytecodeCandidates {
 }
 
 $preserveNames = @('.gitkeep', 'get-pip.py')
-$preservePatterns = @('7z*-extra.7z')
+$preservePatterns = @()
 $script:candidates = @()
 $script:removed = @()
 $kept = @()
@@ -155,7 +155,7 @@ Write-Host '====================================================================
 Write-Host '  AUDION - CLEAN INSTALL CACHE'
 Write-Host '======================================================================'
 Write-Host "Project: $root"
-Write-Host 'Targets: install\download\, installer staging dirs, Python bytecode caches'
+Write-Host 'Targets: install\download\, the installer staging dir, bin and obj of Source and Source\Ps, Python bytecode caches'
 Write-Host ''
 
 if (Test-Path -LiteralPath $downloadDir) {
@@ -183,7 +183,6 @@ else {
 }
 
 $stagingDirs = @(
-    (Join-ProjectPath 'system_core\_pwsh_tmp'),
     (Join-ProjectPath 'system_core\_fzf_tmp')
 )
 foreach ($stagingDir in $stagingDirs) {
@@ -193,11 +192,21 @@ foreach ($stagingDir in $stagingDirs) {
     }
 }
 
+# What building the window leaves in Source\: bin and obj - hundreds of megabytes after a day of
+# work on the window. The built window, App\, and the sources stay.
+foreach ($relative in 'Source\bin', 'Source\obj', 'Source\Ps\bin', 'Source\Ps\obj') {
+    $buildDir = Join-ProjectPath $relative
+    if (Test-Path -LiteralPath $buildDir -PathType Container) {
+        Add-Candidate -Item (Get-Item -LiteralPath $buildDir -Force) -Reason 'Remove build leftovers of the window'
+        $script:candidates[-1].Name = $relative
+    }
+}
+
 if (-not $SkipBytecode) {
     $excludedBytecodeRoots = @(
         (Join-ProjectPath 'runtime'),
+        (Join-ProjectPath 'App'),
         (Join-ProjectPath 'wheelhouse'),
-        (Join-ProjectPath 'system_core\powershell'),
         (Join-ProjectPath 'input'),
         (Join-ProjectPath 'output'),
         (Join-ProjectPath 'logs'),

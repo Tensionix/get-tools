@@ -1,0 +1,16 @@
+# What the engine of the program runs on: runtime\ is built from this list
+# (builder_main.cmd, steps 01 and 02). The window is not here - it is App\, built
+# from Source\ with its own .NET runtime (install\Build-App.cmd).
+
+# The providers of the AI helper
+openai
+google-genai
+google-auth
+
+# The engine and the build of the environment
+pyyaml
+rich
+tqdm
+setuptools
+wheel
+packaging

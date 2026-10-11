@@ -18,22 +18,14 @@ call :run_pwsh
 exit /b %ERRORLEVEL%
 
 :run_pwsh
-if exist "%ROOT%system_core\powershell\pwsh.exe" (
-    "%ROOT%system_core\powershell\pwsh.exe" -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%PS1%"
-    exit /b %ERRORLEVEL%
-)
-if exist "S:\Audion\Tools\pwsh.exe" (
-    "S:\Audion\Tools\pwsh.exe" -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%PS1%"
-    exit /b %ERRORLEVEL%
-)
-if exist "E:\Audion\Tools\pwsh.exe" (
-    "E:\Audion\Tools\pwsh.exe" -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%PS1%"
-    exit /b %ERRORLEVEL%
-)
+rem The PowerShell 7 the program carries, when the window is built; a PowerShell of the machine after it.
+rem The host is chosen first and started outside the brackets: inside them cmd reads %ERRORLEVEL%
+rem before the host runs, and the exit code of the script was lost.
+set "PS_HOST=powershell.exe"
 where pwsh >nul 2>nul
-if not errorlevel 1 (
-    pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%PS1%"
-    exit /b %ERRORLEVEL%
-)
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%PS1%"
+if not errorlevel 1 set "PS_HOST=pwsh"
+if exist "E:\Audion\Tools\pwsh.exe" set "PS_HOST=E:\Audion\Tools\pwsh.exe"
+if exist "S:\Audion\Tools\pwsh.exe" set "PS_HOST=S:\Audion\Tools\pwsh.exe"
+if exist "%ROOT%App\AudionPs.exe" set "PS_HOST=%ROOT%App\AudionPs.exe"
+"%PS_HOST%" -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%PS1%"
 exit /b %ERRORLEVEL%

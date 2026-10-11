@@ -1,0 +1,13 @@
+# Intel Chipset Device Software: Intel's own addresses of the package, by version.
+#
+# The page of the package on intel.com answers 403 to many addresses and names the newest version
+# only; the file behind it is given to anyone. An address listed here is tried first, then the web
+# archive's copy of it, then station-drivers.com. A version without an address here still comes
+# from station-drivers when it has it.
+#
+# The addresses are the ones Intel's download page 19347 linked (seen in the web archive,
+# 27.09.2026). A new package: its version, as the list of the program shows it, and the address
+# of its SetupChipset.exe.
+official:
+  "10.1.20658.8883": "https://downloadmirror.intel.com/925343/SetupChipset.exe"
+  "10.1.20398.8776": "https://downloadmirror.intel.com/872506/SetupChipset.exe"

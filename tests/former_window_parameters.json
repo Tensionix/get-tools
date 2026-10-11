@@ -1,0 +1,5636 @@
+{
+ "add_package_to_list": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "package_label": "probe value",
+    "target_list": "pins",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "package_label": "",
+    "target_list": "custom",
+    "ui_language": "en"
+   },
+   "values": {
+    "package_id": "probe value",
+    "package_label": "probe value",
+    "target_list": "pins"
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "package_label": "probe value",
+    "target_list": "pins",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "package_label": "",
+    "target_list": "custom",
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_id": "probe value",
+    "package_label": "probe value",
+    "target_list": "pins"
+   }
+  },
+  "signature": [
+   "package_id:text",
+   "package_label:text",
+   "target_list:select"
+  ]
+ },
+ "ai_add_exact_package_to_list": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "package_label": "probe value",
+    "target_list": "pins",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "package_label": "",
+    "target_list": "custom",
+    "ui_language": "en"
+   },
+   "values": {
+    "package_id": "probe value",
+    "package_label": "probe value",
+    "target_list": "pins"
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "package_label": "probe value",
+    "target_list": "pins",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "package_label": "",
+    "target_list": "custom",
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_id": "probe value",
+    "package_label": "probe value",
+    "target_list": "pins"
+   }
+  },
+  "signature": [
+   "package_id:text",
+   "package_label:text",
+   "target_list:select"
+  ]
+ },
+ "ai_check_model": {
+  "en": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "mode": "check_model",
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "provider": "gemini",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "mode": "check_model",
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "provider": "openai",
+    "ui_language": "en"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "provider": "gemini"
+   }
+  },
+  "ru": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "mode": "check_model",
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "provider": "gemini",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "mode": "check_model",
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "provider": "openai",
+    "ui_language": "ru"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "provider": "gemini"
+   }
+  },
+  "signature": [
+   "provider:radio",
+   "openai_api_key_ref:select",
+   "openai_model:select",
+   "openai_model_override:text",
+   "openai_reasoning:radio",
+   "gemini_api_key_ref:select",
+   "gemini_model:select",
+   "gemini_model_override:text",
+   "ai_prompt_ref:select",
+   "ai_prompt:markdown_editor",
+   "ai_prompt_label:text",
+   "ai_prompt_note:text",
+   "llm_max_output_tokens:number",
+   "llm_max_retries:number",
+   "llm_timeout_sec:number"
+  ]
+ },
+ "ai_install_exact_package": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "en"
+   },
+   "values": {
+    "package_id": "probe value"
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_id": "probe value"
+   }
+  },
+  "signature": [
+   "package_id:text"
+  ]
+ },
+ "ai_pin_api_key": {
+  "en": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "mode": "pin_api_key",
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "provider": "gemini",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "mode": "pin_api_key",
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "provider": "openai",
+    "ui_language": "en"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "provider": "gemini"
+   }
+  },
+  "ru": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "mode": "pin_api_key",
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "provider": "gemini",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "mode": "pin_api_key",
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "provider": "openai",
+    "ui_language": "ru"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "provider": "gemini"
+   }
+  },
+  "signature": [
+   "provider:radio",
+   "openai_api_key_ref:select",
+   "openai_model:select",
+   "openai_model_override:text",
+   "openai_reasoning:radio",
+   "gemini_api_key_ref:select",
+   "gemini_model:select",
+   "gemini_model_override:text",
+   "ai_prompt_ref:select",
+   "ai_prompt:markdown_editor",
+   "ai_prompt_label:text",
+   "ai_prompt_note:text",
+   "llm_max_output_tokens:number",
+   "llm_max_retries:number",
+   "llm_timeout_sec:number"
+  ]
+ },
+ "ai_pin_model": {
+  "en": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "mode": "pin_model",
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "provider": "gemini",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "mode": "pin_model",
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "provider": "openai",
+    "ui_language": "en"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "provider": "gemini"
+   }
+  },
+  "ru": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "mode": "pin_model",
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "provider": "gemini",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "mode": "pin_model",
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "provider": "openai",
+    "ui_language": "ru"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "provider": "gemini"
+   }
+  },
+  "signature": [
+   "provider:radio",
+   "openai_api_key_ref:select",
+   "openai_model:select",
+   "openai_model_override:text",
+   "openai_reasoning:radio",
+   "gemini_api_key_ref:select",
+   "gemini_model:select",
+   "gemini_model_override:text",
+   "ai_prompt_ref:select",
+   "ai_prompt:markdown_editor",
+   "ai_prompt_label:text",
+   "ai_prompt_note:text",
+   "llm_max_output_tokens:number",
+   "llm_max_retries:number",
+   "llm_timeout_sec:number"
+  ]
+ },
+ "ai_plan_packages": {
+  "en": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "include_installed_scan": false,
+    "include_known_packages": false,
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "package_request": "probe value",
+    "provider": "gemini",
+    "search_limit": 6,
+    "ui_language": "en"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "include_installed_scan": true,
+    "include_known_packages": true,
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "package_request": "Подготовь Windows-машину для Dev/Media: Git, VS Code, Python, FFmpeg, OBS, HandBrake, LosslessCut, 7-Zip.",
+    "provider": "openai",
+    "search_limit": 5,
+    "ui_language": "en"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "include_installed_scan": false,
+    "include_known_packages": false,
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "package_request": "probe value",
+    "provider": "gemini",
+    "search_limit": 6
+   }
+  },
+  "ru": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "include_installed_scan": false,
+    "include_known_packages": false,
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "package_request": "probe value",
+    "provider": "gemini",
+    "search_limit": 6,
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "include_installed_scan": true,
+    "include_known_packages": true,
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "package_request": "Подготовь Windows-машину для Dev/Media: Git, VS Code, Python, FFmpeg, OBS, HandBrake, LosslessCut, 7-Zip.",
+    "provider": "openai",
+    "search_limit": 5,
+    "ui_language": "ru"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "include_installed_scan": false,
+    "include_known_packages": false,
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "package_request": "probe value",
+    "provider": "gemini",
+    "search_limit": 6
+   }
+  },
+  "signature": [
+   "provider:radio",
+   "openai_api_key_ref:select",
+   "openai_model:select",
+   "openai_model_override:text",
+   "openai_reasoning:radio",
+   "gemini_api_key_ref:select",
+   "gemini_model:select",
+   "gemini_model_override:text",
+   "ai_prompt_ref:select",
+   "ai_prompt:markdown_editor",
+   "ai_prompt_label:text",
+   "ai_prompt_note:text",
+   "llm_max_output_tokens:number",
+   "llm_max_retries:number",
+   "llm_timeout_sec:number",
+   "package_request:textarea",
+   "search_limit:number",
+   "include_installed_scan:checkbox",
+   "include_known_packages:checkbox"
+  ]
+ },
+ "ai_run_selected_plan_packages": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "uninstall",
+    "packages_ai_plan": [
+     "Probe.Package"
+    ],
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "install",
+    "packages_ai_plan": [],
+    "ui_language": "en"
+   },
+   "values": {
+    "package_action": "uninstall",
+    "packages_ai_plan": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "uninstall",
+    "packages_ai_plan": [
+     "Probe.Package"
+    ],
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "install",
+    "packages_ai_plan": [],
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_action": "uninstall",
+    "packages_ai_plan": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "package_action:select",
+   "packages_ai_plan:checkboxes"
+  ]
+ },
+ "ai_save_prompt": {
+  "en": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "mode": "save_prompt",
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "provider": "gemini",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "mode": "save_prompt",
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "provider": "openai",
+    "ui_language": "en"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "provider": "gemini"
+   }
+  },
+  "ru": {
+   "changed": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "mode": "save_prompt",
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "output_path": "<root>\\output",
+    "provider": "gemini",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "ai_prompt": "Подбери Windows/WinGet пакеты под задачу. Сначала предложи варианты, не устанавливай ничего. Отдавай практичный короткий план: что поставить, зачем, какие есть риски или неоднозначности.\n",
+    "ai_prompt_label": "",
+    "ai_prompt_note": "",
+    "ai_prompt_ref": "",
+    "gemini_api_key_ref": "",
+    "gemini_model": "",
+    "gemini_model_override": "",
+    "input_path": "<root>\\input",
+    "llm_max_output_tokens": 5000,
+    "llm_max_retries": 2,
+    "llm_timeout_sec": 240,
+    "mode": "save_prompt",
+    "openai_api_key_ref": "",
+    "openai_model": "",
+    "openai_model_override": "",
+    "openai_reasoning": "low",
+    "output_path": "<root>\\output",
+    "provider": "openai",
+    "ui_language": "ru"
+   },
+   "values": {
+    "ai_prompt": "probe value",
+    "ai_prompt_label": "probe value",
+    "ai_prompt_note": "probe value",
+    "ai_prompt_ref": "probe value",
+    "gemini_api_key_ref": "probe value",
+    "gemini_model": "probe value",
+    "gemini_model_override": "probe value",
+    "llm_max_output_tokens": 5001,
+    "llm_max_retries": 3,
+    "llm_timeout_sec": 241,
+    "openai_api_key_ref": "probe value",
+    "openai_model": "probe value",
+    "openai_model_override": "probe value",
+    "openai_reasoning": "high",
+    "provider": "gemini"
+   }
+  },
+  "signature": [
+   "provider:radio",
+   "openai_api_key_ref:select",
+   "openai_model:select",
+   "openai_model_override:text",
+   "openai_reasoning:radio",
+   "gemini_api_key_ref:select",
+   "gemini_model:select",
+   "gemini_model_override:text",
+   "ai_prompt_ref:select",
+   "ai_prompt:markdown_editor",
+   "ai_prompt_label:text",
+   "ai_prompt_note:text",
+   "llm_max_output_tokens:number",
+   "llm_max_retries:number",
+   "llm_timeout_sec:number"
+  ]
+ },
+ "ai_search_winget": {
+  "en": {
+   "changed": {
+    "exact_id_search": true,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "search_limit": 21,
+    "search_query": "probe value",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "exact_id_search": false,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "search_limit": 20,
+    "search_query": "",
+    "ui_language": "en"
+   },
+   "values": {
+    "exact_id_search": true,
+    "search_limit": 21,
+    "search_query": "probe value"
+   }
+  },
+  "ru": {
+   "changed": {
+    "exact_id_search": true,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "search_limit": 21,
+    "search_query": "probe value",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "exact_id_search": false,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "search_limit": 20,
+    "search_query": "",
+    "ui_language": "ru"
+   },
+   "values": {
+    "exact_id_search": true,
+    "search_limit": 21,
+    "search_query": "probe value"
+   }
+  },
+  "signature": [
+   "search_query:text",
+   "exact_id_search:checkbox",
+   "search_limit:number"
+  ]
+ },
+ "ai_uninstall_exact_package": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "en"
+   },
+   "values": {
+    "package_id": "probe value"
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_id": "probe value"
+   }
+  },
+  "signature": [
+   "package_id:text"
+  ]
+ },
+ "ai_update_exact_package": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "en"
+   },
+   "values": {
+    "package_id": "probe value"
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_id": "probe value"
+   }
+  },
+  "signature": [
+   "package_id:text"
+  ]
+ },
+ "check_msvc_runtimes": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "check_selected_packages": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ],
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_profile": "",
+    "packages_ai": [],
+    "packages_dev": [],
+    "packages_hardware": [],
+    "packages_media_audio": [],
+    "packages_media_images": [],
+    "packages_media_video": [],
+    "packages_msvc": [],
+    "packages_msvc_legacy": [],
+    "packages_network": [],
+    "packages_office": [],
+    "packages_pkms": [],
+    "packages_system": [],
+    "ui_language": "en"
+   },
+   "values": {
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ],
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_profile": "",
+    "packages_ai": [],
+    "packages_dev": [],
+    "packages_hardware": [],
+    "packages_media_audio": [],
+    "packages_media_images": [],
+    "packages_media_video": [],
+    "packages_msvc": [],
+    "packages_msvc_legacy": [],
+    "packages_network": [],
+    "packages_office": [],
+    "packages_pkms": [],
+    "packages_system": [],
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ]
+   }
+  },
+  "signature": [
+   "package_profile:profile_buttons",
+   "packages_system:checkboxes",
+   "packages_dev:checkboxes",
+   "packages_ai:checkboxes",
+   "packages_pkms:checkboxes",
+   "packages_office:checkboxes",
+   "packages_media_images:checkboxes",
+   "packages_media_audio:checkboxes",
+   "packages_media_video:checkboxes",
+   "packages_network:checkboxes",
+   "packages_hardware:checkboxes",
+   "packages_msvc:checkboxes",
+   "packages_msvc_legacy:checkboxes"
+  ]
+ },
+ "check_windows_activation": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "cleanup_input_output": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "cleanup_logs": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "download_msvc_aio_abbodi": {
+  "en": {
+   "changed": {
+    "aio_variant": "x86_x64",
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "page_url": "https://github.com/abbodi1406/vcredist/releases/latest",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "aio_variant": "x86_x64",
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "page_url": "https://github.com/abbodi1406/vcredist/releases/latest",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "aio_variant": "x86_x64",
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "page_url": "https://github.com/abbodi1406/vcredist/releases/latest",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "aio_variant": "x86_x64",
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "page_url": "https://github.com/abbodi1406/vcredist/releases/latest",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "download_msvc_all_in_one": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "page_url": "https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "page_url": "https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "page_url": "https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "page_url": "https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "export_selected_drivers": {
+  "en": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "validate_fields": false,
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "en-us",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "validate_fields": false,
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": [],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "validate_fields": false,
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "ru-ru",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "validate_fields": false,
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": [],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "vendor:tabs",
+   "msc_kind:radio",
+   "msc_lan:radio",
+   "msc_wifi:radio",
+   "msc_bluetooth:radio",
+   "msc_audio:radio",
+   "msc_chipset:radio",
+   "prg_kind:radio",
+   "tpu_kind:radio",
+   "tpu_driver:radio",
+   "tpu_tool:radio",
+   "tpu_monitor:radio",
+   "tpu_bench:radio",
+   "tpu_bios:radio",
+   "uup_view:tabs",
+   "bmd_platform:radio",
+   "bmd_product:radio",
+   "aff_platform:radio",
+   "aff_product:radio",
+   "nv_product:radio",
+   "nv_source:radio",
+   "nv_series:radio",
+   "nv_my_generations:checkboxes",
+   "nv_form:radio",
+   "uup_product:radio",
+   "uup_platform:radio",
+   "uup_edition:radio",
+   "uup_lang:radio",
+   "uup_lang_other:select",
+   "uup_preset:profile_buttons",
+   "uup_virtual:checkboxes",
+   "uup_apps_mode:radio",
+   "uup_apps_preset:profile_buttons",
+   "uup_apps_groups:toggle_buttons",
+   "uup_apps:checkboxes",
+   "driver_packages:checkboxes",
+   "vendor_pick:profile_buttons",
+   "vendor_portable_only:checkbox",
+   "vendor_versions:checkboxes",
+   "vendor_extract:checkbox",
+   "vendor_delete_zip:checkbox",
+   "uup_run:checkbox",
+   "uup_clean_cache:checkbox",
+   "vendor_flat:checkbox",
+   "bmd_reg_firstname:text",
+   "bmd_reg_lastname:text",
+   "bmd_reg_email:text",
+   "bmd_reg_phone:text",
+   "bmd_reg_country:text",
+   "bmd_reg_city:text",
+   "bmd_reg_street:text",
+   "bmd_reg_state:text"
+  ]
+ },
+ "export_winget": {
+  "en": {
+   "changed": {
+    "export_path": "probe value",
+    "include_versions": false,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "export_path": "output\\winget-export.json",
+    "include_versions": true,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {
+    "export_path": "probe value",
+    "include_versions": false
+   }
+  },
+  "ru": {
+   "changed": {
+    "export_path": "probe value",
+    "include_versions": false,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "export_path": "output\\winget-export.json",
+    "include_versions": true,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {
+    "export_path": "probe value",
+    "include_versions": false
+   }
+  },
+  "signature": [
+   "export_path:text",
+   "include_versions:checkbox"
+  ]
+ },
+ "github_token": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "prompt": {
+     "field": "github_token",
+     "hint": "github.com > Settings > Developer settings > Personal access tokens. Paste the token; leave the field empty to remove the stored one.",
+     "hint_ru": "github.com > Settings > Developer settings > Personal access tokens. Вставьте токен; пустое поле удаляет сохранённый.",
+     "label": "Personal access token",
+     "label_ru": "Личный токен (personal access token)",
+     "ok": "Save",
+     "ok_ru": "Сохранить",
+     "secret": true,
+     "title": "GitHub token",
+     "title_ru": "Токен GitHub"
+    },
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "prompt": {
+     "field": "github_token",
+     "hint": "github.com > Settings > Developer settings > Personal access tokens. Paste the token; leave the field empty to remove the stored one.",
+     "hint_ru": "github.com > Settings > Developer settings > Personal access tokens. Вставьте токен; пустое поле удаляет сохранённый.",
+     "label": "Personal access token",
+     "label_ru": "Личный токен (personal access token)",
+     "ok": "Save",
+     "ok_ru": "Сохранить",
+     "secret": true,
+     "title": "GitHub token",
+     "title_ru": "Токен GitHub"
+    },
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "prompt": {
+     "field": "github_token",
+     "hint": "github.com > Settings > Developer settings > Personal access tokens. Paste the token; leave the field empty to remove the stored one.",
+     "hint_ru": "github.com > Settings > Developer settings > Personal access tokens. Вставьте токен; пустое поле удаляет сохранённый.",
+     "label": "Personal access token",
+     "label_ru": "Личный токен (personal access token)",
+     "ok": "Save",
+     "ok_ru": "Сохранить",
+     "secret": true,
+     "title": "GitHub token",
+     "title_ru": "Токен GitHub"
+    },
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "prompt": {
+     "field": "github_token",
+     "hint": "github.com > Settings > Developer settings > Personal access tokens. Paste the token; leave the field empty to remove the stored one.",
+     "hint_ru": "github.com > Settings > Developer settings > Personal access tokens. Вставьте токен; пустое поле удаляет сохранённый.",
+     "label": "Personal access token",
+     "label_ru": "Личный токен (personal access token)",
+     "ok": "Save",
+     "ok_ru": "Сохранить",
+     "secret": true,
+     "title": "GitHub token",
+     "title_ru": "Токен GitHub"
+    },
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "github_token_status": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "health_doctor": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "import_winget": {
+  "en": {
+   "changed": {
+    "ignore_unavailable": false,
+    "ignore_versions": true,
+    "import_path": "probe value",
+    "input_path": "<root>\\input",
+    "no_upgrade": true,
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "ignore_unavailable": true,
+    "ignore_versions": false,
+    "import_path": "input\\winget-export.json",
+    "input_path": "<root>\\input",
+    "no_upgrade": false,
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {
+    "ignore_unavailable": false,
+    "ignore_versions": true,
+    "import_path": "probe value",
+    "no_upgrade": true
+   }
+  },
+  "ru": {
+   "changed": {
+    "ignore_unavailable": false,
+    "ignore_versions": true,
+    "import_path": "probe value",
+    "input_path": "<root>\\input",
+    "no_upgrade": true,
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "ignore_unavailable": true,
+    "ignore_versions": false,
+    "import_path": "input\\winget-export.json",
+    "input_path": "<root>\\input",
+    "no_upgrade": false,
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {
+    "ignore_unavailable": false,
+    "ignore_versions": true,
+    "import_path": "probe value",
+    "no_upgrade": true
+   }
+  },
+  "signature": [
+   "import_path:text",
+   "ignore_versions:checkbox",
+   "no_upgrade:checkbox",
+   "ignore_unavailable:checkbox"
+  ]
+ },
+ "install_msvc_2015_script": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Install-Audion-MSVC-2015+.cmd",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Install-Audion-MSVC-2015+.cmd",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Install-Audion-MSVC-2015+.cmd",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Install-Audion-MSVC-2015+.cmd",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "install_msvc_aio_abbodi": {
+  "en": {
+   "changed": {
+    "aio_variant": "x86_x64",
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "aio_variant": "x86_x64",
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "aio_variant": "x86_x64",
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "aio_variant": "x86_x64",
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "install_msvc_all_in_one": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "install_msvc_legacy_script": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Install-Audion-MSVC.cmd",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Install-Audion-MSVC.cmd",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Install-Audion-MSVC.cmd",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Install-Audion-MSVC.cmd",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "install_package_by_id": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "en"
+   },
+   "values": {
+    "package_id": "probe value"
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_id": "probe value"
+   }
+  },
+  "signature": [
+   "package_id:text"
+  ]
+ },
+ "install_selected_packages": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "install",
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ],
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "install",
+    "package_profile": "",
+    "packages_ai": [],
+    "packages_dev": [],
+    "packages_hardware": [],
+    "packages_media_audio": [],
+    "packages_media_images": [],
+    "packages_media_video": [],
+    "packages_msvc": [],
+    "packages_msvc_legacy": [],
+    "packages_network": [],
+    "packages_office": [],
+    "packages_pkms": [],
+    "packages_system": [],
+    "ui_language": "en"
+   },
+   "values": {
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "install",
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ],
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "install",
+    "package_profile": "",
+    "packages_ai": [],
+    "packages_dev": [],
+    "packages_hardware": [],
+    "packages_media_audio": [],
+    "packages_media_images": [],
+    "packages_media_video": [],
+    "packages_msvc": [],
+    "packages_msvc_legacy": [],
+    "packages_network": [],
+    "packages_office": [],
+    "packages_pkms": [],
+    "packages_system": [],
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ]
+   }
+  },
+  "signature": [
+   "package_profile:profile_buttons",
+   "packages_system:checkboxes",
+   "packages_dev:checkboxes",
+   "packages_ai:checkboxes",
+   "packages_pkms:checkboxes",
+   "packages_office:checkboxes",
+   "packages_media_images:checkboxes",
+   "packages_media_audio:checkboxes",
+   "packages_media_video:checkboxes",
+   "packages_network:checkboxes",
+   "packages_hardware:checkboxes",
+   "packages_msvc:checkboxes",
+   "packages_msvc_legacy:checkboxes"
+  ]
+ },
+ "pin_selected_packages": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "packages_installed_pins": [
+     "Probe.Package"
+    ],
+    "packages_pins": [
+     "Probe.Package"
+    ],
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "packages_installed_pins": [],
+    "packages_pins": [],
+    "ui_language": "en"
+   },
+   "values": {
+    "packages_installed_pins": [
+     "Probe.Package"
+    ],
+    "packages_pins": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "packages_installed_pins": [
+     "Probe.Package"
+    ],
+    "packages_pins": [
+     "Probe.Package"
+    ],
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "packages_installed_pins": [],
+    "packages_pins": [],
+    "ui_language": "ru"
+   },
+   "values": {
+    "packages_installed_pins": [
+     "Probe.Package"
+    ],
+    "packages_pins": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "packages_pins:checkboxes",
+   "packages_installed_pins:checkboxes"
+  ]
+ },
+ "preview_available_updates": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "search_winget": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "query": "probe value",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "query": "",
+    "ui_language": "en"
+   },
+   "values": {
+    "query": "probe value"
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "query": "probe value",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "query": "",
+    "ui_language": "ru"
+   },
+   "values": {
+    "query": "probe value"
+   }
+  },
+  "signature": [
+   "query:text"
+  ]
+ },
+ "uninstall_package_by_id": {
+  "en": {
+   "changed": {
+    "confirm_protected_uninstall_by_id": true,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "confirm_protected_uninstall_by_id": false,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "en"
+   },
+   "values": {
+    "confirm_protected_uninstall_by_id": true,
+    "package_id": "probe value"
+   }
+  },
+  "ru": {
+   "changed": {
+    "confirm_protected_uninstall_by_id": true,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "probe value",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "confirm_protected_uninstall_by_id": false,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_id": "",
+    "ui_language": "ru"
+   },
+   "values": {
+    "confirm_protected_uninstall_by_id": true,
+    "package_id": "probe value"
+   }
+  },
+  "signature": [
+   "package_id:text",
+   "confirm_protected_uninstall_by_id:checkbox"
+  ]
+ },
+ "uninstall_selected_installed_packages": {
+  "en": {
+   "changed": {
+    "confirm_protected_uninstall_selected": true,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en",
+    "uninstall_ai": [
+     "Probe.Package"
+    ],
+    "uninstall_custom": [
+     "Probe.Package"
+    ],
+    "uninstall_dev": [
+     "Probe.Package"
+    ],
+    "uninstall_hardware": [
+     "Probe.Package"
+    ],
+    "uninstall_media_audio": [
+     "Probe.Package"
+    ],
+    "uninstall_media_images": [
+     "Probe.Package"
+    ],
+    "uninstall_media_video": [
+     "Probe.Package"
+    ],
+    "uninstall_msvc": [
+     "Probe.Package"
+    ],
+    "uninstall_network": [
+     "Probe.Package"
+    ],
+    "uninstall_office": [
+     "Probe.Package"
+    ],
+    "uninstall_other": [
+     "Probe.Package"
+    ],
+    "uninstall_pkms": [
+     "Probe.Package"
+    ],
+    "uninstall_system": [
+     "Probe.Package"
+    ]
+   },
+   "defaults": {
+    "confirm_protected_uninstall_selected": false,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en",
+    "uninstall_ai": [],
+    "uninstall_custom": [],
+    "uninstall_dev": [],
+    "uninstall_hardware": [],
+    "uninstall_media_audio": [],
+    "uninstall_media_images": [],
+    "uninstall_media_video": [],
+    "uninstall_msvc": [],
+    "uninstall_network": [],
+    "uninstall_office": [],
+    "uninstall_other": [],
+    "uninstall_pkms": [],
+    "uninstall_system": []
+   },
+   "values": {
+    "confirm_protected_uninstall_selected": true,
+    "uninstall_ai": [
+     "Probe.Package"
+    ],
+    "uninstall_custom": [
+     "Probe.Package"
+    ],
+    "uninstall_dev": [
+     "Probe.Package"
+    ],
+    "uninstall_hardware": [
+     "Probe.Package"
+    ],
+    "uninstall_media_audio": [
+     "Probe.Package"
+    ],
+    "uninstall_media_images": [
+     "Probe.Package"
+    ],
+    "uninstall_media_video": [
+     "Probe.Package"
+    ],
+    "uninstall_msvc": [
+     "Probe.Package"
+    ],
+    "uninstall_network": [
+     "Probe.Package"
+    ],
+    "uninstall_office": [
+     "Probe.Package"
+    ],
+    "uninstall_other": [
+     "Probe.Package"
+    ],
+    "uninstall_pkms": [
+     "Probe.Package"
+    ],
+    "uninstall_system": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "confirm_protected_uninstall_selected": true,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru",
+    "uninstall_ai": [
+     "Probe.Package"
+    ],
+    "uninstall_custom": [
+     "Probe.Package"
+    ],
+    "uninstall_dev": [
+     "Probe.Package"
+    ],
+    "uninstall_hardware": [
+     "Probe.Package"
+    ],
+    "uninstall_media_audio": [
+     "Probe.Package"
+    ],
+    "uninstall_media_images": [
+     "Probe.Package"
+    ],
+    "uninstall_media_video": [
+     "Probe.Package"
+    ],
+    "uninstall_msvc": [
+     "Probe.Package"
+    ],
+    "uninstall_network": [
+     "Probe.Package"
+    ],
+    "uninstall_office": [
+     "Probe.Package"
+    ],
+    "uninstall_other": [
+     "Probe.Package"
+    ],
+    "uninstall_pkms": [
+     "Probe.Package"
+    ],
+    "uninstall_system": [
+     "Probe.Package"
+    ]
+   },
+   "defaults": {
+    "confirm_protected_uninstall_selected": false,
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru",
+    "uninstall_ai": [],
+    "uninstall_custom": [],
+    "uninstall_dev": [],
+    "uninstall_hardware": [],
+    "uninstall_media_audio": [],
+    "uninstall_media_images": [],
+    "uninstall_media_video": [],
+    "uninstall_msvc": [],
+    "uninstall_network": [],
+    "uninstall_office": [],
+    "uninstall_other": [],
+    "uninstall_pkms": [],
+    "uninstall_system": []
+   },
+   "values": {
+    "confirm_protected_uninstall_selected": true,
+    "uninstall_ai": [
+     "Probe.Package"
+    ],
+    "uninstall_custom": [
+     "Probe.Package"
+    ],
+    "uninstall_dev": [
+     "Probe.Package"
+    ],
+    "uninstall_hardware": [
+     "Probe.Package"
+    ],
+    "uninstall_media_audio": [
+     "Probe.Package"
+    ],
+    "uninstall_media_images": [
+     "Probe.Package"
+    ],
+    "uninstall_media_video": [
+     "Probe.Package"
+    ],
+    "uninstall_msvc": [
+     "Probe.Package"
+    ],
+    "uninstall_network": [
+     "Probe.Package"
+    ],
+    "uninstall_office": [
+     "Probe.Package"
+    ],
+    "uninstall_other": [
+     "Probe.Package"
+    ],
+    "uninstall_pkms": [
+     "Probe.Package"
+    ],
+    "uninstall_system": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "confirm_protected_uninstall_selected:checkbox",
+   "uninstall_system:checkboxes",
+   "uninstall_dev:checkboxes",
+   "uninstall_ai:checkboxes",
+   "uninstall_pkms:checkboxes",
+   "uninstall_office:checkboxes",
+   "uninstall_media_images:checkboxes",
+   "uninstall_media_audio:checkboxes",
+   "uninstall_media_video:checkboxes",
+   "uninstall_network:checkboxes",
+   "uninstall_hardware:checkboxes",
+   "uninstall_msvc:checkboxes",
+   "uninstall_custom:checkboxes",
+   "uninstall_other:checkboxes"
+  ]
+ },
+ "update_all_available_packages": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "update_app_installer": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "update_available_packages": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "packages_available_updates": [
+     "Probe.Package"
+    ],
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "packages_available_updates": [],
+    "ui_language": "en"
+   },
+   "values": {
+    "packages_available_updates": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "packages_available_updates": [
+     "Probe.Package"
+    ],
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "packages_available_updates": [],
+    "ui_language": "ru"
+   },
+   "values": {
+    "packages_available_updates": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "packages_available_updates:checkboxes"
+  ]
+ },
+ "update_msvc_2015_script": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Update-Audion-MSVC-2015+.cmd",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Update-Audion-MSVC-2015+.cmd",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Update-Audion-MSVC-2015+.cmd",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "script": "system_core\\winget\\install_apps\\Update-Audion-MSVC-2015+.cmd",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "update_selected_packages": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "update",
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ],
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "update",
+    "package_profile": "",
+    "packages_ai": [],
+    "packages_dev": [],
+    "packages_hardware": [],
+    "packages_media_audio": [],
+    "packages_media_images": [],
+    "packages_media_video": [],
+    "packages_msvc": [],
+    "packages_msvc_legacy": [],
+    "packages_network": [],
+    "packages_office": [],
+    "packages_pkms": [],
+    "packages_system": [],
+    "ui_language": "en"
+   },
+   "values": {
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "update",
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ],
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "package_action": "update",
+    "package_profile": "",
+    "packages_ai": [],
+    "packages_dev": [],
+    "packages_hardware": [],
+    "packages_media_audio": [],
+    "packages_media_images": [],
+    "packages_media_video": [],
+    "packages_msvc": [],
+    "packages_msvc_legacy": [],
+    "packages_network": [],
+    "packages_office": [],
+    "packages_pkms": [],
+    "packages_system": [],
+    "ui_language": "ru"
+   },
+   "values": {
+    "package_profile": "probe value",
+    "packages_ai": [
+     "Anthropic.Claude",
+     "Anthropic.ClaudeCode"
+    ],
+    "packages_dev": [
+     "voidtools.Everything",
+     "WinMerge.WinMerge"
+    ],
+    "packages_hardware": [
+     "CrystalDewWorld.CrystalDiskInfo",
+     "CrystalDewWorld.CrystalDiskMark"
+    ],
+    "packages_media_audio": [
+     "PeterPawlowski.foobar2000",
+     "Cockos.REAPER"
+    ],
+    "packages_media_images": [
+     "FastStone.Viewer",
+     "KDE.Krita"
+    ],
+    "packages_media_video": [
+     "VideoLAN.VLC",
+     "PaulPacifico.ShutterEncoder"
+    ],
+    "packages_msvc": [
+     "Microsoft.VCRedist.2015+.x86",
+     "Microsoft.VCRedist.2015+.x64"
+    ],
+    "packages_msvc_legacy": [
+     "Microsoft.VCRedist.2013.x86",
+     "Microsoft.VCRedist.2013.x64"
+    ],
+    "packages_network": [
+     "Mozilla.Firefox",
+     "Opera.Opera"
+    ],
+    "packages_office": [
+     "Calibre.Calibre",
+     "TheDocumentFoundation.LibreOffice"
+    ],
+    "packages_pkms": [
+     "Notion.Notion",
+     "Notion.NotionCalendar"
+    ],
+    "packages_system": [
+     "windows-feature:NetFx3",
+     "Microsoft.DotNet.DesktopRuntime.6"
+    ]
+   }
+  },
+  "signature": [
+   "package_profile:profile_buttons",
+   "packages_system:checkboxes",
+   "packages_dev:checkboxes",
+   "packages_ai:checkboxes",
+   "packages_pkms:checkboxes",
+   "packages_office:checkboxes",
+   "packages_media_images:checkboxes",
+   "packages_media_audio:checkboxes",
+   "packages_media_video:checkboxes",
+   "packages_network:checkboxes",
+   "packages_hardware:checkboxes",
+   "packages_msvc:checkboxes",
+   "packages_msvc_legacy:checkboxes"
+  ]
+ },
+ "update_winget_self": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "validate_config_lists": {
+  "en": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "en"
+   },
+   "values": {}
+  },
+  "ru": {
+   "changed": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "defaults": {
+    "input_path": "<root>\\input",
+    "output_path": "<root>\\output",
+    "ui_language": "ru"
+   },
+   "values": {}
+  },
+  "signature": []
+ },
+ "vendor_download": {
+  "en": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "gate": "system_core.services.vendor_service:download_gate",
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "primary": true,
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "gate": "system_core.services.vendor_service:download_gate",
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "primary": true,
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "en-us",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": []
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "gate": "system_core.services.vendor_service:download_gate",
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "primary": true,
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "gate": "system_core.services.vendor_service:download_gate",
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "primary": true,
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "ru-ru",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": []
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "vendor:tabs",
+   "msc_kind:radio",
+   "msc_lan:radio",
+   "msc_wifi:radio",
+   "msc_bluetooth:radio",
+   "msc_audio:radio",
+   "msc_chipset:radio",
+   "prg_kind:radio",
+   "tpu_kind:radio",
+   "tpu_driver:radio",
+   "tpu_tool:radio",
+   "tpu_monitor:radio",
+   "tpu_bench:radio",
+   "tpu_bios:radio",
+   "uup_view:tabs",
+   "bmd_platform:radio",
+   "bmd_product:radio",
+   "aff_platform:radio",
+   "aff_product:radio",
+   "nv_product:radio",
+   "nv_source:radio",
+   "nv_series:radio",
+   "nv_my_generations:checkboxes",
+   "nv_form:radio",
+   "uup_product:radio",
+   "uup_platform:radio",
+   "uup_edition:radio",
+   "uup_lang:radio",
+   "uup_lang_other:select",
+   "uup_preset:profile_buttons",
+   "uup_virtual:checkboxes",
+   "uup_apps_mode:radio",
+   "uup_apps_preset:profile_buttons",
+   "uup_apps_groups:toggle_buttons",
+   "uup_apps:checkboxes",
+   "driver_packages:checkboxes",
+   "vendor_pick:profile_buttons",
+   "vendor_portable_only:checkbox",
+   "vendor_versions:checkboxes",
+   "vendor_extract:checkbox",
+   "vendor_delete_zip:checkbox",
+   "uup_run:checkbox",
+   "uup_clean_cache:checkbox",
+   "vendor_flat:checkbox",
+   "bmd_reg_firstname:text",
+   "bmd_reg_lastname:text",
+   "bmd_reg_email:text",
+   "bmd_reg_phone:text",
+   "bmd_reg_country:text",
+   "bmd_reg_city:text",
+   "bmd_reg_street:text",
+   "bmd_reg_state:text"
+  ]
+ },
+ "vendor_link": {
+  "en": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "en-us",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": []
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "ru-ru",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": []
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "vendor:tabs",
+   "msc_kind:radio",
+   "msc_lan:radio",
+   "msc_wifi:radio",
+   "msc_bluetooth:radio",
+   "msc_audio:radio",
+   "msc_chipset:radio",
+   "prg_kind:radio",
+   "tpu_kind:radio",
+   "tpu_driver:radio",
+   "tpu_tool:radio",
+   "tpu_monitor:radio",
+   "tpu_bench:radio",
+   "tpu_bios:radio",
+   "uup_view:tabs",
+   "bmd_platform:radio",
+   "bmd_product:radio",
+   "aff_platform:radio",
+   "aff_product:radio",
+   "nv_product:radio",
+   "nv_source:radio",
+   "nv_series:radio",
+   "nv_my_generations:checkboxes",
+   "nv_form:radio",
+   "uup_product:radio",
+   "uup_platform:radio",
+   "uup_edition:radio",
+   "uup_lang:radio",
+   "uup_lang_other:select",
+   "uup_preset:profile_buttons",
+   "uup_virtual:checkboxes",
+   "uup_apps_mode:radio",
+   "uup_apps_preset:profile_buttons",
+   "uup_apps_groups:toggle_buttons",
+   "uup_apps:checkboxes",
+   "driver_packages:checkboxes",
+   "vendor_pick:profile_buttons",
+   "vendor_portable_only:checkbox",
+   "vendor_versions:checkboxes",
+   "vendor_extract:checkbox",
+   "vendor_delete_zip:checkbox",
+   "uup_run:checkbox",
+   "uup_clean_cache:checkbox",
+   "vendor_flat:checkbox",
+   "bmd_reg_firstname:text",
+   "bmd_reg_lastname:text",
+   "bmd_reg_email:text",
+   "bmd_reg_phone:text",
+   "bmd_reg_country:text",
+   "bmd_reg_city:text",
+   "bmd_reg_street:text",
+   "bmd_reg_state:text"
+  ]
+ },
+ "vendor_uup_adk": {
+  "en": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "validate_fields": false,
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "en-us",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "validate_fields": false,
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": [],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "validate_fields": false,
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "ru-ru",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "validate_fields": false,
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": [],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "vendor:tabs",
+   "msc_kind:radio",
+   "msc_lan:radio",
+   "msc_wifi:radio",
+   "msc_bluetooth:radio",
+   "msc_audio:radio",
+   "msc_chipset:radio",
+   "prg_kind:radio",
+   "tpu_kind:radio",
+   "tpu_driver:radio",
+   "tpu_tool:radio",
+   "tpu_monitor:radio",
+   "tpu_bench:radio",
+   "tpu_bios:radio",
+   "uup_view:tabs",
+   "bmd_platform:radio",
+   "bmd_product:radio",
+   "aff_platform:radio",
+   "aff_product:radio",
+   "nv_product:radio",
+   "nv_source:radio",
+   "nv_series:radio",
+   "nv_my_generations:checkboxes",
+   "nv_form:radio",
+   "uup_product:radio",
+   "uup_platform:radio",
+   "uup_edition:radio",
+   "uup_lang:radio",
+   "uup_lang_other:select",
+   "uup_preset:profile_buttons",
+   "uup_virtual:checkboxes",
+   "uup_apps_mode:radio",
+   "uup_apps_preset:profile_buttons",
+   "uup_apps_groups:toggle_buttons",
+   "uup_apps:checkboxes",
+   "driver_packages:checkboxes",
+   "vendor_pick:profile_buttons",
+   "vendor_portable_only:checkbox",
+   "vendor_versions:checkboxes",
+   "vendor_extract:checkbox",
+   "vendor_delete_zip:checkbox",
+   "uup_run:checkbox",
+   "uup_clean_cache:checkbox",
+   "vendor_flat:checkbox",
+   "bmd_reg_firstname:text",
+   "bmd_reg_lastname:text",
+   "bmd_reg_email:text",
+   "bmd_reg_phone:text",
+   "bmd_reg_country:text",
+   "bmd_reg_city:text",
+   "bmd_reg_street:text",
+   "bmd_reg_state:text"
+  ]
+ },
+ "vendor_winutil": {
+  "en": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "validate_fields": false,
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "en",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "en-us",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "validate_fields": false,
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": [],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "ru": {
+   "changed": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "output_path": "<root>\\output",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "validate_fields": false,
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "defaults": {
+    "aff_platform": "Windows",
+    "aff_product": "Affinity 3",
+    "bmd_platform": "Windows",
+    "bmd_product": "DaVinci Resolve Studio",
+    "bmd_reg_city": "",
+    "bmd_reg_country": "",
+    "bmd_reg_email": "",
+    "bmd_reg_firstname": "",
+    "bmd_reg_lastname": "",
+    "bmd_reg_phone": "",
+    "bmd_reg_state": "",
+    "bmd_reg_street": "",
+    "driver_packages": [],
+    "hide_window_filter": true,
+    "input_path": "<root>\\input",
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Realtek Bluetooth",
+    "msc_chipset": "Intel Management Engine",
+    "msc_kind": "lan",
+    "msc_lan": "Realtek LAN",
+    "msc_wifi": "Realtek Wi-Fi",
+    "nv_form": "desktop",
+    "nv_my_generations": [],
+    "nv_product": "Game Ready Driver",
+    "nv_series": "*",
+    "nv_source": "nvidia",
+    "output_path": "<root>\\output",
+    "prg_kind": "carrier",
+    "tpu_bench": "3DMark",
+    "tpu_bios": "NVIDIA NVFlash",
+    "tpu_driver": "AMD Radeon Graphics",
+    "tpu_kind": "drivers",
+    "tpu_monitor": "GPU-Z",
+    "tpu_tool": "Display Driver Uninstaller",
+    "ui_language": "ru",
+    "uup_apps": [
+     "Microsoft.WindowsStore_8wekyb3d8bbwe",
+     "Microsoft.StorePurchaseApp_8wekyb3d8bbwe",
+     "Microsoft.SecHealthUI_8wekyb3d8bbwe",
+     "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+     "Microsoft.WindowsNotepad_8wekyb3d8bbwe",
+     "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+     "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+     "Microsoft.ScreenSketch_8wekyb3d8bbwe",
+     "Microsoft.Paint_8wekyb3d8bbwe",
+     "Microsoft.WindowsCamera_8wekyb3d8bbwe",
+     "Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe",
+     "Microsoft.YourPhone_8wekyb3d8bbwe",
+     "Microsoft.WindowsAlarms_8wekyb3d8bbwe",
+     "Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe",
+     "Microsoft.Todos_8wekyb3d8bbwe",
+     "Microsoft.BingWeather_8wekyb3d8bbwe",
+     "Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe",
+     "Microsoft.WebMediaExtensions_8wekyb3d8bbwe",
+     "Microsoft.RawImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEIFImageExtension_8wekyb3d8bbwe",
+     "Microsoft.HEVCVideoExtension_8wekyb3d8bbwe",
+     "Microsoft.VP9VideoExtensions_8wekyb3d8bbwe",
+     "Microsoft.WebpImageExtension_8wekyb3d8bbwe",
+     "Microsoft.AV1VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.MPEG2VideoExtension_8wekyb3d8bbwe",
+     "Microsoft.AVCEncoderVideoExtension_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "media",
+    "uup_apps_mode": "custom",
+    "uup_apps_preset": "",
+    "uup_clean_cache": false,
+    "uup_edition": "professional",
+    "uup_lang": "ru-ru",
+    "uup_lang_other": "en-gb",
+    "uup_platform": "Windows",
+    "uup_preset": "",
+    "uup_product": "Windows 11",
+    "uup_run": true,
+    "uup_view": "versions",
+    "uup_virtual": [],
+    "validate_fields": false,
+    "vendor": "uupdump",
+    "vendor_delete_zip": true,
+    "vendor_extract": true,
+    "vendor_flat": false,
+    "vendor_pick": "",
+    "vendor_portable_only": false,
+    "vendor_versions": [],
+    "visible_when": {
+     "vendor": "uupdump"
+    }
+   },
+   "values": {
+    "aff_platform": "Mac OS X",
+    "aff_product": "*",
+    "bmd_platform": "Linux",
+    "bmd_product": "*",
+    "bmd_reg_city": "probe value",
+    "bmd_reg_country": "probe value",
+    "bmd_reg_email": "probe value",
+    "bmd_reg_firstname": "probe value",
+    "bmd_reg_lastname": "probe value",
+    "bmd_reg_phone": "probe value",
+    "bmd_reg_state": "probe value",
+    "bmd_reg_street": "probe value",
+    "driver_packages": [
+     "Probe.Package"
+    ],
+    "msc_audio": "Realtek Audio",
+    "msc_bluetooth": "Broadcom Bluetooth",
+    "msc_chipset": "Intel RST VMD",
+    "msc_kind": "chipset",
+    "msc_lan": "Marvell AQtion",
+    "msc_wifi": "Killer Wi-Fi",
+    "nv_form": "notebook",
+    "nv_my_generations": [
+     "Probe.Package"
+    ],
+    "nv_product": "DLSS Ray Reconstruction DLL",
+    "nv_series": "GTX 400",
+    "nv_source": "techpowerup",
+    "prg_kind": "games",
+    "tpu_bench": "ATTO Disk Benchmark",
+    "tpu_bios": "AMDVBFlash",
+    "tpu_driver": "Qualcomm Snapdragon X Graphics",
+    "tpu_kind": "bios",
+    "tpu_monitor": "Real Temp",
+    "tpu_tool": "MemTest64",
+    "uup_apps": [
+     "Microsoft.Edge",
+     "Microsoft.Windows.Photos_8wekyb3d8bbwe"
+    ],
+    "uup_apps_groups": "tools",
+    "uup_apps_mode": "none",
+    "uup_apps_preset": "probe value",
+    "uup_clean_cache": true,
+    "uup_edition": "coren",
+    "uup_lang": "other",
+    "uup_lang_other": "zh-tw",
+    "uup_platform": "Windows ARM",
+    "uup_preset": "probe value",
+    "uup_product": "Windows 11 Insider",
+    "uup_run": false,
+    "uup_view": "drivers",
+    "uup_virtual": [
+     "Enterprise",
+     "IoTEnterprise"
+    ],
+    "vendor": "programs",
+    "vendor_delete_zip": false,
+    "vendor_extract": false,
+    "vendor_flat": true,
+    "vendor_pick": "probe value",
+    "vendor_portable_only": true,
+    "vendor_versions": [
+     "Probe.Package"
+    ]
+   }
+  },
+  "signature": [
+   "vendor:tabs",
+   "msc_kind:radio",
+   "msc_lan:radio",
+   "msc_wifi:radio",
+   "msc_bluetooth:radio",
+   "msc_audio:radio",
+   "msc_chipset:radio",
+   "prg_kind:radio",
+   "tpu_kind:radio",
+   "tpu_driver:radio",
+   "tpu_tool:radio",
+   "tpu_monitor:radio",
+   "tpu_bench:radio",
+   "tpu_bios:radio",
+   "uup_view:tabs",
+   "bmd_platform:radio",
+   "bmd_product:radio",
+   "aff_platform:radio",
+   "aff_product:radio",
+   "nv_product:radio",
+   "nv_source:radio",
+   "nv_series:radio",
+   "nv_my_generations:checkboxes",
+   "nv_form:radio",
+   "uup_product:radio",
+   "uup_platform:radio",
+   "uup_edition:radio",
+   "uup_lang:radio",
+   "uup_lang_other:select",
+   "uup_preset:profile_buttons",
+   "uup_virtual:checkboxes",
+   "uup_apps_mode:radio",
+   "uup_apps_preset:profile_buttons",
+   "uup_apps_groups:toggle_buttons",
+   "uup_apps:checkboxes",
+   "driver_packages:checkboxes",
+   "vendor_pick:profile_buttons",
+   "vendor_portable_only:checkbox",
+   "vendor_versions:checkboxes",
+   "vendor_extract:checkbox",
+   "vendor_delete_zip:checkbox",
+   "uup_run:checkbox",
+   "uup_clean_cache:checkbox",
+   "vendor_flat:checkbox",
+   "bmd_reg_firstname:text",
+   "bmd_reg_lastname:text",
+   "bmd_reg_email:text",
+   "bmd_reg_phone:text",
+   "bmd_reg_country:text",
+   "bmd_reg_city:text",
+   "bmd_reg_street:text",
+   "bmd_reg_state:text"
+  ]
+ }
+}

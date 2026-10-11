@@ -60,6 +60,50 @@ class JobResult:
     data: dict[str, Any]
 
 
+# A parameter of these names is a secret: the GitHub token goes to its service as a parameter,
+# and the line "Parameters: ..." went to the screen and into the log file with the token in it.
+SENSITIVE_PARAMETER_PARTS = (
+    "password",
+    "passwd",
+    "passphrase",
+    "secret",
+    "token",
+    "apikey",
+    "api_key",
+    "access_key",
+    "private_key",
+    "credential",
+)
+
+
+def redact_parameters(value: Any) -> Any:
+    """The parameters as they may be shown: a secret is replaced, an empty one stays empty."""
+    if isinstance(value, dict):
+        result: dict[str, Any] = {}
+        for key, item in value.items():
+            key_text = str(key)
+            lowered = key_text.lower()
+            # `llm_max_output_tokens` is a number of tokens, not a token.
+            if any(part in lowered for part in SENSITIVE_PARAMETER_PARTS) and not lowered.endswith("_tokens"):
+                result[key_text] = "***REDACTED***" if item not in {"", None} else item
+            else:
+                result[key_text] = redact_parameters(item)
+        return result
+    if isinstance(value, list):
+        return [redact_parameters(item) for item in value]
+    return value
+
+
+def stopped_by_person(context: "JobContext", error: BaseException) -> bool:
+    """A service stopped because Cancel was pressed, not because something broke.
+
+    The services say it differently - `OperationCancelledError` of WinGet, a `RuntimeError`
+    "Cancelled: ..." of the downloads - and all of them only after they asked `cancelled()` and
+    got "yes". So both are needed: the stop was asked for, and the error says it is one.
+    """
+    return context.cancelled() and "cancel" in f"{error.__class__.__name__} {error}".lower()
+
+
 def utf8_subprocess_env(extra: dict[str, str] | None = None) -> dict[str, str]:
     env = os.environ.copy()
     env.setdefault("PYTHONUTF8", "1")
@@ -124,7 +168,8 @@ def execute_operation(
     try:
         context.log(f"Starting operation: {operation.id}")
         if operation.parameters:
-            context.log(f"Parameters: {json.dumps(operation.parameters, ensure_ascii=False, sort_keys=True)}")
+            shown = redact_parameters(operation.parameters)
+            context.log(f"Parameters: {json.dumps(shown, ensure_ascii=False, sort_keys=True, default=str)}")
         context.progress(0.0)
         result = _load_callable(operation.service)(context)
         context.progress(1.0)
@@ -135,8 +180,19 @@ def execute_operation(
         return JobResult(True, str(result or "Operation finished."), {})
 
     except Exception as exc:
+        if stopped_by_person(context, exc):
+            # Nothing failed: one line, not the traceback a failure gets.
+            context.log(f"Stopped: {exc}")
+            return JobResult(False, f"{exc.__class__.__name__}: {exc}", {"cancelled": True})
         context.log(traceback.format_exc())
         return JobResult(False, f"{exc.__class__.__name__}: {exc}", {})
 
     finally:
         context.activity("")
+        # The folder is made before the operation so that it may write at once; most operations
+        # write nothing there (a command of the terminal line never does), and an empty folder
+        # for each of them only grows report\. rmdir takes an empty folder alone.
+        try:
+            report_dir.rmdir()
+        except OSError:
+            pass

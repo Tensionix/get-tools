@@ -191,8 +191,6 @@ licenses/
 # No marker needed: these are never expected to exist in a fresh clone.
 node_modules/
 ._runtime/
-_pwsh_tmp/
-system_core/powershell/
 temp/
 tmp/
 backup/
@@ -208,12 +206,37 @@ _audion_docs/
 config/keys/
 config/ssh/
 config/rclone/
+# This project keeps its keys right in config: the keys of the LLM providers, the cache
+# of their names, the GitHub token. And what a window remembers about a person's paths.
+config/api_key_*.txt
+config/gui_*_cache.json
+config/*.dpapi
+config/path_history.json
+config/terminal_commands.json
 .env
 .env.*
 !.env.example
 !.env.sample
 *.local.json
 *credential*
+
+# --- the window on Avalonia (Source) ---
+# Its markup, its project file and the fonts it carries are its source; what a build leaves
+# and the built program are not.
+!Source/**/*.axaml
+!Source/*.csproj
+# The PowerShell the program carries (App\AudionPs.exe) is a project of its own.
+!Source/Ps/*.csproj
+!Source/app.manifest
+!Source/Assets/**
+# The rule `tools/` above hides a folder of that name at any depth: the generator of the window's signs is source.
+!Source/Tools/
+Source/bin/
+Source/obj/
+Source/Ps/bin/
+Source/Ps/obj/
+/App/
+/config/window_settings.json*
 
 # Generated documents: rebuilt by Audion Build PDF Render, shipped in archives.
 Docs/PDF/

@@ -29,16 +29,13 @@ goto FALLBACK_MENU
 >"%MENU_FILE%" echo [01] PYTHON ENV CMD                        ^| build_cmd         ^| build portable runtime via CMD
 >>"%MENU_FILE%" echo [02] PYTHON ENV PS                         ^| build_ps          ^| optional PowerShell env builder
 >>"%MENU_FILE%" echo [03] FZF                                   ^| update_fzf        ^| install/update system_core\fzf.exe
->>"%MENU_FILE%" echo [04] POWERSHELL                            ^| install_pwsh      ^| install portable PowerShell
->>"%MENU_FILE%" echo [05] PORTABLE 7-ZIP                        ^| install_7zip      ^| install portable 7-Zip tools
+>>"%MENU_FILE%" echo [06] WINDOW                                ^| build_app         ^| rebuild App\ - the window and its PowerShell
 >>"%MENU_FILE%" echo.
->>"%MENU_FILE%" echo [70] CLEAN INSTALL CACHE                   ^| clean_cache       ^| clean install cache/staging/bytecode
->>"%MENU_FILE%" echo [71] VERIFY / DOCTOR                       ^| verify            ^| run portable environment checks
+>>"%MENU_FILE%" echo [70] CLEAN INSTALL CACHE                   ^| clean_cache       ^| install cache, bytecode, bin and obj of Source
+>>"%MENU_FILE%" echo [71] VERIFY / DOCTOR                       ^| verify            ^| the environment, get_cli.cmd, the built window
 >>"%MENU_FILE%" echo [72] CMD ENCODING CHECK                    ^| cmd_encoding      ^| UTF-8 no-BOM CRLF check/fix
->>"%MENU_FILE%" echo [77] MAKE RELEASE ARCHIVE                  ^| release           ^| stage and create release zip
 >>"%MENU_FILE%" echo.
 >>"%MENU_FILE%" echo [90] PROJECT LAUNCHER                      ^| project           ^| open project workflow menu
->>"%MENU_FILE%" echo [93] GUI LAUNCHER                          ^| gui               ^| open desktop GUI
 >>"%MENU_FILE%" echo.
 >>"%MENU_FILE%" echo [95] OPEN install                          ^| open_install      ^| explorer install
 >>"%MENU_FILE%" echo [96] OPEN runtime                          ^| open_runtime      ^| explorer runtime
@@ -63,12 +60,11 @@ if /I "%RAW%"=="build_ps" goto BUILD_PS
 if /I "%RAW%"=="update_fzf" goto UPDATE_FZF
 if /I "%RAW%"=="install_pwsh" goto INSTALL_PWSH
 if /I "%RAW%"=="install_7zip" goto INSTALL_7ZIP
+if /I "%RAW%"=="build_app" goto BUILD_APP
 if /I "%RAW%"=="clean_cache" goto CLEAN_CACHE
 if /I "%RAW%"=="verify" goto VERIFY
 if /I "%RAW%"=="cmd_encoding" goto CMD_ENCODING
-if /I "%RAW%"=="release" goto RELEASE
 if /I "%RAW%"=="project" goto PROJECT
-if /I "%RAW%"=="gui" goto GUI
 if /I "%RAW%"=="open_install" goto OPEN_INSTALL
 if /I "%RAW%"=="open_runtime" goto OPEN_RUNTIME
 if /I "%RAW%"=="open_wheels" goto OPEN_WHEELS
@@ -82,16 +78,13 @@ goto MAIN
 echo [01] PYTHON ENV CMD
 echo [02] PYTHON ENV PS
 echo [03] FZF
-echo [04] POWERSHELL
-echo [05] PORTABLE 7-ZIP
+echo [06] WINDOW
 echo.
 echo [70] CLEAN INSTALL CACHE
 echo [71] VERIFY / DOCTOR
 echo [72] CMD ENCODING CHECK
-echo [77] MAKE RELEASE ARCHIVE
 echo.
 echo [90] PROJECT LAUNCHER
-echo [93] GUI LAUNCHER
 echo.
 echo [95] OPEN install
 echo [96] OPEN runtime
@@ -121,18 +114,17 @@ if /I "%RAW%"=="install_pwsh" goto INSTALL_PWSH
 if /I "%RAW%"=="05" goto INSTALL_7ZIP
 if /I "%RAW%"=="5" goto INSTALL_7ZIP
 if /I "%RAW%"=="install_7zip" goto INSTALL_7ZIP
+if /I "%RAW%"=="06" goto BUILD_APP
+if /I "%RAW%"=="6" goto BUILD_APP
+if /I "%RAW%"=="build_app" goto BUILD_APP
 if /I "%RAW%"=="70" goto CLEAN_CACHE
 if /I "%RAW%"=="clean_cache" goto CLEAN_CACHE
 if /I "%RAW%"=="71" goto VERIFY
 if /I "%RAW%"=="verify" goto VERIFY
 if /I "%RAW%"=="72" goto CMD_ENCODING
 if /I "%RAW%"=="cmd_encoding" goto CMD_ENCODING
-if /I "%RAW%"=="77" goto RELEASE
-if /I "%RAW%"=="release" goto RELEASE
 if /I "%RAW%"=="90" goto PROJECT
 if /I "%RAW%"=="project" goto PROJECT
-if /I "%RAW%"=="93" goto GUI
-if /I "%RAW%"=="gui" goto GUI
 if /I "%RAW%"=="95" goto OPEN_INSTALL
 if /I "%RAW%"=="open_install" goto OPEN_INSTALL
 if /I "%RAW%"=="96" goto OPEN_RUNTIME
@@ -157,12 +149,24 @@ goto MAIN
 call "%BASE_DIR%\install\Build_Portable_Env.cmd"
 goto MAIN
 
+rem Step 04 installed a portable PowerShell into system_core\powershell. The program carries its
+rem own since 3.0.0 - App\AudionPs.exe, built with the window (step 06). A build map that still
+rem names the step is answered, not left without a word.
 :INSTALL_PWSH
-call "%BASE_DIR%\install\Install-Portable-PowerShell.cmd"
+echo [SKIP] Step 04 is gone: the PowerShell of the program is App\AudionPs.exe. Take 04:install_pwsh off the build map.
 goto MAIN
 
+rem Step 05 installed a portable 7-Zip. Only the portable browsers called it, and the program has
+rem none since 3.0.0. A build map that still names the step is answered, not left without a word.
 :INSTALL_7ZIP
-call "%BASE_DIR%\install\Install-Portable-7Zip.cmd"
+echo [SKIP] Step 05 is gone: the program no longer carries a portable 7-Zip. Take 05:install_7zip off the build map.
+goto MAIN
+
+rem The window is App\, built from Source\ with its own .NET runtime. It is a hand step: the
+rem steps of a release update what the engine runs on, and App\ travels as it was built.
+:BUILD_APP
+call "%BASE_DIR%\install\Build-App.cmd" /NOPAUSE
+if not defined AUDION_NO_PAUSE pause
 goto MAIN
 
 :VERIFY
@@ -176,10 +180,6 @@ goto MAIN
 
 :UPDATE_FZF
 call "%BASE_DIR%\install\launcher-tools-update_fzf.cmd"
-goto MAIN
-
-:RELEASE
-call "%BASE_DIR%\install\make_release_archive.cmd"
 goto MAIN
 
 :CLEAN_CACHE
@@ -212,10 +212,6 @@ goto MAIN
 
 :PROJECT
 call "%BASE_DIR%\launcher_project.cmd"
-goto MAIN
-
-:GUI
-call "%BASE_DIR%\launcher_gui.cmd"
 goto MAIN
 
 :TRIM

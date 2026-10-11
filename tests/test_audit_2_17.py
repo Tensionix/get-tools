@@ -14,10 +14,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
 
-from system_core.core.jobs import execute_operation
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from system_core.core.jobs import execute_operation  # noqa: E402
 from system_core.core.manifest import Operation
 from system_core.core.paths import ensure_project_dirs, get_project_paths
-from system_core.services import portable_browser_service as browsers
 from system_core.services import winget_service as winget
 
 
@@ -69,6 +72,29 @@ class CancelTests(AuditCase):
         self.assertFalse(result.ok)
         time.sleep(2.5)
         self.assertFalse((self.paths.root / "survived.txt").exists())
+
+
+class ReportFolderTests(AuditCase):
+    """The acceptance of 11.10.2026: a command of the terminal line left an empty folder in report\\ each time."""
+
+    def test_an_operation_that_wrote_no_report_leaves_no_folder(self) -> None:
+        result = execute_operation(self.paths, operation("quiet", "tests.door_probe_service:done", {"word": "x"}))
+        self.assertTrue(result.ok, result.message)
+        self.assertEqual(list(self.paths.report.iterdir()), [])
+        # Its log is another matter: that one stays.
+        self.assertEqual(len(list(self.paths.logs.glob("*_quiet.log"))), 1)
+
+    def test_a_failed_operation_leaves_no_empty_folder_either(self) -> None:
+        result = execute_operation(self.paths, operation("fails", "tests.door_probe_service:broken", {}))
+        self.assertFalse(result.ok)
+        self.assertEqual(list(self.paths.report.iterdir()), [])
+
+    def test_a_report_that_was_written_stays(self) -> None:
+        result = execute_operation(self.paths, operation("loud", "tests.door_probe_service:writes_report", {}))
+        self.assertTrue(result.ok, result.message)
+        folders = list(self.paths.report.iterdir())
+        self.assertEqual(len(folders), 1)
+        self.assertEqual((folders[0] / "summary.txt").read_text(encoding="utf-8"), "probe")
 
 
 @unittest.skipUnless(sys.platform == "win32", "CMD quoting is Windows")
@@ -125,19 +151,23 @@ class TruncatedDownloadTests(AuditCase):
         server = ThreadingHTTPServer(("127.0.0.1", 0), _Truncating)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
+        target = self.paths.output / "Downloads" / "fixture.bin"
         try:
-            op = operation("chrome", "system_core.services.portable_browser_service:download_google_chrome_web", {})
-            with patch.object(browsers, "CHROME_WEB_INSTALLER_URL", f"http://127.0.0.1:{server.server_port}/fixture.bin"):
-                first = execute_operation(self.paths, op)
-                _Truncating.full = True
-                second = execute_operation(self.paths, op)
+            op = operation("fetch", "tests.download_probe_service:fetch",
+                           {"url": f"http://127.0.0.1:{server.server_port}/fixture.bin", "target": str(target)})
+            first = execute_operation(self.paths, op)
+            # Nothing stands under the name of the file, and no half of it is left beside.
+            self.assertEqual(list(target.parent.glob("*")), [])
+            _Truncating.full = True
+            second = execute_operation(self.paths, op)
         finally:
             server.shutdown()
             server.server_close()
             thread.join()
         self.assertFalse(first.ok)
+        self.assertIn("Download incomplete", first.message)
         self.assertTrue(second.ok, second.message)
-        self.assertEqual(second.data.get("size"), 4096)
+        self.assertEqual((second.data.get("size"), target.stat().st_size), (4096, 4096))
         self.assertEqual(_Truncating.requests, 2)
 
 
@@ -157,6 +187,46 @@ class WingetDownloadErrorTests(AuditCase):
             result = execute_operation(self.paths, op)
         self.assertFalse(result.ok)
         self.assertIn("dependency.msix", result.message)
+
+
+class ClearFoldersTests(AuditCase):
+    """`Clear I/O`: both folders are checked before anything is removed (the audit of 10.10.2026, finding 6)."""
+
+    def _fill(self) -> tuple[Path, Path]:
+        kept = self.paths.input / "export.json"
+        kept.write_text("{}", encoding="utf-8")
+        built = self.paths.output / "Build" / "setup.exe"
+        built.parent.mkdir(parents=True)
+        built.write_bytes(b"x")
+        return kept, built
+
+    def test_the_two_folders_of_the_program_are_emptied(self) -> None:
+        kept, built = self._fill()
+        result = execute_operation(self.paths, operation("clear", "system_core.services.winget_service:cleanup_input_output", {}))
+        self.assertTrue(result.ok, result.message)
+        self.assertEqual(result.data["removed_items"], 2)
+        self.assertFalse(kept.exists() or built.parent.exists())
+        self.assertTrue(self.paths.input.is_dir() and self.paths.output.is_dir())
+
+    def test_an_output_outside_the_program_refuses_before_input_is_touched(self) -> None:
+        kept, _built = self._fill()
+        elsewhere = Path(self._temp.name) / "Downloads Elsewhere"
+        elsewhere.mkdir()
+        theirs = elsewhere / "a file of the person.txt"
+        theirs.write_text("mine", encoding="utf-8")
+        result = execute_operation(self.paths, operation("clear", "system_core.services.winget_service:cleanup_input_output",
+                                                         {"output_path": str(elsewhere)}))
+        self.assertFalse(result.ok)
+        self.assertIn("outside project root", result.message)
+        self.assertTrue(kept.exists(), "input was emptied before output was checked")
+        self.assertTrue(theirs.exists())
+        # Nor is a folder that is not there made on the way to the refusal.
+        missing = Path(self._temp.name) / "Not There"
+        result = execute_operation(self.paths, operation("clear", "system_core.services.winget_service:cleanup_input_output",
+                                                         {"input_path": str(missing)}))
+        self.assertFalse(result.ok)
+        self.assertFalse(missing.exists())
+        self.assertTrue(kept.exists())
 
 
 if __name__ == "__main__":

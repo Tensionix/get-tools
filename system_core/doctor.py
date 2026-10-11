@@ -7,8 +7,6 @@ import sys
 
 
 REQUIRED_MODULES = [
-    ("nicegui", "nicegui"),
-    ("webview", "pywebview"),
     ("yaml", "pyyaml"),
     ("rich", "rich"),
     ("tqdm", "tqdm"),
@@ -118,37 +116,11 @@ def check_cmd_encoding(root: Path) -> tuple[bool, list[tuple[str, bool, str]]]:
     return all_ok, rows
 
 
-def check_gui_theme_catalog(root: Path) -> tuple[bool, list[tuple[str, bool, str]]]:
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
-
-    try:
-        from system_core.core.config import load_yaml_or_json  # noqa: WPS433
-        from system_core.core.ui_theme_catalog import validate_theme_catalog  # noqa: WPS433
-    except Exception as exc:
-        return False, [("(loader)", False, f"{exc.__class__.__name__}: {exc}")]
-
-    try:
-        data = load_yaml_or_json(root / "config" / "ui_colors.yaml")
-    except Exception as exc:
-        return False, [("catalog", False, f"{exc.__class__.__name__}: {exc}")]
-
-    result = validate_theme_catalog(data)
-    if not result.ok:
-        return False, [("catalog", False, error) for error in result.errors]
-
-    rows = [
-        ("theme order", True, f"core prefix OK; {len(result.theme_ids)} theme(s)"),
-        ("extension themes", True, ", ".join(result.extra_theme_ids) or "none"),
-    ]
-    return True, rows
-
-
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
 
     print("======================================================================")
-    print("AUDION GET TOOLS - GUI DOCTOR")
+    print("AUDION GET TOOLS - DOCTOR")
     print("======================================================================")
     print(f"Project root : {root}")
     print(f"Executable   : {sys.executable}")
@@ -175,14 +147,6 @@ def main() -> int:
     if not manifest_ok:
         failed = True
 
-    print()
-    print("[GUI themes]")
-    themes_ok, theme_rows = check_gui_theme_catalog(root)
-    for label, result_ok, detail in theme_rows:
-        status = "OK" if result_ok else "FAIL"
-        print(f"  - {label:<28} : {status:<4} {detail}")
-    if not themes_ok:
-        failed = True
 
     print()
     print("[CMD encoding]")
@@ -198,7 +162,7 @@ def main() -> int:
         print("[RESULT] One or more checks failed.")
         return 1
 
-    print("[RESULT] Required GUI environment looks good.")
+    print("[RESULT] The environment looks good.")
     return 0
 
 

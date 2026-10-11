@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Audion Get Tools</title>
+  <desc id="desc">Three application modules and a bold download arrow on a graphite rounded tile.</desc>
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1C2C3E"/>
+      <stop offset="0.55" stop-color="#111D2C"/>
+      <stop offset="1" stop-color="#080F19"/>
+    </linearGradient>
+    <radialGradient id="ambient" cx="264" cy="196" r="740" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#46C9C0" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#46C9C0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ms" x1="172" y1="164" x2="448" y2="458" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#71EFFF"/>
+      <stop offset="0.45" stop-color="#38C0FF"/>
+      <stop offset="1" stop-color="#118EE2"/>
+    </linearGradient>
+    <linearGradient id="nvidia" x1="168" y1="540" x2="448" y2="834" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B7E94B"/>
+      <stop offset="0.48" stop-color="#76B900"/>
+      <stop offset="1" stop-color="#4E8500"/>
+    </linearGradient>
+    <linearGradient id="blackmagic" x1="576" y1="540" x2="870" y2="834" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FAA735"/>
+      <stop offset="0.42" stop-color="#E06E34"/>
+      <stop offset="1" stop-color="#BC693D"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="680" y1="160" x2="762" y2="466" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="0.62" stop-color="#F5FCFF"/>
+      <stop offset="1" stop-color="#D5EDF5"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="160" y1="144" x2="868" y2="836" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.05"/>
+    </linearGradient>
+    <clipPath id="tile"><rect width="1024" height="1024" rx="224"/></clipPath>
+  </defs>
+
+  <rect width="1024" height="1024" rx="224" fill="url(#base)"/>
+  <g clip-path="url(#tile)">
+    <rect width="1024" height="1024" fill="url(#ambient)"/>
+    <rect x="1" y="1" width="1022" height="1022" rx="223" fill="none" stroke="url(#rim)" stroke-width="2" opacity="0.34"/>
+  </g>
+
+  <g fill="#020A12" opacity="0.3" transform="translate(0 28)">
+    <rect x="154" y="164" width="294" height="294" rx="72"/>
+    <rect x="154" y="540" width="294" height="294" rx="72"/>
+    <rect x="576" y="540" width="294" height="294" rx="72"/>
+  </g>
+  <rect x="154" y="178" width="294" height="294" rx="72" fill="#075A8C"/>
+  <rect x="154" y="554" width="294" height="294" rx="72" fill="#345B00"/>
+  <rect x="576" y="554" width="294" height="294" rx="72" fill="#703E29"/>
+
+  <rect x="154" y="164" width="294" height="294" rx="72" fill="url(#ms)"/>
+  <rect x="154" y="540" width="294" height="294" rx="72" fill="url(#nvidia)"/>
+  <rect x="576" y="540" width="294" height="294" rx="72" fill="url(#blackmagic)"/>
+  <g fill="none" stroke="url(#rim)" stroke-width="2">
+    <rect x="155" y="165" width="292" height="292" rx="71"/>
+    <rect x="155" y="541" width="292" height="292" rx="71"/>
+    <rect x="577" y="541" width="292" height="292" rx="71"/>
+  </g>
+
+  <path d="M689 160H751Q779 160 779 188V310H830Q846 310 835 324L735 454Q720 474 705 454L605 324Q594 310 610 310H661V188Q661 160 689 160Z" fill="#020A12" opacity="0.3" transform="translate(0 20)"/>
+  <path d="M689 160H751Q779 160 779 188V310H830Q846 310 835 324L735 454Q720 474 705 454L605 324Q594 310 610 310H661V188Q661 160 689 160Z" fill="url(#arrow)"/>
+</svg>

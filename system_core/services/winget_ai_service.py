@@ -114,7 +114,7 @@ def _write_json_cache(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def _option(value: str, label: str, label_ru: str | None = None, **extra: str) -> dict[str, str]:
+def _option(value: str, label: str, label_ru: str | None = None, **extra: Any) -> dict[str, Any]:
     return {"value": value, "label": label, "label_ru": label_ru or label, **extra}
 
 
@@ -299,11 +299,66 @@ def _delete_model_cache_entry(provider: str, model_id: str) -> None:
     _write_model_cache(payload)
 
 
+def _pinned_first(provider: str, options: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The pinned models first, in the order they were pinned, each marked as pinned.
+
+    The line of the default (its value is empty) stays at the head, a word of trouble (its value
+    begins with "__") at the foot. A pinned model the provider did not list - this key does not
+    see it - stands among the pinned all the same: it was chosen by a person.
+    """
+    def value(option: dict[str, Any]) -> str:
+        return str(option.get("value") or "").strip()
+
+    pinned = _pinned_models(provider)
+    known = {value(option): option for option in options}
+    first: list[dict[str, Any]] = []
+    for model_id in pinned:
+        option = dict(known.get(model_id) or _option(model_id, _model_label_with_status(provider, model_id)))
+        option["pinned"] = True
+        first.append(option)
+    rest = []
+    for option in options:
+        if value(option) and not value(option).startswith("__") and value(option) not in pinned:
+            rest.append({key: item for key, item in option.items() if key != "pinned"})
+    head = [option for option in options if not value(option)]
+    foot = [option for option in options if value(option).startswith("__")]
+    return [*head, *first, *rest, *foot]
+
+
+PIN_FIELDS = {
+    "openai_model": ("model", "openai"),
+    "gemini_model": ("model", "gemini"),
+    "openai_api_key_ref": ("key", "openai"),
+    "gemini_api_key_ref": ("key", "gemini"),
+    "ai_prompt_ref": ("prompt", ""),
+}
+
+
+def pin_option(field_id: str, value: str, pinned: bool) -> None:
+    """Pin an option of a list of this service to the head of its list, or take the pin off.
+
+    What a field of the manifest names in `pins`: a window calls it through the console command
+    (`pin`) when the pin of a line is pressed. A model, a reference to a key, a saved instruction.
+    """
+    what, provider = PIN_FIELDS.get(str(field_id or "").strip(), ("", ""))
+    value = str(value or "").strip()
+    if not what:
+        raise ValueError(f"the field {field_id!r} has no pins")
+    if not value or value.startswith("__"):
+        raise ValueError("this line of the list is not an option to pin")
+    if what == "model":
+        (_pin_model if pinned else _unpin_model)(provider, value)
+    elif what == "key":
+        (_pin_api_key if pinned else _unpin_api_key)(provider, value)
+    else:
+        (_pin_prompt_ref if pinned else _unpin_prompt_ref)(value)
+
+
 def _model_options_from_cache(provider: str) -> list[dict[str, str]]:
     options: list[dict[str, str]] = []
     for model_id in _pinned_models(provider):
         label = _model_label_with_status(provider, model_id)
-        options.append(_option(model_id, label, label, pinned="true"))
+        options.append(_option(model_id, label, label, pinned=True))
     for model_id in _cached_models(provider):
         label = _model_label_with_status(provider, model_id)
         options.append(_option(model_id, label, label))
@@ -368,14 +423,16 @@ def _api_key_option_label(entry: dict[str, str]) -> str:
 
 
 def _api_key_options(provider: str) -> list[dict[str, str]]:
-    options = [_option("", "Config/env default", "По умолчанию из env/config")]
+    options = [_option("", "Default", "По умолчанию",
+                       tooltip="The key the configuration or the environment names for this provider.",
+                       tooltip_ru="Ключ, который для этого провайдера назван в конфигурации или в переменной окружения.")]
     entries = api_key_entries(provider)
     by_ref = {entry.get("ref", ""): entry for entry in entries}
     for key_ref in _pinned_key_refs(provider):
         entry = by_ref.get(key_ref)
         if entry:
             label = _api_key_option_label(entry)
-            options.append(_option(key_ref, label, label, pinned="true"))
+            options.append(_option(key_ref, label, label, pinned=True))
     for entry in entries:
         key_ref = entry.get("ref", "")
         if not key_ref:
@@ -431,7 +488,7 @@ def openai_model_options(root: Path | str | None = None, values: dict[str, Any] 
         key_ref = _key_ref_from_values("openai", values)
         api_key = resolve_api_key("openai", settings, key_ref=key_ref)
         if not api_key:
-            return [*base_options, *cache_options, _option("__missing_key__", "OpenAI API key not found", "OpenAI API key не найден")]
+            return _pinned_first("openai", _dedupe_options([*base_options, *cache_options, _option("__missing_key__", "OpenAI API key not found", "OpenAI API key не найден")]))
         client = OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
         models = client.models.list()
         model_ids = sorted(
@@ -447,7 +504,7 @@ def openai_model_options(root: Path | str | None = None, values: dict[str, Any] 
         message = f"OpenAI model request failed: {exc.__class__.__name__}: {exc}"
         options.extend(cache_options)
         options.append(_option("__request_failed__", message, message))
-    return _dedupe_options(options)
+    return _pinned_first("openai", _dedupe_options(options))
 
 
 def gemini_model_options(root: Path | str | None = None, values: dict[str, Any] | None = None) -> list[dict[str, str]]:
@@ -462,7 +519,7 @@ def gemini_model_options(root: Path | str | None = None, values: dict[str, Any] 
         key_ref = _key_ref_from_values("gemini", values)
         api_key = resolve_api_key("gemini", settings, key_ref=key_ref)
         if not api_key:
-            return [*base_options, *cache_options, _option("__missing_key__", "Gemini API key not found", "Gemini API key не найден")]
+            return _pinned_first("gemini", _dedupe_options([*base_options, *cache_options, _option("__missing_key__", "Gemini API key not found", "Gemini API key не найден")]))
         client = genai.Client(api_key=api_key)
         model_ids: list[str] = []
         for model in client.models.list():
@@ -485,7 +542,7 @@ def gemini_model_options(root: Path | str | None = None, values: dict[str, Any] 
         message = f"Gemini model request failed: {exc.__class__.__name__}: {exc}"
         options.extend(cache_options)
         options.append(_option("__request_failed__", message, message))
-    return _dedupe_options(options)
+    return _pinned_first("gemini", _dedupe_options(options))
 
 
 def _selected_api_key_ref(params: dict[str, Any], provider: str) -> str:
@@ -636,7 +693,7 @@ def ai_package_prompt_options(root: Path | str | None = None) -> list[dict[str, 
         entry = by_ref.get(ref)
         if entry:
             label = _prompt_option_label(entry)
-            options.append(_option(ref, label, label, pinned="true"))
+            options.append(_option(ref, label, label, pinned=True))
     frequent = sorted(entries, key=lambda item: int(item.get("usage_count") or 0), reverse=True)
     for entry in frequent:
         ref = str(entry.get("ref") or "").strip()
