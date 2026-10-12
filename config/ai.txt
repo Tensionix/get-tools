@@ -8,3 +8,6 @@ GitHub.Copilot
 xAI.GrokBuild
 SST.opencode
 Ollama.Ollama
+Comfy.ComfyUI-Desktop
+ElementLabs.LMStudio
+Upscayl.Upscayl

@@ -9,6 +9,9 @@ Inkscape.Inkscape
 ImageMagick.ImageMagick
 IrfanSkiljan.IrfanView
 XnSoft.XnViewMP
+darktable.darktable
+OliverBetz.ExifTool
+BlenderFoundation.Blender
 
 # Audio
 PeterPawlowski.foobar2000

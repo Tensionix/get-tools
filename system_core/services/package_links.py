@@ -98,6 +98,7 @@ PACKAGE_ARCHIVE_TYPES: dict[str, str] = {
     # System and dev.
     "microsoft.sysinternals.processexplorer": "zip",
     "microsoft.sysinternals.autoruns": "zip",
+    "microsoft.sysinternals.processmonitor": "zip",
     "voidtools.everything": "zip",
     "notepad++.notepad++": "zip",
     "rhash.rhash": "zip",
@@ -111,6 +112,8 @@ PACKAGE_ARCHIVE_TYPES: dict[str, str] = {
     "rufus.rufus": "portable",
     # Office and images.
     "sumatrapdf.sumatrapdf": "portable",
+    # pandoc is one zip with the command-line binary inside, as rclone is.
+    "johnmacfarlane.pandoc": "zip",
     "xnsoft.xnviewmp": "zip",
     # Audio and video.
     "audacity.audacity": "zip",
@@ -173,6 +176,33 @@ PACKAGE_GITHUB_BUILDS: dict[str, GithubBuilds] = {
     "clement.bottom": GithubBuilds(
         repo="ClementTsang/bottom",
         archive=r"bottom_x86_64-pc-windows-msvc\.zip",
+    ),
+    # The five below came with 3.1.0. WinGet carries the installer of each, and that button stays
+    # with WinGet; the portable zip lies in the release on GitHub beside it. The names are those of
+    # 12.10.2026, and a pattern is matched whole - the neighbours of a release (another archive
+    # format, the installer, arm, the console build) are not taken.
+    # QuickLook 4.5.0: .7z, .appx, .exe, .msi and .zip of one name.
+    "ql-win.quicklook": GithubBuilds(
+        repo="QL-Win/QuickLook",
+        archive=r"QuickLook-[\d.]+\.zip",
+    ),
+    # Ditto writes its version with underscores: DittoPortable_3_25_113_0.zip.
+    "ditto.ditto": GithubBuilds(
+        repo="sabrogden/Ditto",
+        archive=r"DittoPortable_[\d_]+\.zip",
+    ),
+    # One release holds Android, Linux, macOS, Windows on arm and the console build LocalSend-CLI.
+    "localsend.localsend": GithubBuilds(
+        repo="localsend/localsend",
+        archive=r"LocalSend-[\d.]+-windows-x86-64\.zip",
+    ),
+    "cyanfish.naps2": GithubBuilds(
+        repo="cyanfish/naps2",
+        archive=r"naps2-[\d.]+-win-x64\.zip",
+    ),
+    "upscayl.upscayl": GithubBuilds(
+        repo="upscayl/upscayl",
+        archive=r"upscayl-[\d.]+-win\.zip",
     ),
 }
 

@@ -369,7 +369,8 @@ def program_options(provider: VendorProvider, shelf: str, portable_only: bool) -
 
     A card says which files the program has. A tick means its installer - or its portable build
     when it has no installer, and for every card while the Portable switch is on: then the
-    programs without a portable build leave the list.
+    programs without a portable build leave the list. What the program is, where its file says
+    so, is the tooltip of the card.
     """
     options: list[dict[str, Any]] = []
     for (title, title_ru), builds in provider.blocks(shelf):  # type: ignore[attr-defined]
@@ -390,6 +391,8 @@ def program_options(provider: VendorProvider, shelf: str, portable_only: bool) -
             if build.portable_id:
                 option["portable_id"] = build.portable_id
                 option["installer_id"] = build.download_id if both else ""
+            if build.about:
+                option["tooltip"], option["tooltip_ru"] = build.about, build.about_ru or build.about
             options.append(option)
     if not options:
         return [_option("", "No portable builds on this page" if portable_only else "No programs on this page",
@@ -2245,6 +2248,22 @@ def download_vendor_builds(context: JobContext) -> dict[str, object]:
             if source is not None:
                 entry["source"] = source.host
                 wanted, said_by = source.sha256, "the catalog of the packages"
+                if source.checksum is not None:
+                    # The source was told to check: the sum is asked of it now that the file has a name,
+                    # and a file it can name no sum for is trusted as little as one whose sum differs.
+                    said_by = source.said_by or f"{source.host} itself"
+                    try:
+                        wanted = str(source.checksum(archive.name) or "")
+                        why = "" if wanted else f"{said_by} names no sum for it"
+                    except RuntimeError as exc:
+                        if context.cancelled():
+                            raise
+                        wanted, why = "", str(exc)
+                    if not wanted:
+                        aside = set_aside(archive)
+                        context.log(f"[WARN] {archive.name}: {why} - its sum was to be checked and there is none; it is kept as {aside.name}, do not run it")
+                        entry.update(sha256="not named", archive=str(aside))
+                        return [f"{archive.name}: {why}"]
             else:
                 # Whose page the hash is from, when it is not the vendor's own: NVIDIA's files that come from TechPowerUp.
                 wanted, said_by = (str(expected_sha256(build) or "") if callable(expected_sha256) else ""), str(getattr(provider, "sha256_from", "") or provider.name)

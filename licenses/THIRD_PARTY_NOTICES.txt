@@ -500,7 +500,7 @@ BUNDLED COMPONENTS
    Legal documents: L-d7f83bbea326
 
 71. openai
-   Version: 3.28.0
+   Version: 3.29.0
    License: Apache-2.0
    Source type: site-packages
    Provider: not recorded
@@ -542,14 +542,14 @@ BUNDLED COMPONENTS
    Legal documents: L-5be5ebd3dece
 
 77. pydantic
-   Version: 2.14.0
+   Version: 2.14.1
    License: MIT
    Source type: site-packages
    Provider: not recorded
    Legal documents: L-a9e186f3ca16
 
 78. pydantic_core
-   Version: 2.50.0
+   Version: 2.50.1
    License: MIT
    Source type: site-packages
    Provider: not recorded
@@ -1534,7 +1534,7 @@ SOFTWARE.
 [L-154759c1e9eb] LICENSE_2.txt
 SHA256: 154759c1e9eb58e42643ee43ec59d556def4d1d702d911a484c469e02f85dd5d
 Components: openai
-Captured from: openai-3.28.0/LICENSE_2.txt
+Captured from: openai-3.29.0/LICENSE_2.txt
 --------------------------------------------------------------------------------
 Copyright © 2025, Karen Petrosyan.
 All rights reserved.
@@ -1728,7 +1728,7 @@ SOFTWARE.
 [L-2afdd30d54b4] LICENSE_1.txt
 SHA256: 2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a
 Components: pydantic_core
-Captured from: pydantic-core-2.50.0/LICENSE_1.txt
+Captured from: pydantic-core-2.50.1/LICENSE_1.txt
 --------------------------------------------------------------------------------
 The MIT License (MIT)
 
@@ -6812,7 +6812,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 [L-a9e186f3ca16] LICENSE_1.txt
 SHA256: a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3
 Components: pydantic
-Captured from: pydantic-2.14.0/LICENSE_1.txt
+Captured from: pydantic-2.14.1/LICENSE_1.txt
 --------------------------------------------------------------------------------
 The MIT License (MIT)
 
@@ -12870,7 +12870,7 @@ Captured from: audion-launcher-bundled/NOTICE-Audion-Launcher.md
 [L-fb3496291624] LICENSE_3.txt
 SHA256: fb34962916248c2e011077fb64b82d585814631bd291f2b78e37eccea9a9fe78
 Components: openai
-Captured from: openai-3.28.0/LICENSE_3.txt
+Captured from: openai-3.29.0/LICENSE_3.txt
 --------------------------------------------------------------------------------
 Apache License
                            Version 2.0, January 2004

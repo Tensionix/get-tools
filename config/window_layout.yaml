@@ -170,6 +170,15 @@ sections:
         fixed: {vendor: affinity}
         cards:
           - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
+      - id: craft
+        title: "Craft"
+        title_ru: "Craft"
+        about: "Free Craft apps in place of Photoshop, Premiere, Word and others: the installer or the portable build as a file. Early versions"
+        about_ru: "Свободные программы Craft вместо Photoshop, Premiere, Word и других: установщик или портативная сборка файлом. Ранние версии"
+        icon: wand-sparkles
+        fixed: {vendor: programs, prg_kind: craft}
+        cards:
+          - {op: vendor_download, icon: download, guests: [{op: vendor_link, icon: external-link}]}
       - id: games
         title: "Games"
         title_ru: "Игры"
@@ -214,7 +223,6 @@ sections:
         icon: terminal
         cards:
           - {op: vendor_winutil, icon: terminal, form: none}
-          - {op: update_winget_self, icon: refresh-cw}
 
   - id: drivers
     title: "DRIVERS"
@@ -416,6 +424,10 @@ folders:
 # Operations whose place in the window is not built yet, each with the reason.
 pending: {}
 
-# Operations of the manifest the window does not carry. None: portable browsers, the six that
-# stood here, left the manifest with 3.0.0.
-retired: []
+# Operations of the manifest the window does not carry. Portable browsers, the six that stood
+# here, left the manifest with 3.0.0.
+#   update_winget_self - "Update WinGet (script)": the classic script WinGet-Update.cmd does what the
+#     button "Update WinGet" on WINGET -> Updates does (winget upgrade of Microsoft.AppInstaller). The
+#     plan of the window merged the two into that button; until 12.10.2026 the second one stood on
+#     SYSTEM -> WinUtil, a page it has nothing to do with. The script stays with the console menu.
+retired: [update_winget_self]

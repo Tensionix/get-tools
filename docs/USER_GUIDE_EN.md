@@ -18,7 +18,7 @@ The project layout, the services, and the development rules live in the README. 
 
 ## The WinGet catalog: sets, install, update
 
-The main window is the catalog: 126 packages in twelve blocks - System, Developer tools, AI, PKMS and notes, Office and documents, Media (images, audio, video), Browsers, VPN and communication, Hardware and utilities, MSVC runtime 2015+ and Advanced: MSVC 2005-2013. A block is a grid of cards with checkboxes; above the list sits a filter by name and ID, every block has `Select block` and `Clear block`, and the `Selection profiles` row on top (Clear, Minimal, Dev, Media, Network) ticks a typical set in one press, after which any card can be changed. `Export YAML` and `Import YAML` in the navigation row save the current ticks to a file and bring them back, even on another machine.
+The main window is the catalog: 154 packages in twelve blocks - System, Developer tools, AI, PKMS and notes, Office and documents, Media (images, audio, video), Browsers, VPN and communication, Hardware and utilities, MSVC runtime 2015+ and Advanced: MSVC 2005-2013. A block is a grid of cards with checkboxes; above the list sits a filter by name and ID, every block has `Select block` and `Clear block`, and the `Selection profiles` row on top (Clear, Minimal, Dev, Media, Network) ticks a typical set in one press, after which any card can be changed. `Export YAML` and `Import YAML` in the navigation row save the current ticks to a file and bring them back, even on another machine.
 
 Every block is a plain list of IDs in the configuration: your own program is added as a line in the file or with `Add ID to list` from the `Install / uninstall by ID` window, which also offers `Search` through the WinGet catalog and installing or removing a typed ID.
 
@@ -44,7 +44,7 @@ Every program in the list has small buttons to the right of its name. They do no
 | Crimson box | Downloads the zip archive or the standalone build - the one that needs no installation. It appears only for programs that really have such a build. |
 | Blue up arrow | Opens the download page in your browser: the GitHub releases page, the TechPowerUp page, or the vendor's own site. |
 
-The crimson button shows up on about a quarter of the list - 29 programs. Every package was checked for an archive build, and the button stays hidden where there is none, so it is never a dead press. Notepad++, Everything, OBS Studio, VLC, Telegram, FFmpeg, Node.js, MKVToolNix, Audacity, Sysinternals, Rufus, yt-dlp, SumatraPDF, Tabby, Rclone, and RClone Manager are among them.
+The crimson button shows up on about a quarter of the list - 39 programs. Every package was checked for an archive build, and the button stays hidden where there is none, so it is never a dead press. Notepad++, Everything, OBS Studio, VLC, Telegram, FFmpeg, Node.js, MKVToolNix, Audacity, Sysinternals, Rufus, yt-dlp, SumatraPDF, Tabby, Rclone, RClone Manager, Pandoc, QuickLook, Ditto, LocalSend, NAPS2, and Upscayl are among them.
 
 Sometimes the vendor ships a build that never reaches the WinGet catalogue - Tabby and RClone Manager are two. The file is then taken straight from the release page, and the button behaves exactly as it always does. Both buttons draw from the same release, so the installer and the portable build are always the same version. For RClone Manager it is also the newer one: the WinGet catalogue carries the installer alone, and it trails what the vendor has already published.
 
@@ -153,6 +153,34 @@ How it works:
 - a zip is unpacked into its folder so the installer is at hand, and is deleted after unpacking by default; a 7z is unpacked the same way - the tar of Windows reads it. Both are checkboxes. exe, msix, dmg and tar stay as they are.
 
 No account is needed anywhere but one place: the free DaVinci Resolve is issued by Blackmagic only after a form (name, e-mail, phone, address). The form fields appear at the bottom of the section while that product is selected; they go straight to blackmagicdesign.com, no account is created, no confirmation mail follows, and nothing is stored here. Signed Blackmagic and Serif links live a few hours; the Affinity 3 links are permanent.
+
+### Craft: the free apps of the ArtCraft project
+
+The page `MEDIA → Craft` is the [Craft App Suite](https://getartcraft.com/apps): a set of free, open-source apps from the [ArtCraft](https://getartcraft.com) project, each written from scratch in Rust. The sources and the releases live on GitHub, at [github.com/storytold](https://github.com/storytold). The project is young and grows fast: the repositories were made in the autumn of 2026, the versions run 0.5-0.9, and a new release comes out almost every day.
+
+What stands on the page:
+
+- **Launcher** - [ArtCraft Launcher](https://github.com/storytold/craft-launcher). It installs, updates and opens the apps of the suite, and keeps what it installed up to date itself.
+- **Photo and graphics** - [PhotoCraft](https://github.com/storytold/photocraft) (a raster editor that reads PSD), [LightCraft](https://github.com/storytold/lightcraft) (raw development and a photo library), [VectorCraft](https://github.com/storytold/vectorcraft) (vector art), [DesignCraft](https://github.com/storytold/designcraft) (page layout).
+- **Video and sound** - [FilmCraft](https://github.com/storytold/filmcraft) (editing), [EffectCraft](https://github.com/storytold/effectcraft) (motion graphics and compositing), [SoundCraft](https://github.com/storytold/soundcraft) (recording and mixing).
+- **Documents** - [PdfCraft](https://github.com/storytold/pdfcraft), [WordCraft](https://github.com/storytold/wordcraft), [GridCraft](https://github.com/storytold/gridcraft), [DeckCraft](https://github.com/storytold/deckcraft): PDF, text, spreadsheets, presentations.
+- **Drafting** - [CADCraft](https://github.com/storytold/cadcraft).
+- **Generation** - the studio [ArtCraft](https://github.com/storytold/artcraft): images and video by neural networks. The program itself is free; the generation services it connects to are paid for separately.
+
+The page installs nothing: everything is taken as a file.
+
+- `Download` takes the ticked cards: the portable build or the MSI installer of any program of the suite. Every card has small buttons of its own - the installer, the portable build, the link to the release. The `Portable` button above the list leaves only the cards that have a portable build; the studio ArtCraft has none.
+- the place to start is the launcher, and its portable build: it runs without an installation, travels with its folder and then installs and updates the apps of the suite itself.
+
+Worth knowing beforehand:
+
+- these are early versions. Today's release is not the latest tomorrow, and the program takes the newest every time;
+- every downloaded file is checked against the `SHA256SUMS.txt` of its release. Another sum, a release with no checksum file or a checksum file with no line for the file - the file is renamed `.untrusted` and the operation fails;
+- the installers and the programs of the suite are signed by one publisher, Learning Machines Inc: Windows shows that name in the properties of a file and in its question when the file is run;
+- the exception is the installer of the studio ArtCraft: it has neither a digital signature nor a checksum file in its release. It is taken as it comes, there is nothing to check it against, and the tooltip of its card says so;
+- a portable build is unpacked into the `Portable` folder of its program over the former one; the folder is not emptied first;
+- a Craft app keeps its settings in `%APPDATA%`, not in its own folder: its portable build runs without an installation but does not travel with its settings. The portable launcher, on the contrary, keeps its settings beside itself, in the folder `ArtCraftLauncherData`;
+- Audion Get Tools is not part of the ArtCraft project and changes nothing in its files: it takes the releases from GitHub as they are. Questions about the apps themselves go to their makers, at [getartcraft.com](https://getartcraft.com) and in their repositories.
 
 ## This machine's drivers
 
@@ -578,13 +606,14 @@ A section is a large button under the header, a page is a button of the row unde
 
 - Blackmagic Design: `Download` (`Link only`)
 - Affinity: `Download` (`Link only`)
+- Craft: `Download` (`Link only`)
 - Games: `Download` (`Link only`)
 
 **SYSTEM** - Runtimes and system tools
 
 - Runtimes: `Check MSVC runtimes`; `Install MSVC 2015+`; `Update MSVC 2015+`; `Install MSVC Legacy`; `Install MSVC All-in-One (TechPowerUp)`; `MSVC All-in-One (TechPowerUp)`; `Install MSVC AIO (abbodi1406)`; `MSVC AIO (abbodi1406)`
 - Utilities: `Download` (`Link only`)
-- WinUtil: `WinUtil`; `Update WinGet (script)`
+- WinUtil: `WinUtil`
 
 **DRIVERS** - Drivers of this machine and of any hardware
 
@@ -625,15 +654,15 @@ Install every package ticked in the catalogue. A package that is already install
 
 **System** — cards with checkboxes, any set.
 - Default: empty
-- Options (13 items): .NET Framework 3.5 — A feature of Windows itself, not a package: it is switched on through DISM, and Windows Update brings its files.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy
+- Options (16 items): .NET Framework 3.5 — A feature of Windows itself, not a package: it is switched on through DISM, and Windows Update brings its files.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy; Process Monitor — What a program does to files, the registry and the network, as it happens.; QuickLook — A look at a file by the space bar in Explorer, without opening a program.; Ditto — A clipboard history with a search.
 
 **Developer tools** — cards with checkboxes, any set.
 - Default: empty
-- Options (33 items): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo
+- Options (34 items): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo; .NET SDK 10 — Builds programs on .NET 10, windows on Avalonia among them. To run finished programs the Desktop Runtime is enough.
 
 **AI** — cards with checkboxes, any set.
 - Default: empty
-- Options: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama
+- Options: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama; ComfyUI Desktop — Images and video on your own GPU: a graph of nodes.; LM Studio — Language models on your own computer, with a window. Free, closed source.; Upscayl — Enlarges images by a neural network on your own GPU.
 
 **PKMS and notes** — cards with checkboxes, any set.
 - Default: empty
@@ -641,11 +670,11 @@ Install every package ticked in the catalogue. A package that is already install
 
 **Office and documents** — cards with checkboxes, any set.
 - Default: empty
-- Options: Calibre; LibreOffice / soffice; Acrobat Reader; SumatraPDF
+- Options: Calibre; LibreOffice / soffice; Acrobat Reader; SumatraPDF; PDF24 Creator — Merges, splits, compresses and recognises PDF. Free, closed source.; NAPS2 — Scans to PDF with text recognition.; Pandoc — Converts documents between DOCX, Markdown, HTML and PDF from the command line.; QGIS LTR — Maps and spatial data: layers, cadastre, coordinates. The long-term release.
 
 **Media: images** — cards with checkboxes, any set.
 - Default: empty
-- Options: FastStone Viewer; Krita; GIMP; Inkscape; ImageMagick; IrfanView; XnView MP
+- Options: FastStone Viewer; Krita; GIMP; Inkscape; ImageMagick; IrfanView; XnView MP; darktable — Develops and catalogues RAW photographs.; ExifTool — Reads and edits the metadata of photos and video from the command line.; Blender — 3D: modelling, animation, rendering and compositing.
 
 **Media: audio** — cards with checkboxes, any set.
 - Default: empty
@@ -657,7 +686,7 @@ Install every package ticked in the catalogue. A package that is already install
 
 **Browsers, VPN, messaging** — cards with checkboxes, any set.
 - Default: empty
-- Options (24 items): Firefox; Opera; Vivaldi; Brave; Zen Browser; Ungoogled Chromium; Cent Browser; AmneziaVPN; v2rayN; Karing; Happ; Signal; Telegram Desktop; Discord; Bitwarden; KeePassXC; Thunderbird; Zoom; AnyDesk; Yandex Disk; Rclone; RcloneView; Rclone UI; RClone Manager
+- Options (26 items): Firefox; Opera; Vivaldi; Brave; Zen Browser; Ungoogled Chromium; Cent Browser; AmneziaVPN; v2rayN; Karing; Happ; Signal; Telegram Desktop; Discord; Bitwarden; KeePassXC; Thunderbird; Zoom; AnyDesk; Yandex Disk; Rclone; RcloneView; Rclone UI; RClone Manager; WinSCP — Files to a server and back by SFTP, SCP and FTP.; LocalSend — Files between computers and phones on one network, with no cloud.
 
 **Hardware and service tools** — cards with checkboxes, any set.
 - Default: empty
@@ -706,15 +735,15 @@ Update the packages ticked in the catalogue. A package that is not installed or 
 
 **System** — cards with checkboxes, any set.
 - Default: empty
-- Options (13 items): .NET Framework 3.5 — A feature of Windows itself, not a package: it is switched on through DISM, and Windows Update brings its files.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy
+- Options (16 items): .NET Framework 3.5 — A feature of Windows itself, not a package: it is switched on through DISM, and Windows Update brings its files.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy; Process Monitor — What a program does to files, the registry and the network, as it happens.; QuickLook — A look at a file by the space bar in Explorer, without opening a program.; Ditto — A clipboard history with a search.
 
 **Developer tools** — cards with checkboxes, any set.
 - Default: empty
-- Options (33 items): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo
+- Options (34 items): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo; .NET SDK 10 — Builds programs on .NET 10, windows on Avalonia among them. To run finished programs the Desktop Runtime is enough.
 
 **AI** — cards with checkboxes, any set.
 - Default: empty
-- Options: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama
+- Options: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama; ComfyUI Desktop — Images and video on your own GPU: a graph of nodes.; LM Studio — Language models on your own computer, with a window. Free, closed source.; Upscayl — Enlarges images by a neural network on your own GPU.
 
 **PKMS and notes** — cards with checkboxes, any set.
 - Default: empty
@@ -722,11 +751,11 @@ Update the packages ticked in the catalogue. A package that is not installed or 
 
 **Office and documents** — cards with checkboxes, any set.
 - Default: empty
-- Options: Calibre; LibreOffice / soffice; Acrobat Reader; SumatraPDF
+- Options: Calibre; LibreOffice / soffice; Acrobat Reader; SumatraPDF; PDF24 Creator — Merges, splits, compresses and recognises PDF. Free, closed source.; NAPS2 — Scans to PDF with text recognition.; Pandoc — Converts documents between DOCX, Markdown, HTML and PDF from the command line.; QGIS LTR — Maps and spatial data: layers, cadastre, coordinates. The long-term release.
 
 **Media: images** — cards with checkboxes, any set.
 - Default: empty
-- Options: FastStone Viewer; Krita; GIMP; Inkscape; ImageMagick; IrfanView; XnView MP
+- Options: FastStone Viewer; Krita; GIMP; Inkscape; ImageMagick; IrfanView; XnView MP; darktable — Develops and catalogues RAW photographs.; ExifTool — Reads and edits the metadata of photos and video from the command line.; Blender — 3D: modelling, animation, rendering and compositing.
 
 **Media: audio** — cards with checkboxes, any set.
 - Default: empty
@@ -738,7 +767,7 @@ Update the packages ticked in the catalogue. A package that is not installed or 
 
 **Browsers, VPN, messaging** — cards with checkboxes, any set.
 - Default: empty
-- Options (24 items): Firefox; Opera; Vivaldi; Brave; Zen Browser; Ungoogled Chromium; Cent Browser; AmneziaVPN; v2rayN; Karing; Happ; Signal; Telegram Desktop; Discord; Bitwarden; KeePassXC; Thunderbird; Zoom; AnyDesk; Yandex Disk; Rclone; RcloneView; Rclone UI; RClone Manager
+- Options (26 items): Firefox; Opera; Vivaldi; Brave; Zen Browser; Ungoogled Chromium; Cent Browser; AmneziaVPN; v2rayN; Karing; Happ; Signal; Telegram Desktop; Discord; Bitwarden; KeePassXC; Thunderbird; Zoom; AnyDesk; Yandex Disk; Rclone; RcloneView; Rclone UI; RClone Manager; WinSCP — Files to a server and back by SFTP, SCP and FTP.; LocalSend — Files between computers and phones on one network, with no cloud.
 
 **Hardware and service tools** — cards with checkboxes, any set.
 - Default: empty
@@ -1046,10 +1075,10 @@ Tooltip: WinGet gives the current release; here the vendor's own catalog lists e
 - Options: Intel Management Engine; Intel RST VMD
 
 **Shelf** — a row of switches, one choice.
-- Tooltip: Which programs to list. Each is the newest file its maker publishes - an installer, a portable build, or both; nothing is installed. A portable zip or 7z is unpacked into the Portable folder of its program.
+- Tooltip: Which programs to list. Each is the newest file its maker publishes - an installer, a portable build, or both; nothing is installed. A portable zip or 7z is unpacked into the Portable folder of its program. The files of the Craft shelf are checked against the checksum file of their release.
 - Default: Boot media
 - Shown when: Vendor = 'Programs'
-- Options: Boot media; Utilities; Tests; Games
+- Options: Boot media; Utilities; Tests; Games; Craft
 
 **Section** — a row of switches, one choice.
 - Tooltip: The section of TechPowerUp's catalog: drivers, tuning utilities, monitoring, benchmarks or video BIOS flashers. The product row below changes with it. NVIDIA drivers and the DLSS libraries stay on the NVIDIA tab.
@@ -1390,7 +1419,7 @@ Compatibility commands that run existing project CMD scripts.
 
 Run the existing Microsoft App Installer update script.
 
-_changes the system, asks for confirmation before it runs_
+_the window has no such button: the operation stays with the console menu and the console command; changes the system, asks for confirmation before it runs_
 
 No fields: a single button.
 

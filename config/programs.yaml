@@ -7,12 +7,21 @@
 #   {source: url,    url: <fixed address>, name: <file name, when the address has none>}
 #   {source: winget, id: <package id>, type: zip | portable (for a portable build)}
 #
+# A github source may name `sums` - the regex of the checksum file in the same release (lines of
+# `<64 hex digits>  <file name>`). The downloaded file is then checked against the line of its name;
+# no checksum file, no line for the file or another sum - the file is renamed `.untrusted` and the
+# download fails. Without `sums` a file is taken as it came. Other kinds of source have no `sums`.
+#
+# A program may say what it is: `about` and `about_ru`, a sentence each - the tooltip of its card.
+# With `about` alone the Russian window shows the English words; with neither the card has no tooltip.
+#
 # A regex is searched for in the name without regard to case; the first file it finds is the one.
 # The list asks nothing of the network: a source is asked only when its program is downloaded.
 #
 # These are the programs Audion Setup Tools downloads (Manifests\Downloads.psd1) that the WinGet
 # catalogue of this program does not carry. Every source was asked on 10.10.2026: each pattern
-# named a file, each address answered, each package id exists.
+# named a file, each address answered, each package id exists. The shelf `craft` and RustDesk
+# came on 12.10.2026 and were asked that day; tests\probe_sources.py asks every source again.
 
 shelves:
 
@@ -83,6 +92,17 @@ shelves:
           - id: msert
             name: "Microsoft Safety Scanner"
             portable: {source: url, url: "https://go.microsoft.com/fwlink/?LinkId=212732", name: "msert.exe"}
+      # WinGet does not carry RustDesk (asked 12.10.2026). Its release has aarch64 and x86-sciter files
+      # beside these and no checksum file.
+      - title: "Remote access"
+        title_ru: "Удалённый доступ"
+        programs:
+          - id: rustdesk
+            name: "RustDesk"
+            about: "A remote desktop with open code. The portable file runs without an installation."
+            about_ru: "Удалённый рабочий стол с открытым кодом. Портативный файл работает без установки."
+            installer: {source: github, repo: "rustdesk/rustdesk", asset: '^rustdesk-[\d.]+-x86_64\.msi$'}
+            portable: {source: github, repo: "rustdesk/rustdesk", asset: '^rustdesk-[\d.]+-x86_64\.exe$'}
       - title: "Browser and runtime"
         title_ru: "Браузер и среда"
         programs:
@@ -181,3 +201,118 @@ shelves:
             name: "TcNo Account Switcher"
             installer: {source: github, repo: "TCNOco/TcNo-Acc-Switcher", asset: 'Installer_[\d_-]+\.exe$'}
             portable: {source: github, repo: "TCNOco/TcNo-Acc-Switcher", asset: '^TcNo-Acc-Switcher_[\d_-]+\.zip$'}
+
+  # MEDIA / Craft
+  # Free apps of one maker (github.com/storytold) in place of the paid suites, as files. The
+  # repositories were made on 30.09-09.10.2026, the versions are 0.5-0.9 and a release comes out
+  # almost every day: early versions, and the cards say so. A release carries SHA256SUMS.txt, and
+  # the files are checked against it (`sums`). Only the x64 builds are taken: the arm64, x86 and
+  # web files beside them are passed by. The launcher installs and updates only what it installed
+  # itself through MSI; the portable builds are taken here. Every source was asked on 12.10.2026.
+  # The whole shelf was downloaded that day: the 26 files with `sums` matched, and all of them - the
+  # MSI and the executables of the portable builds - are signed by Learning Machines Inc. The
+  # installer of the studio ArtCraft is the exception: no signature and no checksum file in its
+  # release, so it is taken as it comes, and its card says so.
+  craft:
+    blocks:
+      - title: "Launcher"
+        title_ru: "Запускатель"
+        programs:
+          - id: craft-launcher
+            name: "ArtCraft Launcher"
+            about: "Installs, updates and opens the Craft apps. It updates only what it installed; take the portable builds on this page."
+            about_ru: "Ставит, обновляет и открывает приложения Craft. Обновляет только установленные через него; портативные сборки берите на этой странице."
+            installer: {source: github, repo: "storytold/craft-launcher", asset: '^artcraft-launcher-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/craft-launcher", asset: '^artcraft-launcher-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+      - title: "Photo and graphics"
+        title_ru: "Фото и графика"
+        programs:
+          - id: photocraft
+            name: "PhotoCraft"
+            about: "A raster editor in place of Photoshop: layers, masks, styles, PSD files. An early version."
+            about_ru: "Растровый редактор вместо Photoshop: слои, маски, стили, файлы PSD. Ранняя версия."
+            installer: {source: github, repo: "storytold/photocraft", asset: '^photocraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/photocraft", asset: '^photocraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: lightcraft
+            name: "LightCraft"
+            about: "Non-destructive photo editing, as in Lightroom. An early version."
+            about_ru: "Неразрушающая обработка фотографий, как в Lightroom. Ранняя версия."
+            installer: {source: github, repo: "storytold/lightcraft", asset: '^lightcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/lightcraft", asset: '^lightcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: vectorcraft
+            name: "VectorCraft"
+            about: "Vector art, as in Illustrator. An early version."
+            about_ru: "Векторная графика, как в Illustrator. Ранняя версия."
+            installer: {source: github, repo: "storytold/vectorcraft", asset: '^vectorcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/vectorcraft", asset: '^vectorcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: designcraft
+            name: "DesignCraft"
+            about: "Page and layout design, as in InDesign. An early version."
+            about_ru: "Вёрстка страниц и макетов, как в InDesign. Ранняя версия."
+            installer: {source: github, repo: "storytold/designcraft", asset: '^designcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/designcraft", asset: '^designcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+      - title: "Video and sound"
+        title_ru: "Видео и звук"
+        programs:
+          - id: filmcraft
+            name: "FilmCraft"
+            about: "Nonlinear video editing, as in Premiere. An early version."
+            about_ru: "Нелинейный видеомонтаж, как в Premiere. Ранняя версия."
+            installer: {source: github, repo: "storytold/filmcraft", asset: '^filmcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/filmcraft", asset: '^filmcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: effectcraft
+            name: "EffectCraft"
+            about: "Motion graphics and compositing, as in After Effects. An early version."
+            about_ru: "Анимация и композитинг, как в After Effects. Ранняя версия."
+            installer: {source: github, repo: "storytold/effectcraft", asset: '^effectcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/effectcraft", asset: '^effectcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: soundcraft
+            name: "SoundCraft"
+            about: "Multitrack recording and mixing, as in Pro Tools. An early version."
+            about_ru: "Многодорожечная запись и сведение звука, как в Pro Tools. Ранняя версия."
+            installer: {source: github, repo: "storytold/soundcraft", asset: '^soundcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/soundcraft", asset: '^soundcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+      - title: "Documents"
+        title_ru: "Документы"
+        programs:
+          - id: pdfcraft
+            name: "PdfCraft"
+            about: "A PDF reader and editor, as Acrobat. An early version."
+            about_ru: "Чтение и правка PDF, как в Acrobat. Ранняя версия."
+            installer: {source: github, repo: "storytold/pdfcraft", asset: '^pdfcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/pdfcraft", asset: '^pdfcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: wordcraft
+            name: "WordCraft"
+            about: "A word processor, as Word. An early version."
+            about_ru: "Текстовый редактор, как Word. Ранняя версия."
+            installer: {source: github, repo: "storytold/wordcraft", asset: '^wordcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/wordcraft", asset: '^wordcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: gridcraft
+            name: "GridCraft"
+            about: "Spreadsheets, as Excel. An early version."
+            about_ru: "Электронные таблицы, как Excel. Ранняя версия."
+            installer: {source: github, repo: "storytold/gridcraft", asset: '^gridcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/gridcraft", asset: '^gridcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: deckcraft
+            name: "DeckCraft"
+            about: "Presentations, as PowerPoint. An early version."
+            about_ru: "Презентации, как PowerPoint. Ранняя версия."
+            installer: {source: github, repo: "storytold/deckcraft", asset: '^deckcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/deckcraft", asset: '^deckcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+      - title: "Drafting"
+        title_ru: "Черчение"
+        programs:
+          - id: cadcraft
+            name: "CADCraft"
+            about: "Drafting and design, as AutoCAD. An early version."
+            about_ru: "Черчение и проектирование, как AutoCAD. Ранняя версия."
+            installer: {source: github, repo: "storytold/cadcraft", asset: '^cadcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/cadcraft", asset: '^cadcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+      - title: "Generation"
+        title_ru: "Генерация"
+        programs:
+          - id: artcraft
+            name: "ArtCraft"
+            about: "Images and video by neural networks. The program is free; the generation services it connects to are paid for separately. Its installer carries no digital signature and its release has no checksum file: Get Tools has nothing to check it against."
+            about_ru: "Картинки и видео нейросетями. Программа бесплатна; сервисы генерации, к которым она подключается, оплачиваются отдельно. Установщик без цифровой подписи, и в выпуске нет файла контрольных сумм: сверить его Get Tools не с чем."
+            installer: {source: github, repo: "storytold/artcraft", asset: '^ArtCraft_[\d.]+_x64-setup\.exe$'}

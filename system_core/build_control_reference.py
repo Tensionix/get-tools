@@ -51,6 +51,7 @@ TEXT = {
         "map": "### Где что стоит в окне", "map_header": "Заголовок окна", "map_folders": "У строки папки загрузок",
         "map_intro": "Раздел - большая кнопка под заголовком, страница - кнопка в ряду под разделами. После названия страницы - её операции; в скобках те, чьи кнопки стоят в карточке соседней операции. У страницы драйверов в квадратных скобках - ряд её производителей: откуда придёт файл, следует из производителя.",
         "sets_note": "Список пакетов", "count": "{n} шт.", "sets": "наборы", "or": "или",
+        "retired": "в окне этой кнопки нет: операция осталась у консольного меню и консольной команды",
     },
     "en": {
         "title": "## Reference: every window, every control, every tooltip",
@@ -78,6 +79,7 @@ TEXT = {
         "map": "### Where everything stands in the window", "map_header": "The header of the window", "map_folders": "Beside the row of the download folder",
         "map_intro": "A section is a large button under the header, a page is a button of the row under the sections. After the name of a page come its operations; in brackets, those whose buttons stand in the card of the operation before them. A page of drivers names the row of its makers in square brackets: where the file comes from follows from the maker.",
         "sets_note": "Package list", "count": "{n} items", "sets": "sets", "or": "or",
+        "retired": "the window has no such button: the operation stays with the console menu and the console command",
     },
 }
 
@@ -199,7 +201,7 @@ def render_field(field: dict, fields_by_id: dict, lang: str, t: dict, out: list[
     out.append("")
 
 
-def render_action(node: dict, lang: str, t: dict, out: list[str], level: int) -> None:
+def render_action(node: dict, lang: str, t: dict, out: list[str], level: int, retired: frozenset[str] = frozenset()) -> None:
     title = lang_text(node, "title", lang) or node.get("id", "")
     kind = str(node.get("kind") or "").lower()
     out.append(f"{'#' * level} {title}")
@@ -207,6 +209,9 @@ def render_action(node: dict, lang: str, t: dict, out: list[str], level: int) ->
     desc = lang_text(node, "description", lang)
     tooltip = lang_text(node, "tooltip", lang)
     meta = []
+    # An operation the layout names as retired is in the manifest and not in the window: said first.
+    if str(node.get("id") or "") in retired:
+        meta.append(t["retired"])
     if kind in t["kind"]:
         meta.append(t["kind"][kind])
     params = node.get("parameters") or {}
@@ -278,6 +283,7 @@ def render_map(lang: str, manifest: dict, layout: dict, t: dict, out: list[str])
 def build(lang: str, manifest: dict, layout: dict) -> str:
     t = TEXT[lang]
     out = [t["title"], "", t["intro"], ""]
+    retired = frozenset(str(name) for name in layout.get("retired") or [])
     render_map(lang, manifest, layout, t, out)
     for group in manifest.get("operation_groups", []):
         title = lang_text(group, "title", lang) or group["id"]
@@ -304,7 +310,7 @@ def build(lang: str, manifest: dict, layout: dict) -> str:
             out.append(f"#### {t['actions']}")
             out.append("")
             for child in children:
-                render_action(child, lang, t, out, 5)
+                render_action(child, lang, t, out, 5, retired)
                 child_fields = child.get("fields") or []
                 by_id = {str(f.get("id")): f for f in child_fields if isinstance(f, dict)}
                 by_id.update(fields_by_id)
@@ -320,7 +326,7 @@ def build(lang: str, manifest: dict, layout: dict) -> str:
     out.append(t["maintenance_intro"])
     out.append("")
     for op in manifest.get("maintenance_operations", []):
-        render_action(op, lang, t, out, 3)
+        render_action(op, lang, t, out, 3, retired)
     return "\n".join(out).rstrip() + "\n"
 
 

@@ -25,4 +25,6 @@ Rclone.Rclone
 Bdrive.RcloneView
 RcloneUI.RcloneUI
 RClone-Manager.rclone-manager
+WinSCP.WinSCP
+LocalSend.LocalSend
 

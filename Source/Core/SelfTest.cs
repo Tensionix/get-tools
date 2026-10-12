@@ -67,6 +67,7 @@ public static class SelfTest
             ("lists kept", ListsKept),
             ("search", SearchOfALists),
             ("version card", VersionCards),
+            ("columns", BlockColumns),
             ("value asked for", ValueAskedFor),
             ("run line", RunLine),
             ("source", SourceOfARun),
@@ -554,6 +555,20 @@ public static class SelfTest
             report.Check("search: the manifest names the lists that have a search of their own", fields.Count > 0 && fields.All(id => _told!.Operations().SelectMany(node => node.Fields).Any(field => field.Id == id && Values.IsList(field))), string.Join(", ", fields));
         var pages = _told?.Layout.Sections.SelectMany(section => section.Pages).Where(page => page.Filter).Select(ValueStore.KeyOf).ToList();
         if (pages is not null) report.Check("search: the layout names the pages that have one search for all their lists", pages.Count > 0, string.Join(", ", pages));
+    }
+
+    /// <summary>The blocks of a long list in two columns: balanced by their length, not dealt by turns (Core\Columns.cs).</summary>
+    static void BlockColumns(Report report)
+    {
+        static string Sides(params int[] cards) => string.Concat(Columns.Right(cards.Select(count => Columns.Height(count, 1)).ToList()).Select(right => right ? 'R' : 'L'));
+        // The page of Craft: the launcher, four, three, four, one, one. By turns it was five cards against nine.
+        report.Check("columns: blocks of unlike length are balanced - a block goes to the column that is shorter so far",
+            Sides(1, 4, 3, 4, 1, 1) == "LRLRLL", Sides(1, 4, 3, 4, 1, 1));
+        report.Check("columns: blocks of one length still go by turns, and a lone block stands at the left",
+            Sides(3, 3, 3, 3) == "LRLR" && Sides(5) == "L" && Sides() == "", Sides(3, 3, 3, 3) + " " + Sides(5));
+        report.Check("columns: a block is as tall as the rows of its cards and its heading",
+            Columns.Height(4, 1) == 5 && Columns.Height(4, 2) == 3 && Columns.Height(5, 2) == 4 && Columns.Height(0, 1) == 1 && Columns.Height(3, 0) == 4,
+            $"{Columns.Height(4, 1)} {Columns.Height(4, 2)} {Columns.Height(5, 2)} {Columns.Height(0, 1)} {Columns.Height(3, 0)}");
     }
 
     /// <summary>

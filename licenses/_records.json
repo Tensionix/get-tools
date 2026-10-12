@@ -916,7 +916,7 @@
   },
   {
     "name": "openai",
-    "version": "3.28.0",
+    "version": "3.29.0",
     "license": "Apache-2.0",
     "source": "site-packages",
     "license_files": [
@@ -1017,7 +1017,7 @@
   },
   {
     "name": "pydantic",
-    "version": "2.14.0",
+    "version": "2.14.1",
     "license": "MIT",
     "source": "site-packages",
     "license_files": [
@@ -1030,7 +1030,7 @@
   },
   {
     "name": "pydantic_core",
-    "version": "2.50.0",
+    "version": "2.50.1",
     "license": "MIT",
     "source": "site-packages",
     "license_files": [

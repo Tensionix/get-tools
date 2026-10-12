@@ -7,7 +7,7 @@
   "targets": {
     ".NETCoreApp,Version=v10.0": {},
     ".NETCoreApp,Version=v10.0/win-x64": {
-      "AudionPs/3.0.0": {
+      "AudionPs/3.1.0": {
         "dependencies": {
           "Microsoft.PowerShell.SDK": "7.6.6",
           "runtimepack.Microsoft.NETCore.App.Runtime.win-x64": "10.0.12"
@@ -1538,7 +1538,7 @@
     }
   },
   "libraries": {
-    "AudionPs/3.0.0": {
+    "AudionPs/3.1.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

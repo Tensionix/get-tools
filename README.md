@@ -8,15 +8,14 @@
   <a href="https://github.com/Tensionix/get-tools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Tensionix/get-tools?style=flat-square&color=5fd08a&logo=apache&logoColor=white&cacheSeconds=3600"></a>
 </p>
 
-**Version 3.1.0** · 2026-10-12 · 74.9 MB
+**Version 3.1.0** · 2026-10-12 · 138.0 MB
 
-- [Direct download](https://dl.audion.dev/get-tools/3.1.0/Audion_Get_Tools_v3.1.0.zip) — unmetered, no rate limits
+- [Direct download](https://audion.dev/get/get-tools/3.1.0/Audion_Get_Tools_v3.1.0_Full.zip) — unmetered, no rate limits
 - [Project page](https://audion.dev/downloads/get-tools) — every version and how to install
-- [GitHub release](https://github.com/Tensionix/get-tools/releases/tag/v3.1.0)
 
 <p align="center"><img src="docs/screenshot.png" alt="The program window" width="560"></p>
 
-`SHA-256: b52d031a229aa61ff4352c6fc8267e19ace6ba21744c5d8d2acf9bb1bce42a49`
+`SHA-256: 4da30b8ce9e639c26a1e36e339d89bba55d7f17a1e3af11ab723f3068839f102`
 
 ---
 
@@ -78,7 +77,7 @@ ability below, the details are behind the links into the user guide.
 
 ### WinGet sets: the catalog by groups
 
-The catalog is 126 packages in twelve blocks: System, Developer tools, AI, PKMS
+The catalog is 154 packages in twelve blocks: System, Developer tools, AI, PKMS
 and notes, Office and documents, Media (images, audio, video), Browsers, VPN and
 communication, Hardware and utilities, MSVC runtimes and the legacy MSVC
 2005–2013. A block is a grid of cards with checkboxes; the list has a filter by
@@ -86,6 +85,13 @@ name and ID, `Select block` and `Clear block` buttons, and the profile row on
 top (Minimal, Dev, Media, Network) ticks a typical set in one press, after which
 any card can be changed. The ticks can be saved to YAML and loaded on another
 machine.
+
+Since 3.1.0 the catalog has sixteen new cards: Process Monitor, QuickLook and
+Ditto in System; .NET SDK 10 in Developer tools; ComfyUI Desktop, LM Studio and
+Upscayl in AI; PDF24 Creator, NAPS2, Pandoc and QGIS LTR in Office and
+documents; darktable, ExifTool and Blender in images; WinSCP and LocalSend in
+the network block. None of them is paid; LM Studio and PDF24 Creator are free
+with closed source. No profile includes them: each is ticked on its own.
 
 Every block is a plain list of IDs in the configuration. Your own program is
 added as a line, or with `Add ID to list` straight from the search window.
@@ -106,9 +112,10 @@ extra checkbox. `Update WinGet` updates the manager itself.
 Every card carries three small buttons, and that is half the point of the
 program. The green arrow downloads the installer into `Downloads` of the
 download folder without running it. The crimson box downloads the zip or
-standalone build into `Portable`, the one that needs no installation; 29 programs of the
+standalone build into `Portable`, the one that needs no installation; 39 programs of the
 catalog have it, Notepad++, Everything, OBS Studio, VLC, Telegram, FFmpeg,
-Node.js, MKVToolNix, Audacity, Sysinternals, Rufus, yt-dlp, SumatraPDF, Rclone
+Node.js, MKVToolNix, Audacity, Sysinternals, Rufus, yt-dlp, SumatraPDF, Rclone,
+Pandoc, QuickLook, Ditto, LocalSend, NAPS2, Upscayl
 among them, and it shows only where such a build really exists. The blue arrow
 opens the download page in the browser: the GitHub releases, the TechPowerUp
 page or the vendor's site, to pick a build yourself — another architecture, an
@@ -204,11 +211,32 @@ in the archive is dropped.
   carry. Boot media: Media Creation Tool, Rufus, Ventoy. Utilities: ViVeTool,
   SoundSwitch, EverythingPowerToys, ExplorerTabUtility, Symbolic11, Nilesoft
   Shell, KDE Connect, Bulk Crap Uninstaller, Revo Uninstaller, VeraCrypt,
-  Microsoft Safety Scanner, Google Chrome, Edge WebView2 Runtime, Intel Driver
-  and Support Assistant. Tests: PresentMon, CapFrameX, PC Latency View,
-  TestMem5, Fan Control. Games: Steam, Epic, EA app, Battle.net, Rockstar,
+  Microsoft Safety Scanner, RustDesk, Google Chrome, Edge WebView2 Runtime,
+  Intel Driver and Support Assistant. Tests: PresentMon, CapFrameX, PC Latency
+  View, TestMem5, Fan Control. Games: Steam, Epic, EA app, Battle.net, Rockstar,
   Riot, Minecraft, Prism, Freesm, Modrinth, CurseForge, TcNo Account Switcher.
-  The list is `config\programs.yaml`.
+  The list is `config\programs.yaml`; a program in it may carry a line of what
+  it is - it is shown as the tooltip of its card.
+- **Craft**: a page in MEDIA for the [Craft App Suite](https://getartcraft.com/apps) -
+  the free apps of the [ArtCraft](https://getartcraft.com) project
+  ([sources on GitHub](https://github.com/storytold)), stand-ins for the paid
+  suites. Everything is taken as a file; the page itself installs nothing. The
+  place to start is [ArtCraft Launcher](https://github.com/storytold/craft-launcher):
+  its portable build runs without an installation, keeps its settings beside
+  itself, in `ArtCraftLauncherData`, and installs and updates the apps of the
+  suite itself. Every app is taken as a file too: PhotoCraft, LightCraft,
+  VectorCraft, DesignCraft, FilmCraft, EffectCraft, SoundCraft, PdfCraft,
+  WordCraft, GridCraft, DeckCraft, CADCraft - as a portable build or an
+  installer, and the studio ArtCraft for images and video by neural networks -
+  as an installer. These are early versions with a release almost every day. A
+  downloaded file is checked against the checksum file of its release; another
+  sum, or no sum for it - the file is renamed `.untrusted` and the operation
+  fails. There is one exception, and its card says so: the installer of the
+  studio ArtCraft has neither a digital signature nor a checksum file in its
+  release, so there is nothing to check it against. A portable build is unpacked into `Portable` over the former one: the
+  folder is not emptied. A Craft app, unlike the launcher, keeps its settings
+  in `%APPDATA%`, not in its own folder. Audion Get Tools is not part of the
+  ArtCraft project: it takes its releases from GitHub as they are.
 
 More: [user guide](docs/USER_GUIDE_EN.md#vendor-downloads), the composition tables
 below in the [technical reference](#windows-install-sets).

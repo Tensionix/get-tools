@@ -5,3 +5,7 @@ Calibre.Calibre
 TheDocumentFoundation.LibreOffice
 Adobe.Acrobat.Reader.64-bit
 SumatraPDF.SumatraPDF
+geeksoftwareGmbH.PDF24Creator
+Cyanfish.NAPS2
+JohnMacFarlane.Pandoc
+OSGeo.QGIS_LTR

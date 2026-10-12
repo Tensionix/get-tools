@@ -14,4 +14,7 @@ RARLab.WinRAR
 Microsoft.Sysinternals.ProcessExplorer
 Microsoft.Sysinternals.Autoruns
 CodeSector.TeraCopy
+Microsoft.Sysinternals.ProcessMonitor
+QL-Win.QuickLook
+Ditto.Ditto
 

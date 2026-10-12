@@ -13,6 +13,14 @@ from:
     {source: url,    url: <fixed address>, name: <file name, when the address has none>}
     {source: winget, id: <package id>, type: zip | portable (for a portable build)}
 
+A github source may also name `sums` - the regex of the checksum file in the same release
+(`<64 hex digits>  <file name>` a line). Then the downloaded file is checked against the line of its
+name, and a file with no line, or a release with no such file, is not trusted: the sum was asked for.
+The file, its address and the checksum file are named by one answer about the release - a maker who
+publishes daily may put out a new one between two readings, and the sum would be of another file.
+
+A program may also say what it is - `about` and `about_ru`, a sentence each: the tooltip of its card.
+
 The list asks nothing of the network: a release page is read and WinGet is called only when a
 program is downloaded.
 
@@ -39,8 +47,13 @@ PORTABLE = "portable"
 WAYS = ("github", "url", "winget")
 FILE_SUFFIXES = (".exe", ".msi", ".msix", ".msixbundle", ".appx", ".appxbundle", ".zip", ".7z")
 
+SUMS_SAID_BY = "the checksum file of the release"
+SUM_LINE = re.compile(r"^\s*([0-9a-fA-F]{64})\s+\*?(.+?)\s*$")
+SUMS_BYTES = 1 << 20  # a checksum file is a page of text; more than this is not one
+
 ReleaseCall = Callable[[str], tuple[str, list[tuple[str, str]]]]
 WingetCall = Callable[[Any, str, str, Path], Path]
+TextCall = Callable[[str], str]
 
 
 @dataclass(frozen=True)
@@ -51,6 +64,7 @@ class Program:
     block: tuple[str, str]  # the heading it stands under, English and Russian
     installer: dict[str, str] | None = None
     portable: dict[str, str] | None = None
+    about: tuple[str, str] = ("", "")  # what the program is, English and Russian: the tooltip of its card
 
     def source(self, kind: str) -> dict[str, str] | None:
         return self.portable if kind == PORTABLE else self.installer
@@ -84,10 +98,18 @@ def read_shelves(data: Any) -> dict[str, list[Program]]:
                         raise ValueError(f"programs.yaml: {key}.{kind} - a source is one of {', '.join(WAYS)} with its fields, got {source!r}")
                     if way == "github":
                         re.compile(source["asset"])
+                    if "sums" in source:
+                        # Only a release has a checksum file beside its files.
+                        if way != "github" or not source["sums"]:
+                            raise ValueError(f"programs.yaml: {key}.{kind} - `sums` is the checksum file of a github release, "
+                                             f"a {way} source has none: {source!r}")
+                        re.compile(source["sums"])
                     files[kind] = source
                 if not files[INSTALLER] and not files[PORTABLE]:
                     raise ValueError(f"programs.yaml: {key} names neither an installer nor a portable build")
-                programs.append(Program(key, name, str(shelf), title, files[INSTALLER], files[PORTABLE]))
+                about = str(row.get("about") or "").strip()
+                programs.append(Program(key, name, str(shelf), title, files[INSTALLER], files[PORTABLE],
+                                        (about, str(row.get("about_ru") or "").strip() or about)))
         shelves[str(shelf)] = programs
     return shelves
 
@@ -96,6 +118,17 @@ def _latest_release(repo: str) -> tuple[str, list[tuple[str, str]]]:
     from system_core.services.winget_service import _github_latest_assets
 
     return _github_latest_assets(repo)
+
+
+def _read_text(url: str) -> str:
+    """A small text file by its address: the checksum file of a release."""
+    from urllib.request import urlopen
+
+    try:
+        with urlopen(Request(url, headers={"User-Agent": "Audion-Get"}), timeout=60) as response:
+            return response.read(SUMS_BYTES).decode("utf-8", "replace")
+    except OSError as exc:  # no answer, a refusal, a broken connection
+        raise RuntimeError(f"the checksum file did not come from {url} ({exc})") from exc
 
 
 def winget_file(context: Any, package_id: str, installer_type: str, folder: Path) -> Path:
@@ -142,11 +175,12 @@ class ProgramsProvider:
     _instance: "ProgramsProvider | None" = None
 
     def __init__(self, path: Path | None = None, releases: ReleaseCall | None = None, winget: WingetCall | None = None,
-                 show: Callable[[str], str] | None = None) -> None:
+                 show: Callable[[str], str] | None = None, text: TextCall | None = None) -> None:
         self._path = path
         self._releases: ReleaseCall = releases or _latest_release
         self._winget: WingetCall = winget or winget_file
         self._show = show
+        self._text: TextCall = text or _read_text
         self._read: tuple[float, dict[str, list[Program]]] | None = None
 
     @classmethod
@@ -176,7 +210,7 @@ class ProgramsProvider:
         own = f"{PREFIX}{program.key}:{kind}" if kind else (installer or portable)
         return VendorBuild(vendor=self.id, product=program.shelf, version=program.name, platform=PLATFORM_WINDOWS, date="",
                            download_id=own, name=program.name + (" (portable)" if own == portable else ""),
-                           portable_id=portable)
+                           portable_id=portable, about=program.about[0], about_ru=program.about[1])
 
     def blocks(self, shelf: str) -> list[tuple[tuple[str, str], list[VendorBuild]]]:
         """A shelf as the window shows it: its blocks in the order of the file, each with its programs."""
@@ -192,11 +226,28 @@ class ProgramsProvider:
     def release_file(self, repo: str, pattern: str) -> tuple[str, str, str]:
         """The file of the latest release its pattern names: its name, its address, the release."""
         tag, assets = self._releases(repo)
+        return self.named(repo, tag, assets, pattern)
+
+    @staticmethod
+    def named(repo: str, tag: str, assets: list[tuple[str, str]], pattern: str) -> tuple[str, str, str]:
+        """The file of a release, as its answer lists them, that the pattern names."""
         for name, url in assets:
             if re.search(pattern, name, re.IGNORECASE):
                 return name, url, tag
         names = ", ".join(name for name, _url in assets) or "nothing"
         raise RuntimeError(f"The latest release of {repo} ({tag}) has no file matching {pattern}; there are: {names}")
+
+    def release_sum(self, repo: str, tag: str, assets: list[tuple[str, str]], pattern: str, file_name: str) -> str:
+        """The SHA-256 the checksum file of a release gives for one of its files; no such file or no such line is said in words."""
+        found = next(((name, url) for name, url in assets if re.search(pattern, name, re.IGNORECASE)), None)
+        if found is None:
+            raise RuntimeError(f"the release of {repo} ({tag}) has no checksum file matching {pattern}")
+        sums_name, sums_url = found
+        for line in self._text(sums_url).splitlines():
+            match = SUM_LINE.match(line)
+            if match and match.group(2) == file_name:
+                return match.group(1).upper()
+        raise RuntimeError(f"{sums_name} of {repo} ({tag}) names no sum for {file_name}")
 
     def _parse(self, download_id: str) -> tuple[Program, str] | None:
         wanted = str(download_id or "").strip()
@@ -218,8 +269,22 @@ class ProgramsProvider:
         folder = download_folder_name(program.name, program.key) + ("/Portable" if kind == PORTABLE else "")
         way = source["source"]
         if way == "github":
-            return [BuildSource(host="github.com", name="", folder=folder,
-                                link=lambda: (self.release_file(source["repo"], source["asset"])[1], ""))]
+            # The release is read once, when the file is asked for: the file, its address and its sum
+            # are named by that one answer.
+            release: dict[str, Any] = {}
+
+            def link() -> tuple[str, str]:
+                release["tag"], release["assets"] = self._releases(source["repo"])
+                return self.named(source["repo"], release["tag"], release["assets"], source["asset"])[1], ""
+
+            def checksum(file_name: str) -> str:
+                if "assets" not in release:
+                    release["tag"], release["assets"] = self._releases(source["repo"])
+                return self.release_sum(source["repo"], release["tag"], release["assets"], source["sums"], file_name)
+
+            checked = bool(source.get("sums"))
+            return [BuildSource(host="github.com", name="", folder=folder, link=link,
+                                checksum=checksum if checked else None, said_by=SUMS_SAID_BY if checked else "")]
         if way == "url":
             return [BuildSource(host=Request(source["url"]).host or "the maker's site", name=source.get("name", ""), folder=folder,
                                 link=lambda: (source["url"], ""))]

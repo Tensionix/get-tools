@@ -881,21 +881,28 @@ public sealed class Form
         var sheets = new List<(Panel Host, Grid Grid, Border Rule)>();
         var cards = new List<(Border Card, ToggleButton Tick, TextBlock Name)>();
         var blocks = new List<Border>();
+        // Every card with its option and the block of the heading it stands under: what a search shows and hides,
+        // and what the two columns are balanced by.
+        var faces = new List<(Border Card, Option Option, Border? Under)>();
         StackPanel leftStack = new(), rightStack = new();
         Grid.SetColumn(rightStack, 2);
         var stacks = new Grid { ColumnDefinitions = new ColumnDefinitions("*,4,*"), Children = { leftStack, rightStack } };
         int columns = 1;
         bool smaller = false, wraps = false, pair = false;
         bool? stacked = null;
+        int stackedBy = 0;
         void Stack()
         {
-            if (stacked == pair) return;
-            stacked = pair;
+            if (stacked == pair && stackedBy == columns) return;
+            (stacked, stackedBy) = (pair, columns);
             leftStack.Children.Clear();
             rightStack.Children.Clear();
-            // The blocks in sight by turns: one a search has emptied leaves no gap in its stack.
+            // The blocks in sight, each to the column that is shorter so far (Core\Columns.cs): counted by the cards
+            // in sight under each heading, so a search that thins a block moves the balance with it, and one it has
+            // emptied leaves no gap in its stack.
             var seen = blocks.Where(one => one.IsVisible).ToList();
-            for (int i = 0; i < seen.Count; i++) (pair && i % 2 == 1 ? rightStack : leftStack).Children.Add(seen[i]);
+            var right = Columns.Right(seen.Select(one => Columns.Height(faces.Count(face => face.Under == one && face.Card.IsVisible), columns)).ToList());
+            for (int i = 0; i < seen.Count; i++) (pair && right[i] ? rightStack : leftStack).Children.Add(seen[i]);
             Grid.SetColumnSpan(leftStack, pair ? 1 : 3);
             rightStack.IsVisible = pair;
         }
@@ -955,8 +962,6 @@ public sealed class Form
         // (the owner: "the kinds of devices are set apart as blocks"); cards before any heading stand in the list itself.
         Panel into = column;
         Grid? grid = null;
-        // Every card with its option and the block of the heading it stands under: what a search shows and hides.
-        var faces = new List<(Border Card, Option Option, Border? Under)>();
         Border? under = null;
         foreach (var option in options)
         {

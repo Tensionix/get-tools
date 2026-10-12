@@ -41,6 +41,8 @@ class VendorBuild:
     portable_id: str = ""  # the portable build of the same version, its own download id (equal to download_id when the card is portable-only)
     ticked: bool = False  # ticked when its list arrives, unless the person has chosen already: the driver this PC's device wants
     preview: bool = False  # no release (a beta, a hotfix): "the latest stable" passes it by whatever its label says
+    about: str = ""  # what it is, in a sentence: the tooltip of its card, where its catalog says
+    about_ru: str = ""
 
     @property
     def label(self) -> str:
@@ -72,6 +74,11 @@ class BuildSource:
     folder: str = ""  # the folder of the build under its vendor's, when it is not the name of its file
     # A source that brings the file its own way (WinGet): given the job and the folder, it returns the file.
     fetch: Callable[[Any, Any], Any] | None = None
+    # The sum the file must have, where it is learnt only once the file is here: given the name of the file,
+    # it answers its SHA-256 or raises RuntimeError saying why there is none. A source that carries it was
+    # told to check: with no sum the file is not trusted.
+    checksum: Callable[[str], str] | None = None
+    said_by: str = ""  # who names that sum, for the log
 
 
 class RegistrationRequired(RuntimeError):

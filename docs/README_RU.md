@@ -55,13 +55,20 @@ HARDWARE, под ними страницы раздела. Слева стран
 
 ### Наборы WinGet: каталог по группам
 
-Каталог программы — 126 пакетов в двенадцати блоках: Система, Разработка, AI,
+Каталог программы — 154 пакета в двенадцати блоках: Система, Разработка, AI,
 PKMS и заметки, Office и документы, Медиа (изображения, звук, видео), Браузеры,
 VPN и связь, Железо и утилиты, рантаймы MSVC и старые MSVC 2005–2013. Блок это
 карточки с галочками; у списка есть фильтр по имени и ID, кнопки «Отметить
 блок» и «Снять блок», а ряд профилей сверху (Минимум, Dev, Медиа, Сеть) отмечает
 типовой набор одним нажатием, после чего правится любая карточка. Выбор
 галочек можно сохранить в YAML и загрузить на другой машине.
+
+С 3.1.0 в каталоге шестнадцать новых карточек: Process Monitor, QuickLook и
+Ditto в Системе; .NET SDK 10 в Разработке; ComfyUI Desktop, LM Studio и Upscayl
+в AI; PDF24 Creator, NAPS2, Pandoc и QGIS LTR в Office и документах; darktable,
+ExifTool и Blender в изображениях; WinSCP и LocalSend в сети. Платных среди них
+нет; LM Studio и PDF24 Creator бесплатны, код у них закрыт. В профили они не
+входят: каждая отмечается своей галочкой.
 
 Каждый блок это обычный список ID в настройках. Своя программа добавляется
 строкой или кнопкой «Добавить ID в список» прямо из окна поиска.
@@ -83,9 +90,10 @@ WinGet` обновляет сам менеджер.
 У каждой карточки три маленькие кнопки, и это половина смысла программы.
 Зелёная стрелка скачивает установщик в `Downloads` папки загрузок, не запуская
 его. Малиновая коробка скачивает zip или standalone-сборку в `Portable`, ту,
-что не требует установки; она есть у 29 программ каталога, среди них Notepad++,
+что не требует установки; она есть у 39 программ каталога, среди них Notepad++,
 Everything, OBS Studio, VLC, Telegram, FFmpeg, Node.js, MKVToolNix, Audacity,
-Sysinternals, Rufus, yt-dlp, SumatraPDF, Rclone, и показывается только там, где
+Sysinternals, Rufus, yt-dlp, SumatraPDF, Rclone, Pandoc, QuickLook, Ditto,
+LocalSend, NAPS2, Upscayl, и показывается только там, где
 такая сборка действительно существует. Синяя стрелка открывает страницу загрузки
 в браузере: раздел релизов на GitHub, страницу TechPowerUp или сайт
 разработчика, чтобы выбрать сборку самому — другую архитектуру, старую версию.
@@ -177,11 +185,32 @@ Ethernet, Audio, - и на каждой странице ряд производ
   Носитель: Media Creation Tool, Rufus, Ventoy. Утилиты: ViVeTool, SoundSwitch,
   EverythingPowerToys, ExplorerTabUtility, Symbolic11, Nilesoft Shell, KDE
   Connect, Bulk Crap Uninstaller, Revo Uninstaller, VeraCrypt, Microsoft Safety
-  Scanner, Google Chrome, Edge WebView2 Runtime, Intel Driver and Support
-  Assistant. Тесты: PresentMon, CapFrameX, PC Latency View, TestMem5, Fan
-  Control. Игры: Steam, Epic, EA app, Battle.net, Rockstar, Riot, Minecraft,
+  Scanner, RustDesk, Google Chrome, Edge WebView2 Runtime, Intel Driver and
+  Support Assistant. Тесты: PresentMon, CapFrameX, PC Latency View, TestMem5,
+  Fan Control. Игры: Steam, Epic, EA app, Battle.net, Rockstar, Riot, Minecraft,
   Prism, Freesm, Modrinth, CurseForge, TcNo Account Switcher. Список лежит в
-  `config\programs.yaml`.
+  `config\programs.yaml`; у программы в нём может стоять строка о том, что это
+  такое, - она показывается подсказкой карточки.
+- **Craft**: страница в MEDIA для [Craft App Suite](https://getartcraft.com/apps) -
+  свободных программ проекта [ArtCraft](https://getartcraft.com)
+  ([исходники на GitHub](https://github.com/storytold)), замен платных пакетов.
+  Всё берётся файлом, сама страница ничего не устанавливает. Начинать стоит с
+  [ArtCraft Launcher](https://github.com/storytold/craft-launcher): его
+  портативная сборка работает без установки, держит настройки рядом с собой, в
+  `ArtCraftLauncherData`, и сама ставит и обновляет приложения набора. Файлом
+  берётся и каждое приложение: PhotoCraft, LightCraft, VectorCraft, DesignCraft,
+  FilmCraft, EffectCraft, SoundCraft, PdfCraft, WordCraft, GridCraft, DeckCraft,
+  CADCraft - портативной сборкой или установщиком, и студия ArtCraft для
+  картинок и видео нейросетями - установщиком. Это ранние версии, выпуски
+  выходят почти каждый день. Скачанный файл сверяется с файлом контрольных сумм
+  своего выпуска; не сошёлся или суммы для него нет - файл получает имя
+  `.untrusted`, и операция кончается ошибкой. Исключение одно, и карточка о нём
+  говорит: у установщика студии ArtCraft нет ни цифровой подписи, ни файла сумм
+  в выпуске, сверить его не с чем. Портативная сборка распаковывается
+  в `Portable` поверх прежней: папка не чистится. Приложение Craft, в отличие
+  от запускателя, держит настройки в `%APPDATA%`, а не в своей папке.
+  Audion Get Tools к проекту ArtCraft не относится: она берёт его выпуски с
+  GitHub как есть.
 
 Подробнее: [руководство](USER_GUIDE_RU.md#загрузки-от-вендоров),
 таблицы составов ниже в [технической части](#наборы-установки-windows).

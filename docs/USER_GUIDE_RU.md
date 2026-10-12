@@ -18,7 +18,7 @@ Audion Get Tools ставит, обновляет и удаляет програ
 
 ## Каталог WinGet: наборы, установка, обновление
 
-Главное окно программы это каталог: 126 пакетов в двенадцати блоках - Система, Разработка, AI, PKMS и заметки, Office и документы, Медиа (изображения, звук, видео), Браузеры, VPN и связь, Железо и утилиты, MSVC рантайм 2015+ и Advanced: MSVC 2005-2013. Блок это карточки с галочками; над списком поле фильтра по имени и ID, у каждого блока кнопки `Отметить блок` и `Снять блок`, а ряд `Профили выбора` сверху (Снять всё, Минимум, Dev, Медиа, Сеть) отмечает типовой набор одним нажатием, после чего правится любая карточка. Кнопки `Экспорт YAML` и `Импорт YAML` в строке навигации сохраняют текущие галочки в файл и возвращают их, хоть на другой машине.
+Главное окно программы это каталог: 154 пакета в двенадцати блоках - Система, Разработка, AI, PKMS и заметки, Office и документы, Медиа (изображения, звук, видео), Браузеры, VPN и связь, Железо и утилиты, MSVC рантайм 2015+ и Advanced: MSVC 2005-2013. Блок это карточки с галочками; над списком поле фильтра по имени и ID, у каждого блока кнопки `Отметить блок` и `Снять блок`, а ряд `Профили выбора` сверху (Снять всё, Минимум, Dev, Медиа, Сеть) отмечает типовой набор одним нажатием, после чего правится любая карточка. Кнопки `Экспорт YAML` и `Импорт YAML` в строке навигации сохраняют текущие галочки в файл и возвращают их, хоть на другой машине.
 
 Каждый блок это обычный список ID в настройках: своя программа добавляется строкой в файл или кнопкой `Добавить ID в список` из окна `Установка, удаление по ID`, где есть и `Поиск` по каталогу WinGet, и установка или удаление по введённому ID.
 
@@ -44,7 +44,7 @@ Audion Get Tools ставит, обновляет и удаляет програ
 | Малиновая коробка | Скачивает zip-архив или standalone-сборку - ту, которую не нужно устанавливать. Появляется только у программ, у которых такая сборка действительно есть. |
 | Синяя стрелка вверх | Открывает в браузере страницу загрузки: раздел релизов на GitHub, страницу TechPowerUp или сайт разработчика. |
 
-Малиновая кнопка есть примерно у четверти списка - у 29 программ. Это не прихоть: наличие архива проверено по каждому пакету, и кнопка не показывается там, где архива нет, чтобы вы не жали её впустую. Среди них Notepad++, Everything, OBS Studio, VLC, Telegram, FFmpeg, Node.js, MKVToolNix, Audacity, Sysinternals, Rufus, yt-dlp, SumatraPDF, Tabby, Rclone, RClone Manager.
+Малиновая кнопка есть примерно у четверти списка - у 39 программ. Это не прихоть: наличие архива проверено по каждому пакету, и кнопка не показывается там, где архива нет, чтобы вы не жали её впустую. Среди них Notepad++, Everything, OBS Studio, VLC, Telegram, FFmpeg, Node.js, MKVToolNix, Audacity, Sysinternals, Rufus, yt-dlp, SumatraPDF, Tabby, Rclone, RClone Manager, Pandoc, QuickLook, Ditto, LocalSend, NAPS2, Upscayl.
 
 Иногда сборка есть у разработчика, но её нет в каталоге WinGet - так у Tabby и RClone Manager. Тогда файл берётся прямо со страницы выпусков, а кнопка ведёт себя как обычно. Обе кнопки в таком случае берут файлы из одного выпуска, поэтому установочная и портативная версии всегда одной версии. У RClone Manager это ещё и свежее: в каталоге WinGet лежит только установщик, и он отстаёт от того, что уже выложил разработчик.
 
@@ -153,6 +153,34 @@ DLSS не скачивается как программа: это библио�
 - zip распаковывается в свою папку, чтобы установщик был под рукой, и по умолчанию удаляется после распаковки; так же распаковывается 7z - его читает tar из состава Windows. Оба действия отключаются галочками. exe, msix, dmg и tar остаются как есть.
 
 Учётная запись не нужна нигде, кроме одного случая: бесплатная DaVinci Resolve выдаётся Blackmagic только после анкеты (имя, почта, телефон, адрес). Поля анкеты появляются внизу раздела, когда выбран этот продукт; они уходят напрямую на blackmagicdesign.com, учётная запись не создаётся, письмо подтверждать не нужно, и здесь ничего не сохраняется. Подписанные ссылки Blackmagic и Serif живут несколько часов, ссылки Affinity 3 постоянные.
+
+### Craft: свободные программы проекта ArtCraft
+
+Страница `MEDIA → Craft` - это [Craft App Suite](https://getartcraft.com/apps): набор свободных программ с открытым кодом от проекта [ArtCraft](https://getartcraft.com), написанных с нуля на Rust. Исходники и выпуски лежат на GitHub, в [github.com/storytold](https://github.com/storytold). Проект молодой и растёт быстро: репозитории созданы осенью 2026 года, версии идут 0.5-0.9, новый выпуск выходит почти каждый день.
+
+Что на странице:
+
+- **Запускатель** - [ArtCraft Launcher](https://github.com/storytold/craft-launcher). Он ставит, обновляет и открывает приложения набора; установленное им обновляет сам.
+- **Фото и графика** - [PhotoCraft](https://github.com/storytold/photocraft) (растровый редактор, читает PSD), [LightCraft](https://github.com/storytold/lightcraft) (проявка и каталог снимков), [VectorCraft](https://github.com/storytold/vectorcraft) (векторная графика), [DesignCraft](https://github.com/storytold/designcraft) (вёрстка).
+- **Видео и звук** - [FilmCraft](https://github.com/storytold/filmcraft) (монтаж), [EffectCraft](https://github.com/storytold/effectcraft) (анимация и композитинг), [SoundCraft](https://github.com/storytold/soundcraft) (запись и сведение).
+- **Документы** - [PdfCraft](https://github.com/storytold/pdfcraft), [WordCraft](https://github.com/storytold/wordcraft), [GridCraft](https://github.com/storytold/gridcraft), [DeckCraft](https://github.com/storytold/deckcraft): PDF, текст, таблицы, презентации.
+- **Черчение** - [CADCraft](https://github.com/storytold/cadcraft).
+- **Генерация** - студия [ArtCraft](https://github.com/storytold/artcraft): картинки и видео нейросетями. Сама программа бесплатна, сервисы генерации, к которым она подключается, оплачиваются отдельно.
+
+Страница ничего не устанавливает: всё берётся файлом.
+
+- `Скачать` берёт отмеченные карточки: портативную сборку или установщик MSI любой программы набора. У каждой карточки свои маленькие кнопки - установщик, портативная сборка, ссылка на выпуск. Кнопка `Портативные` над списком оставляет только те карточки, у которых портативная сборка есть; у студии ArtCraft её нет.
+- начинать стоит с запускателя, и брать его портативным: он работает без установки, переносится вместе с папкой и дальше сам ставит и обновляет приложения набора.
+
+Что стоит знать заранее:
+
+- это ранние версии. Сегодняшний выпуск завтра уже не последний, и программа каждый раз берёт новейший;
+- каждый скачанный файл сверяется с файлом `SHA256SUMS.txt` своего выпуска. Сумма не сошлась, файла сумм в выпуске нет или в нём нет строки для этого файла - файл получает имя `.untrusted`, и операция кончается ошибкой;
+- установщики и программы набора подписаны одним издателем - Learning Machines Inc: его имя Windows покажет в свойствах файла и в вопросе при запуске;
+- исключение - установщик студии ArtCraft: у него нет ни цифровой подписи, ни файла сумм в выпуске. Он берётся как есть, сверить его не с чем, и подсказка карточки об этом говорит;
+- портативная сборка распаковывается в папку `Portable` своей программы поверх прежней, папка перед этим не чистится;
+- приложение Craft держит настройки в `%APPDATA%`, а не в своей папке: портативная сборка запускается без установки, но переносимой вместе с настройками её не делает. Портативный запускатель, наоборот, хранит настройки рядом с собой, в папке `ArtCraftLauncherData`;
+- Audion Get Tools к проекту ArtCraft не относится и ничего в его файлах не меняет: она берёт выпуски с GitHub как есть. Вопросы о самих программах - авторам, на [getartcraft.com](https://getartcraft.com) и в их репозиториях.
 
 ## Драйверы этой машины
 
@@ -560,13 +588,14 @@ AI Package Planner пишет отчёты в `report\`:
 
 - Blackmagic Design: `Скачать` (`Только ссылка`)
 - Affinity: `Скачать` (`Только ссылка`)
+- Craft: `Скачать` (`Только ссылка`)
 - Игры: `Скачать` (`Только ссылка`)
 
 **SYSTEM** - Рантаймы и системные утилиты
 
 - Рантаймы: `Проверить рантаймы MSVC`; `MSVC 2015+`; `Обновить MSVC 2015+`; `MSVC Legacy`; `Установить MSVC All-in-One (TechPowerUp)`; `MSVC All-in-One (TechPowerUp)`; `Установить MSVC AIO (abbodi1406)`; `MSVC AIO (abbodi1406)`
 - Утилиты: `Скачать` (`Только ссылка`)
-- WinUtil: `WinUtil`; `Обновить WinGet (скрипт)`
+- WinUtil: `WinUtil`
 
 **DRIVERS** - Драйверы этой машины и любого железа
 
@@ -607,15 +636,15 @@ AI Package Planner пишет отчёты в `report\`:
 
 **Система** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты (13 шт.): .NET Framework 3.5 — Компонент самой Windows, а не пакет: включается через DISM, файлы приносит Центр обновления.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy
+- Варианты (16 шт.): .NET Framework 3.5 — Компонент самой Windows, а не пакет: включается через DISM, файлы приносит Центр обновления.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy; Process Monitor — Что программа делает с файлами, реестром и сетью, прямо сейчас.; QuickLook — Просмотр файла пробелом в Проводнике, не открывая программу.; Ditto — История буфера обмена с поиском.
 
 **Разработка** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты (33 шт.): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo
+- Варианты (34 шт.): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo; .NET SDK 10 — Сборка программ на .NET 10, в том числе окон на Avalonia. Для запуска готовых программ хватает Desktop Runtime.
 
 **AI** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama
+- Варианты: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama; ComfyUI Desktop — Картинки и видео на своей видеокарте: схема из узлов.; LM Studio — Языковые модели на своём компьютере, с окном. Бесплатная, код закрыт.; Upscayl — Увеличение картинок нейросетью на своей видеокарте.
 
 **PKMS и заметки** — карточки с галочками, любой набор.
 - По умолчанию: пусто
@@ -623,11 +652,11 @@ AI Package Planner пишет отчёты в `report\`:
 
 **Office и документы** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты: Calibre; LibreOffice / soffice; Acrobat Reader; SumatraPDF
+- Варианты: Calibre; LibreOffice / soffice; Acrobat Reader; SumatraPDF; PDF24 Creator — Склейка, разделение, сжатие и распознавание PDF. Бесплатная, код закрыт.; NAPS2 — Сканирование в PDF с распознаванием текста.; Pandoc — Перевод документов между DOCX, Markdown, HTML и PDF из командной строки.; QGIS LTR — Карты и пространственные данные: слои, кадастр, координаты. Ветка долгой поддержки.
 
 **Медиа: изображения** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты: FastStone Viewer; Krita; GIMP; Inkscape; ImageMagick; IrfanView; XnView MP
+- Варианты: FastStone Viewer; Krita; GIMP; Inkscape; ImageMagick; IrfanView; XnView MP; darktable — Проявка и каталог снимков RAW.; ExifTool — Чтение и правка метаданных фото и видео из командной строки.; Blender — 3D: моделирование, анимация, рендер и композитинг.
 
 **Медиа: звук** — карточки с галочками, любой набор.
 - По умолчанию: пусто
@@ -639,7 +668,7 @@ AI Package Planner пишет отчёты в `report\`:
 
 **Браузеры, VPN, связь** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты (24 шт.): Firefox; Opera; Vivaldi; Brave; Zen Browser; Ungoogled Chromium; Cent Browser; AmneziaVPN; v2rayN; Karing; Happ; Signal; Telegram Desktop; Discord; Bitwarden; KeePassXC; Thunderbird; Zoom; AnyDesk; Yandex Disk; Rclone; RcloneView; Rclone UI; RClone Manager
+- Варианты (26 шт.): Firefox; Opera; Vivaldi; Brave; Zen Browser; Ungoogled Chromium; Cent Browser; AmneziaVPN; v2rayN; Karing; Happ; Signal; Telegram Desktop; Discord; Bitwarden; KeePassXC; Thunderbird; Zoom; AnyDesk; Yandex Disk; Rclone; RcloneView; Rclone UI; RClone Manager; WinSCP — Файлы на сервер и с сервера по SFTP, SCP и FTP.; LocalSend — Файлы между компьютерами и телефонами в одной сети, без облака.
 
 **Железо и утилиты** — карточки с галочками, любой набор.
 - По умолчанию: пусто
@@ -688,15 +717,15 @@ AI Package Planner пишет отчёты в `report\`:
 
 **Система** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты (13 шт.): .NET Framework 3.5 — Компонент самой Windows, а не пакет: включается через DISM, файлы приносит Центр обновления.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy
+- Варианты (16 шт.): .NET Framework 3.5 — Компонент самой Windows, а не пакет: включается через DISM, файлы приносит Центр обновления.; .NET Desktop Runtime 6; .NET Desktop Runtime 8; .NET Desktop Runtime 10; Windows Terminal; PowerShell 7; Tabby; 7-Zip; PeaZip; WinRAR; Process Explorer; Autoruns; TeraCopy; Process Monitor — Что программа делает с файлами, реестром и сетью, прямо сейчас.; QuickLook — Просмотр файла пробелом в Проводнике, не открывая программу.; Ditto — История буфера обмена с поиском.
 
 **Разработка** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты (33 шт.): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo
+- Варианты (34 шт.): Everything; WinMerge; Notepad++; yt-dlp; RHash; Git; Visual Studio Code; VSCodium; GitHub Desktop; GitKraken; FFmpeg; btop4win; PowerToys; Total Commander; Far Manager; grepWin; Python 3.12; Python 3.13; Node.js; JetBrains Mono Nerd Font; JetBrains Toolbox; IntelliJ IDEA Community; PyCharm Community; WebStorm; ShareX; GitHub CLI · gh; uv (Python); ripgrep; fd; fzf; jq; bat; gsudo; .NET SDK 10 — Сборка программ на .NET 10, в том числе окон на Avalonia. Для запуска готовых программ хватает Desktop Runtime.
 
 **AI** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama
+- Варианты: Claude; Claude Code; OpenAI Codex; GitHub Copilot; Grok Build (xAI); opencode; Ollama; ComfyUI Desktop — Картинки и видео на своей видеокарте: схема из узлов.; LM Studio — Языковые модели на своём компьютере, с окном. Бесплатная, код закрыт.; Upscayl — Увеличение картинок нейросетью на своей видеокарте.
 
 **PKMS и заметки** — карточки с галочками, любой набор.
 - По умолчанию: пусто
@@ -704,11 +733,11 @@ AI Package Planner пишет отчёты в `report\`:
 
 **Office и документы** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты: Calibre; LibreOffice / soffice; Acrobat Reader; SumatraPDF
+- Варианты: Calibre; LibreOffice / soffice; Acrobat Reader; SumatraPDF; PDF24 Creator — Склейка, разделение, сжатие и распознавание PDF. Бесплатная, код закрыт.; NAPS2 — Сканирование в PDF с распознаванием текста.; Pandoc — Перевод документов между DOCX, Markdown, HTML и PDF из командной строки.; QGIS LTR — Карты и пространственные данные: слои, кадастр, координаты. Ветка долгой поддержки.
 
 **Медиа: изображения** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты: FastStone Viewer; Krita; GIMP; Inkscape; ImageMagick; IrfanView; XnView MP
+- Варианты: FastStone Viewer; Krita; GIMP; Inkscape; ImageMagick; IrfanView; XnView MP; darktable — Проявка и каталог снимков RAW.; ExifTool — Чтение и правка метаданных фото и видео из командной строки.; Blender — 3D: моделирование, анимация, рендер и композитинг.
 
 **Медиа: звук** — карточки с галочками, любой набор.
 - По умолчанию: пусто
@@ -720,7 +749,7 @@ AI Package Planner пишет отчёты в `report\`:
 
 **Браузеры, VPN, связь** — карточки с галочками, любой набор.
 - По умолчанию: пусто
-- Варианты (24 шт.): Firefox; Opera; Vivaldi; Brave; Zen Browser; Ungoogled Chromium; Cent Browser; AmneziaVPN; v2rayN; Karing; Happ; Signal; Telegram Desktop; Discord; Bitwarden; KeePassXC; Thunderbird; Zoom; AnyDesk; Yandex Disk; Rclone; RcloneView; Rclone UI; RClone Manager
+- Варианты (26 шт.): Firefox; Opera; Vivaldi; Brave; Zen Browser; Ungoogled Chromium; Cent Browser; AmneziaVPN; v2rayN; Karing; Happ; Signal; Telegram Desktop; Discord; Bitwarden; KeePassXC; Thunderbird; Zoom; AnyDesk; Yandex Disk; Rclone; RcloneView; Rclone UI; RClone Manager; WinSCP — Файлы на сервер и с сервера по SFTP, SCP и FTP.; LocalSend — Файлы между компьютерами и телефонами в одной сети, без облака.
 
 **Железо и утилиты** — карточки с галочками, любой набор.
 - По умолчанию: пусто
@@ -1028,10 +1057,10 @@ DaVinci Resolve, Affinity, драйверы и программы NVIDIA, обр
 - Варианты: Intel Management Engine; Intel RST VMD
 
 **Полка** — ряд переключателей, один вариант.
-- Подсказка: Какие программы показать. Каждая - новейший файл от производителя: установщик, портативная сборка или оба; ничего не устанавливается. Портативный zip или 7z распаковывается в папку Portable своей программы.
+- Подсказка: Какие программы показать. Каждая - новейший файл от производителя: установщик, портативная сборка или оба; ничего не устанавливается. Портативный zip или 7z распаковывается в папку Portable своей программы. Файлы полки Craft сверяются с файлом контрольных сумм своего выпуска.
 - По умолчанию: Носитель
 - Показывается, когда: Производитель = «Программы»
-- Варианты: Носитель; Утилиты; Тесты; Игры
+- Варианты: Носитель; Утилиты; Тесты; Игры; Craft
 
 **Раздел** — ряд переключателей, один вариант.
 - Подсказка: Раздел каталога TechPowerUp: драйверы, утилиты настройки, мониторинг, бенчмарки или прошивальщики BIOS видеокарт. Ряд продуктов ниже меняется вместе с ним. Драйверы NVIDIA и библиотеки DLSS остаются на вкладке NVIDIA.
@@ -1372,7 +1401,7 @@ _меняет систему, перед запуском спрашивает �
 
 Запустить существующий скрипт обновления Microsoft App Installer.
 
-_меняет систему, перед запуском спрашивает подтверждение_
+_в окне этой кнопки нет: операция осталась у консольного меню и консольной команды; меняет систему, перед запуском спрашивает подтверждение_
 
 Полей нет: одна кнопка.
 

@@ -34,3 +34,4 @@ junegunn.fzf
 jqlang.jq
 sharkdp.bat
 gerardog.gsudo
+Microsoft.DotNet.SDK.10

@@ -151,6 +151,44 @@ class ArchiveTypeTests(unittest.TestCase):
         ):
             self.assertIsNone(re.fullmatch(archive, name), name)
 
+    def test_the_archives_of_3_1_0_name_their_file_and_refuse_the_neighbours(self) -> None:
+        """Five packages whose portable zip lies in the release on GitHub; the names are those of 12.10.2026."""
+        releases = {
+            "QL-Win.QuickLook": ("QL-Win/QuickLook", "QuickLook-4.5.0.zip",
+                                 ("QuickLook-4.5.0.7z", "QuickLook-4.5.0.appx", "QuickLook-4.5.0.exe", "QuickLook-4.5.0.msi")),
+            "Ditto.Ditto": ("sabrogden/Ditto", "DittoPortable_3_25_113_0.zip", ("DittoDebug_3_25_113_0.7z", "DittoSetup_3_25_113_0.exe")),
+            "LocalSend.LocalSend": ("localsend/localsend", "LocalSend-1.18.2-windows-x86-64.zip",
+                                    ("LocalSend-1.18.2-windows-arm-64.zip", "LocalSend-1.18.2-windows-x86-64.exe",
+                                     "LocalSend-1.18.2-windows-x86-64-unsigned.exe", "LocalSend-CLI-1.18.2-windows-x86-64.exe",
+                                     "LocalSend-CLI-1.18.2-linux-x86-64.tar.gz", "LocalSend-1.18.2-linux-x86-64.tar.gz")),
+            "Cyanfish.NAPS2": ("cyanfish/naps2", "naps2-8.5.0-win-x64.zip",
+                               ("naps2-8.5.0-win-x64.exe", "naps2-8.5.0-win-x64.msi", "naps2-8.5.0-win-x64.msix", "naps2-8.5.0-win-arm64.exe")),
+            "Upscayl.Upscayl": ("upscayl/upscayl", "upscayl-2.15.0-win.zip",
+                                ("upscayl-2.15.0-win.exe", "upscayl-2.15.0-win.exe.blockmap", "upscayl-2.15.0-linux.zip", "upscayl-2.15.0-mac.zip")),
+        }
+        for package, (repo, name, neighbours) in releases.items():
+            found = package_archive_github(package)
+            self.assertIsNotNone(found, package)
+            self.assertEqual(found[0], repo, package)  # type: ignore[index]
+            self.assertIsNotNone(re.fullmatch(found[1], name), package)  # type: ignore[index]
+            for neighbour in neighbours:
+                self.assertIsNone(re.fullmatch(found[1], neighbour), neighbour)  # type: ignore[index]
+            # The crimson button of the archive is there, and the installer stays with WinGet.
+            self.assertEqual(package_archive_type(package), "zip", package)
+            self.assertIsNone(package_installer_github(package), package)
+
+    def test_two_archives_of_3_1_0_come_from_winget_itself(self) -> None:
+        """`winget show --id <ID> -e --installer-type zip` answered "portable (zip)" for both on 12.10.2026."""
+        for package in ("Microsoft.Sysinternals.ProcessMonitor", "JohnMacFarlane.Pandoc"):
+            self.assertEqual(package_archive_type(package), "zip", package)
+            self.assertIsNone(package_archive_github(package), package)
+
+    def test_nine_packages_of_3_1_0_have_no_archive(self) -> None:
+        for package in ("Comfy.ComfyUI-Desktop", "ElementLabs.LMStudio", "WinSCP.WinSCP", "Microsoft.DotNet.SDK.10",
+                        "geeksoftwareGmbH.PDF24Creator", "OSGeo.QGIS_LTR", "darktable.darktable", "OliverBetz.ExifTool",
+                        "BlenderFoundation.Blender"):
+            self.assertEqual(package_archive_type(package), "", package)
+
     def test_github_archive_pattern_matches_the_released_name(self) -> None:
         repo, pattern = package_archive_github("eugeny.tabby")
         self.assertIsNotNone(re.fullmatch(pattern, "tabby-1.0.235-portable-x64.zip"))

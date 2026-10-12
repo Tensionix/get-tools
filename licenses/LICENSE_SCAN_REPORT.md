@@ -1,7 +1,7 @@
 # Audion Build Licenses Scan Report
 
 - Project: **Audion Get Tools** (`audion-get-tools`)
-- Run: `20261011T094958Z_audion-get-tools_f2c4cd85`
+- Run: `20261012T155921Z_audion-get-tools_911c9713`
 - Scan root (from the project root): `.`
 - Output (from the project root): `licenses`
 - Status: **PASS**
@@ -17,8 +17,8 @@ No issues detected.
 
 | Component | Change | Old | New |
 |---|---|---:|---:|
-| annotated-types | `UNCHANGED` | 0.8.0 | 0.8.0 |
-| anyio | `UNCHANGED` | 4.15.1 | 4.15.1 |
+| annotated-types | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.8.0 | 0.8.0 |
+| anyio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.15.1 | 4.15.1 |
 | Audion launcher | `UNCHANGED` | bundled | bundled |
 | Avalonia | `UNCHANGED` | 12.1.3 | 12.1.3 |
 | Avalonia.Angle.Windows.Natives | `UNCHANGED` | 2.1.27548.20260419 | 2.1.27548.20260419 |
@@ -33,34 +33,34 @@ No issues detected.
 | Avalonia.Themes.Fluent | `UNCHANGED` | 12.1.3 | 12.1.3 |
 | Avalonia.Win32 | `UNCHANGED` | 12.1.3 | 12.1.3 |
 | Avalonia.X11 | `UNCHANGED` | 12.1.3 | 12.1.3 |
-| certifi | `UNCHANGED` | 2026.7.22 | 2026.7.22 |
-| cffi | `UNCHANGED` | 2.1.1 | 2.1.1 |
-| charset-normalizer | `UNCHANGED` | 3.5.2 | 3.5.2 |
-| colorama | `UNCHANGED` | 0.4.6 | 0.4.6 |
-| cryptography | `UNCHANGED` | 50.0.2 | 50.0.2 |
-| distro | `UNCHANGED` | 1.9.0 | 1.9.0 |
+| certifi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2026.7.22 | 2026.7.22 |
+| cffi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.1.1 | 2.1.1 |
+| charset-normalizer | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.5.2 | 3.5.2 |
+| colorama | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.6 | 0.4.6 |
+| cryptography | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 50.0.2 | 50.0.2 |
+| distro | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.9.0 | 1.9.0 |
 | fzf | `UNCHANGED` | bundled | bundled |
-| google-auth | `UNCHANGED` | 2.61.0 | 2.61.0 |
-| google-genai | `UNCHANGED` | 2.29.0 | 2.29.0 |
-| h11 | `UNCHANGED` | 0.16.0 | 0.16.0 |
+| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.61.0 | 2.61.0 |
+| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.29.0 | 2.29.0 |
+| h11 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.16.0 | 0.16.0 |
 | HarfBuzzSharp | `UNCHANGED` | 8.3.1.3 | 8.3.1.3 |
 | HarfBuzzSharp.NativeAssets.Win32 | `UNCHANGED` | 8.3.1.3 | 8.3.1.3 |
-| httpcore | `UNCHANGED` | 1.0.9 | 1.0.9 |
-| httpcore2 | `UNCHANGED` | 2.13.1 | 2.13.1 |
-| httpx | `UNCHANGED` | 0.28.1 | 0.28.1 |
-| httpx2 | `UNCHANGED` | 2.13.1 | 2.13.1 |
+| httpcore | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.0.9 | 1.0.9 |
+| httpcore2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.13.1 |
+| httpx | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.28.1 | 0.28.1 |
+| httpx2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.13.1 |
 | Humanizer.Core | `UNCHANGED` | 2.14.1 | 2.14.1 |
-| idna | `UNCHANGED` | 3.20 | 3.20 |
+| idna | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.20 | 3.20 |
 | Inter | `UNCHANGED` | 3.019 | 3.019 |
 | JetBrains Mono | `UNCHANGED` | 2.211 | 2.211 |
-| jiter | `UNCHANGED` | 0.17.0 | 0.17.0 |
+| jiter | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.17.0 | 0.17.0 |
 | Json.More.Net | `UNCHANGED` | 2.1.1 | 2.1.1 |
 | JsonPointer.Net | `UNCHANGED` | 5.3.1 | 5.3.1 |
 | JsonSchema.Net | `UNCHANGED` | 7.4.0 | 7.4.0 |
 | Lucide | `UNCHANGED` | 1.48.0 | 1.48.0 |
 | Markdig.Signed | `UNCHANGED` | 0.44.0 | 0.44.0 |
-| markdown-it-py | `UNCHANGED` | 4.2.0 | 4.2.0 |
-| mdurl | `UNCHANGED` | 0.1.2 | 0.1.2 |
+| markdown-it-py | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.2.0 | 4.2.0 |
+| mdurl | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.1.2 | 0.1.2 |
 | MicroCom.Runtime | `UNCHANGED` | 0.11.6 | 0.11.6 |
 | Microsoft.ApplicationInsights | `UNCHANGED` | 2.23.0 | 2.23.0 |
 | Microsoft.Bcl.AsyncInterfaces | `UNCHANGED` | 10.0.5 | 10.0.5 |
@@ -87,25 +87,25 @@ No issues detected.
 | Microsoft.WSMan.Management | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Microsoft.WSMan.Runtime | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Newtonsoft.Json | `UNCHANGED` | 13.0.4 | 13.0.4 |
-| openai | `UNCHANGED` | 3.28.0 | 3.28.0 |
-| packaging | `UNCHANGED` | 26.3 | 26.3 |
-| pip | `UNCHANGED` | 26.2.1 | 26.2.1 |
-| pyasn1 | `UNCHANGED` | 0.6.4 | 0.6.4 |
-| pyasn1_modules | `UNCHANGED` | 0.4.2 | 0.4.2 |
-| pycparser | `UNCHANGED` | 3.11 | 3.11 |
-| pydantic | `UNCHANGED` | 2.14.0 | 2.14.0 |
-| pydantic_core | `UNCHANGED` | 2.50.0 | 2.50.0 |
-| Pygments | `UNCHANGED` | 2.21.0 | 2.21.0 |
-| Python Embedded | `UNCHANGED` | 3.12.x | 3.12.x |
-| PyYAML | `UNCHANGED` | 6.0.3 | 6.0.3 |
-| requests | `UNCHANGED` | 2.34.2 | 2.34.2 |
-| rich | `UNCHANGED` | 15.0.0 | 15.0.0 |
+| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.28.0 | 3.29.0 |
+| packaging | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.3 | 26.3 |
+| pip | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.2.1 | 26.2.1 |
+| pyasn1 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.6.4 | 0.6.4 |
+| pyasn1_modules | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.2 | 0.4.2 |
+| pycparser | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.11 | 3.11 |
+| pydantic | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.14.0 | 2.14.1 |
+| pydantic_core | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.50.0 | 2.50.1 |
+| Pygments | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.21.0 | 2.21.0 |
+| Python Embedded | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.12.x | 3.12.x |
+| PyYAML | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 6.0.3 | 6.0.3 |
+| requests | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.34.2 | 2.34.2 |
+| rich | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 15.0.0 | 15.0.0 |
 | runtime.native.System.Data.SqlClient.sni | `UNCHANGED` | 4.4.0 | 4.4.0 |
 | runtime.win-x64.runtime.native.System.Data.SqlClient.sni | `UNCHANGED` | 4.4.0 | 4.4.0 |
-| setuptools | `UNCHANGED` | 84.0.0 | 84.0.0 |
+| setuptools | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 84.0.0 | 84.0.0 |
 | SkiaSharp | `UNCHANGED` | 3.119.4 | 3.119.4 |
 | SkiaSharp.NativeAssets.Win32 | `UNCHANGED` | 3.119.4 | 3.119.4 |
-| sniffio | `UNCHANGED` | 1.3.1 | 1.3.1 |
+| sniffio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.3.1 | 1.3.1 |
 | System.CodeDom | `UNCHANGED` | 10.0.5 | 10.0.5 |
 | System.ComponentModel.Composition | `UNCHANGED` | 10.0.5 | 10.0.5 |
 | System.ComponentModel.Composition.Registration | `UNCHANGED` | 10.0.5 | 10.0.5 |
@@ -139,15 +139,15 @@ No issues detected.
 | System.Speech | `UNCHANGED` | 10.0.5 | 10.0.5 |
 | System.Web.Services.Description | `UNCHANGED` | 8.1.2 | 8.1.2 |
 | System.Windows.Extensions | `UNCHANGED` | 10.0.5 | 10.0.5 |
-| tenacity | `UNCHANGED` | 9.1.4 | 9.1.4 |
+| tenacity | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 9.1.4 | 9.1.4 |
 | Tmds.DBus.Protocol | `UNCHANGED` | 0.94.1 | 0.94.1 |
-| tqdm | `UNCHANGED` | 4.70.1 | 4.70.1 |
-| truststore | `UNCHANGED` | 0.10.4 | 0.10.4 |
-| typing_extensions | `UNCHANGED` | 4.16.0 | 4.16.0 |
-| typing-inspection | `UNCHANGED` | 0.4.4 | 0.4.4 |
-| urllib3 | `UNCHANGED` | 2.8.0 | 2.8.0 |
-| websockets | `UNCHANGED` | 16.1.1 | 16.1.1 |
-| wheel | `UNCHANGED` | 0.48.0 | 0.48.0 |
+| tqdm | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.70.1 | 4.70.1 |
+| truststore | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.10.4 | 0.10.4 |
+| typing_extensions | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.16.0 | 4.16.0 |
+| typing-inspection | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.4 | 0.4.4 |
+| urllib3 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.8.0 | 2.8.0 |
+| websockets | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 16.1.1 | 16.1.1 |
+| wheel | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.48.0 | 0.48.0 |
 
 ## Licence rules
 
