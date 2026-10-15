@@ -8,6 +8,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from system_core.core.output_decode import decode_process_bytes  # noqa: E402
 from system_core.core.stream_output import StreamAssembler  # noqa: E402
 from system_core.services.winget_service import (  # noqa: E402
     _parse_winget_package_lines,
@@ -124,6 +125,64 @@ class StreamAssemblerTests(unittest.TestCase):
         self.assertEqual(frames, [])
         self.assertEqual(len(lines), 1)
         self.assertIn("20 MB / 20 MB", lines[0])
+
+
+RU_LINES = ["Привет, мир: проверка 1", "Ёлки-палки, съешь ещё этих булок", "Строка №3 - конец"]
+
+
+class EncodingTests(unittest.TestCase):
+    """The terminal reads what a command writes in any of the encodings a Windows console meets."""
+
+    @staticmethod
+    def _lines(data: bytes, piece: int) -> list[str]:
+        lines: list[str] = []
+        assembler = StreamAssembler(lambda text, is_progress: lines.append(text), progress_interval=0.0)
+        for start in range(0, len(data), piece):
+            assembler.feed(data[start:start + piece])
+        assembler.flush()
+        return lines
+
+    def test_every_encoding_in_pieces_of_every_size(self) -> None:
+        text = "\r\n".join(RU_LINES) + "\r\n"
+        for encoding in ("utf-8", "cp866", "cp1251", "utf-16-le", "utf-16"):
+            for piece in (1, 2, 3, 7, 4096):
+                with self.subTest(encoding=encoding, piece=piece):
+                    self.assertEqual(self._lines(text.encode(encoding), piece), RU_LINES)
+
+    def test_utf16_after_a_line_of_odd_length(self) -> None:
+        """`echo one & sfc /?`: UTF-8 of cmd, then UTF-16 of sfc, then UTF-8 again, in one stream."""
+        data = "one\r\n".encode() + "\r\r\nДля использования программы sfc\r\n".encode("utf-16-le") + "Готово\r\n".encode()
+        for piece in (1, 5, 6, 4096):
+            with self.subTest(piece=piece):
+                self.assertEqual(self._lines(data, piece), ["one", "Для использования программы sfc", "Готово"])
+
+    def test_utf16_keeps_dashes_and_the_number_sign(self) -> None:
+        line = "Том «Система» — раздел №2 → готов"
+        self.assertEqual(self._lines((line + "\r\n").encode("utf-16-le"), 3), [line])
+
+    def test_utf16_progress_frames_are_frames(self) -> None:
+        frames: list[str] = []
+        lines: list[str] = []
+        assembler = StreamAssembler(lambda text, is_progress: (frames if is_progress else lines).append(text), progress_interval=0.0)
+        for chunk in ("Проверка 10%\r", "Проверка 60%\r", "Проверка 100% завершена.\r\n"):
+            assembler.feed(chunk.encode("utf-16-le"))
+        assembler.flush()
+        self.assertEqual(frames, ["Проверка 10%", "Проверка 60%"])
+        self.assertEqual(lines, ["Проверка 100% завершена."])
+
+    def test_a_finished_line_shows_at_once(self) -> None:
+        """Nothing waits for the next piece when the piece ends with a line feed."""
+        for encoding in ("utf-8", "cp866", "utf-16-le"):
+            with self.subTest(encoding=encoding):
+                lines: list[str] = []
+                assembler = StreamAssembler(lambda text, is_progress: lines.append(text), progress_interval=0.0)
+                assembler.feed("Скачивание началось\r\n".encode(encoding))
+                self.assertEqual(lines, ["Скачивание началось"])
+
+    def test_a_whole_output_in_utf16_is_read(self) -> None:
+        self.assertEqual(decode_process_bytes("Привет, мир\r\n".encode("utf-16-le")), "Привет, мир\r\n")
+        self.assertEqual(decode_process_bytes("Привет, мир".encode("utf-16")), "Привет, мир")
+        self.assertEqual(decode_process_bytes("Привет, мир".encode("cp866")), "Привет, мир")
 
 
 if __name__ == "__main__":

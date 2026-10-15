@@ -17,7 +17,7 @@ import re
 import time
 
 from .ansi import strip_ansi
-from .output_decode import decode_process_bytes
+from .output_decode import Utf16Runs, decode_process_bytes
 
 
 SPINNER_FRAME_CHARS = set("-\\|/ \t─│░▒▓█")
@@ -64,6 +64,8 @@ class StreamAssembler:
         self._progress_interval = max(0.0, float(progress_interval))
         self._max_pending = max(1024, int(max_pending))
         self._keep_spinner_frames = keep_spinner_frames
+        # UTF-16 becomes UTF-8 before anything else: lines and frames are cut by single bytes.
+        self._utf16 = Utf16Runs()
         self._raw = bytearray()
         self._buffer = bytearray()
         self._last_progress_at = 0.0
@@ -72,6 +74,9 @@ class StreamAssembler:
     # -- public API ----------------------------------------------------------
 
     def feed(self, chunk: bytes) -> None:
+        if not chunk:
+            return
+        chunk = self._utf16.feed(chunk)
         if not chunk:
             return
         self._raw.extend(chunk)
@@ -97,6 +102,7 @@ class StreamAssembler:
             self._emit_text(self._decode(overflow), False)
 
     def flush(self) -> None:
+        self._raw.extend(self._utf16.feed(b"", final=True))
         self._normalize_raw(force=True)
         if not self._buffer:
             return

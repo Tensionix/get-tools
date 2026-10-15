@@ -1,7 +1,7 @@
 # Audion Build Licenses Scan Report
 
 - Project: **Audion Get Tools** (`audion-get-tools`)
-- Run: `20261012T155921Z_audion-get-tools_911c9713`
+- Run: `20261015T232026Z_audion-get-tools_e65f5c99`
 - Scan root (from the project root): `.`
 - Output (from the project root): `licenses`
 - Status: **PASS**
@@ -40,8 +40,8 @@ No issues detected.
 | cryptography | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 50.0.2 | 50.0.2 |
 | distro | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.9.0 | 1.9.0 |
 | fzf | `UNCHANGED` | bundled | bundled |
-| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.61.0 | 2.61.0 |
-| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.29.0 | 2.29.0 |
+| google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.61.0 | 2.62.0 |
+| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.29.0 | 2.31.0 |
 | h11 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.16.0 | 0.16.0 |
 | HarfBuzzSharp | `UNCHANGED` | 8.3.1.3 | 8.3.1.3 |
 | HarfBuzzSharp.NativeAssets.Win32 | `UNCHANGED` | 8.3.1.3 | 8.3.1.3 |
@@ -70,7 +70,7 @@ No issues detected.
 | Microsoft.Management.Infrastructure | `UNCHANGED` | 3.0.0 | 3.0.0 |
 | Microsoft.Management.Infrastructure.CimCmdlets | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Microsoft.Management.Infrastructure.Runtime.Win | `UNCHANGED` | 3.0.0 | 3.0.0 |
-| Microsoft.NETCore.App.Runtime.win-x64 | `UNCHANGED` | 10.0.12 | 10.0.12 |
+| Microsoft.NETCore.App.Runtime.win-x64 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 10.0.12 | 10.0.13 |
 | Microsoft.PowerShell.Commands.Diagnostics | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Microsoft.PowerShell.Commands.Management | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Microsoft.PowerShell.Commands.Utility | `UNCHANGED` | 7.6.6 | 7.6.6 |
@@ -87,14 +87,14 @@ No issues detected.
 | Microsoft.WSMan.Management | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Microsoft.WSMan.Runtime | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Newtonsoft.Json | `UNCHANGED` | 13.0.4 | 13.0.4 |
-| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.28.0 | 3.29.0 |
+| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.29.0 | 3.31.0 |
 | packaging | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.3 | 26.3 |
 | pip | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.2.1 | 26.2.1 |
 | pyasn1 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.6.4 | 0.6.4 |
 | pyasn1_modules | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.2 | 0.4.2 |
 | pycparser | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.11 | 3.11 |
-| pydantic | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.14.0 | 2.14.1 |
-| pydantic_core | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.50.0 | 2.50.1 |
+| pydantic | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.14.1 | 2.14.1 |
+| pydantic_core | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.50.1 | 2.50.1 |
 | Pygments | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.21.0 | 2.21.0 |
 | Python Embedded | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.12.x | 3.12.x |
 | PyYAML | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 6.0.3 | 6.0.3 |
@@ -126,9 +126,9 @@ No issues detected.
 | System.Net.Http.WinHttpHandler | `UNCHANGED` | 10.0.5 | 10.0.5 |
 | System.Reflection.Context | `UNCHANGED` | 10.0.5 | 10.0.5 |
 | System.Runtime.Caching | `UNCHANGED` | 10.0.5 | 10.0.5 |
-| System.Security.Cryptography.Pkcs | `UNCHANGED` | 10.0.10 | 10.0.10 |
+| System.Security.Cryptography.Pkcs | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 10.0.10 | 10.0.13 |
 | System.Security.Cryptography.ProtectedData | `UNCHANGED` | 10.0.5 | 10.0.5 |
-| System.Security.Cryptography.Xml | `UNCHANGED` | 10.0.10 | 10.0.10 |
+| System.Security.Cryptography.Xml | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 10.0.10 | 10.0.13 |
 | System.Security.Permissions | `UNCHANGED` | 10.0.5 | 10.0.5 |
 | System.ServiceModel.Http | `UNCHANGED` | 10.0.652802 | 10.0.652802 |
 | System.ServiceModel.NetFramingBase | `UNCHANGED` | 10.0.652802 | 10.0.652802 |
@@ -142,7 +142,7 @@ No issues detected.
 | tenacity | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 9.1.4 | 9.1.4 |
 | Tmds.DBus.Protocol | `UNCHANGED` | 0.94.1 | 0.94.1 |
 | tqdm | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.70.1 | 4.70.1 |
-| truststore | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.10.4 | 0.10.4 |
+| truststore | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.10.4 | 0.10.5 |
 | typing_extensions | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.16.0 | 4.16.0 |
 | typing-inspection | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.4 | 0.4.4 |
 | urllib3 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.8.0 | 2.8.0 |

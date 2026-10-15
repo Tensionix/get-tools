@@ -302,7 +302,7 @@
   },
   {
     "name": "google-auth",
-    "version": "2.61.0",
+    "version": "2.62.0",
     "license": "Apache 2.0",
     "source": "site-packages",
     "license_files": [
@@ -315,7 +315,7 @@
   },
   {
     "name": "google-genai",
-    "version": "2.29.0",
+    "version": "2.31.0",
     "license": "Apache-2.0",
     "source": "site-packages",
     "license_files": [
@@ -694,7 +694,7 @@
   },
   {
     "name": "Microsoft.NETCore.App.Runtime.win-x64",
-    "version": "10.0.12",
+    "version": "10.0.13",
     "license": "MIT",
     "source": "dotnet-package",
     "license_files": [
@@ -916,7 +916,7 @@
   },
   {
     "name": "openai",
-    "version": "3.29.0",
+    "version": "3.31.0",
     "license": "Apache-2.0",
     "source": "site-packages",
     "license_files": [
@@ -1466,7 +1466,7 @@
   },
   {
     "name": "System.Security.Cryptography.Pkcs",
-    "version": "10.0.10",
+    "version": "10.0.13",
     "license": "MIT",
     "source": "dotnet-package",
     "license_files": [
@@ -1492,7 +1492,7 @@
   },
   {
     "name": "System.Security.Cryptography.Xml",
-    "version": "10.0.10",
+    "version": "10.0.13",
     "license": "MIT",
     "source": "dotnet-package",
     "license_files": [
@@ -1679,7 +1679,7 @@
   },
   {
     "name": "truststore",
-    "version": "0.10.4",
+    "version": "0.10.5",
     "license": "MIT",
     "source": "site-packages",
     "license_files": [
