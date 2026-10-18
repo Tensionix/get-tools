@@ -136,7 +136,7 @@ Windows из UUP dump - это способ получить образ «на �
 В списке от NVIDIA выбор идёт от поколения чипов, а не от конкретной карты: один файл драйвера закрывает несколько поколений, и список показывает то, что NVIDIA публикует для выбранного. Вариант `Мои карты` оставляет только версии, выпущенные для всех поколений из ряда галочек `Мои поколения`, который появляется под переключателем, - один драйвер на все карты в доме; отметки запоминаются в `config\vendor_nvidia.yaml` и возвращаются при следующем запуске. У каждой версии в подписи стоят дата, размер и отметки:
 
 - `NVENC SDK 13.1` - поколение заголовков nv-codec-headers, под которое собран FFmpeg: сборка с такими заголовками заработает на этом драйвере и на любом новее; SDK 13.1 просит 610, SDK 13.0 - 570, SDK 12.2 - 551.76;
-- `FFmpeg <= 8.0.1` - самая новая сборка FFmpeg из Audion Media Tools, у которой на этом драйвере работает аппаратное кодирование: 9.0.1 просит 610, 8.0.1 и 7.1.1 - 570, 7.1 - 551.76;
+- `FFmpeg <= 8.0.1` - самая новая сборка FFmpeg, которую программы Audion ставят на этот драйвер и с которой на нём проверено аппаратное кодирование: 9.0.2 и новее - с LTS-драйвера 610.88 (более новую установщик проверяет пробой NVENC, иначе возвращается к 9.0.2), 8.0.1 - с 570, 7.1 - с 551.76;
 - `CUDA <= 13.0` - самый новый CUDA Toolkit, который драйвер поддерживает. CUDA обратно совместима: драйвер тянет и все тулкиты старше, а программа, собранная на CUDA 12.6, работает с любым драйвером от 560.76;
 - `★ golden` - версии, которые в народе считают проверенными; такая карточка золотая.
 
@@ -161,7 +161,7 @@ DLSS не скачивается как программа: это библио�
 Что на странице:
 
 - **Запускатель** - [ArtCraft Launcher](https://github.com/storytold/craft-launcher). Он ставит, обновляет и открывает приложения набора; установленное им обновляет сам.
-- **Фото и графика** - [PhotoCraft](https://github.com/storytold/photocraft) (растровый редактор, читает PSD), [LightCraft](https://github.com/storytold/lightcraft) (проявка и каталог снимков), [VectorCraft](https://github.com/storytold/vectorcraft) (векторная графика), [DesignCraft](https://github.com/storytold/designcraft) (вёрстка).
+- **Фото и графика** - [PhotoCraft](https://github.com/storytold/photocraft) (растровый редактор, читает PSD), [LightCraft](https://github.com/storytold/lightcraft) (проявка и каталог снимков), [VectorCraft](https://github.com/storytold/vectorcraft) (векторная графика), [DesignCraft](https://github.com/storytold/designcraft) (вёрстка), [FigCraft](https://github.com/storytold/figcraft) (интерфейсы и прототипы).
 - **Видео и звук** - [FilmCraft](https://github.com/storytold/filmcraft) (монтаж), [EffectCraft](https://github.com/storytold/effectcraft) (анимация и композитинг), [SoundCraft](https://github.com/storytold/soundcraft) (запись и сведение).
 - **Документы** - [PdfCraft](https://github.com/storytold/pdfcraft), [WordCraft](https://github.com/storytold/wordcraft), [GridCraft](https://github.com/storytold/gridcraft), [DeckCraft](https://github.com/storytold/deckcraft): PDF, текст, таблицы, презентации.
 - **Черчение** - [CADCraft](https://github.com/storytold/cadcraft).

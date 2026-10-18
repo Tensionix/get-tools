@@ -89,6 +89,20 @@ photocraft-0.7.0-windows-x64.msi photocraft-0.7.0-windows-x86-portable.zip photo
 photocraft-cli-0.7.0-macos-universal.zip photocraft-web-0.7.0.zip SHA256SUMS.txt
 """
 
+# The files of the release v0.6.0 of storytold/figcraft, as GitHub listed them on 18.10.2026: beside the others of the
+# suite it ships a server and a web build.
+FIGCRAFT_0_6_0 = """
+figcraft-0.6.0-freebsd-x86_64.tar.gz figcraft-0.6.0-linux-aarch64.AppImage figcraft-0.6.0-linux-aarch64.AppImage.zsync
+figcraft-0.6.0-linux-aarch64.deb figcraft-0.6.0-linux-aarch64.flatpak figcraft-0.6.0-linux-aarch64.rpm
+figcraft-0.6.0-linux-aarch64.tar.gz figcraft-0.6.0-linux-riscv64.tar.gz figcraft-0.6.0-linux-x86_64.AppImage
+figcraft-0.6.0-linux-x86_64.AppImage.zsync figcraft-0.6.0-linux-x86_64.deb figcraft-0.6.0-linux-x86_64.flatpak
+figcraft-0.6.0-linux-x86_64.rpm figcraft-0.6.0-linux-x86_64.tar.gz figcraft-0.6.0-macos-universal.dmg
+figcraft-0.6.0-windows-arm64-portable.zip figcraft-0.6.0-windows-arm64.msi figcraft-0.6.0-windows-x64-portable.zip
+figcraft-0.6.0-windows-x64.msi figcraft-0.6.0-windows-x86-portable.zip figcraft-0.6.0-windows-x86.msi
+figcraft-cli-0.6.0-macos-universal.zip figcraft-server-0.6.0-linux-aarch64.tar.gz figcraft-server-0.6.0-linux-x86_64.tar.gz
+figcraft-web-0.6.0.zip SHA256SUMS.txt
+"""
+
 # The files of the release 1.5.0 of rustdesk/rustdesk, as GitHub listed them on 12.10.2026.
 RUSTDESK_1_5_0 = """
 rustdesk-1.5.0-0-x86_64.pkg.tar.zst rustdesk-1.5.0-0.x86_64-suse.rpm rustdesk-1.5.0-0.x86_64.rpm rustdesk-1.5.0-aarch64.exe
@@ -134,7 +148,7 @@ class TheFile(unittest.TestCase):
     def test_every_program_names_its_files_in_a_way_the_provider_knows(self) -> None:
         self.assertEqual(sorted(self.shelves), ["carrier", "craft", "games", "tests", "utilities"])
         listed = [program for shelf in self.shelves.values() for program in shelf]
-        self.assertEqual(len(listed), 49)
+        self.assertEqual(len(listed), 50)
         self.assertEqual(len({program.key for program in listed}), len(listed))
         for program in listed:
             self.assertTrue(program.block[0] and program.block[1], program.key)
@@ -183,11 +197,11 @@ class TheFile(unittest.TestCase):
         self.assertNotIn("sums", rustdesk.installer)  # type: ignore[arg-type]
         self.assertNotIn("sums", rustdesk.portable)  # type: ignore[arg-type]
 
-    def test_the_shelf_craft_is_fourteen_programs_in_six_blocks(self) -> None:
+    def test_the_shelf_craft_is_fifteen_programs_in_six_blocks(self) -> None:
         craft = self.shelves["craft"]
         self.assertEqual([program.key for program in craft],
-                         ["craft-launcher", "photocraft", "lightcraft", "vectorcraft", "designcraft", "filmcraft", "effectcraft", "soundcraft",
-                          "pdfcraft", "wordcraft", "gridcraft", "deckcraft", "cadcraft", "artcraft"])
+                         ["craft-launcher", "photocraft", "lightcraft", "vectorcraft", "designcraft", "figcraft", "filmcraft", "effectcraft",
+                          "soundcraft", "pdfcraft", "wordcraft", "gridcraft", "deckcraft", "cadcraft", "artcraft"])
         blocks: list[tuple[str, str]] = []
         for program in craft:
             if not blocks or blocks[-1] != program.block:
@@ -212,7 +226,7 @@ class TheFile(unittest.TestCase):
             for kind in (programs.INSTALLER, programs.PORTABLE):
                 self.assertEqual(program.source(kind)["sums"], r"^SHA256SUMS\.txt$", (program.key, kind))  # type: ignore[index]
         early = [program.key for program in craft if program.about[0].endswith("An early version.") and program.about[1].endswith("Ранняя версия.")]
-        self.assertEqual(len(early), 12)
+        self.assertEqual(len(early), 13)
         self.assertNotIn("craft-launcher", early)
         self.assertNotIn("artcraft", early)
 
@@ -228,13 +242,19 @@ class TheFile(unittest.TestCase):
         self.assertEqual(named(craft["photocraft"].installer["asset"], photocraft), ["photocraft-0.7.0-windows-x64.msi"])  # type: ignore[index]
         self.assertEqual(named(craft["photocraft"].portable["asset"], photocraft), ["photocraft-0.7.0-windows-x64-portable.zip"])  # type: ignore[index]
         self.assertEqual(named(craft["photocraft"].installer["sums"], photocraft), ["SHA256SUMS.txt"])  # type: ignore[index]
-        # The twelve apps name their files alike: the pattern of each is the one of PhotoCraft with its own name.
-        for key in ("lightcraft", "vectorcraft", "designcraft", "filmcraft", "effectcraft", "soundcraft", "pdfcraft", "wordcraft", "gridcraft",
-                    "deckcraft", "cadcraft"):
+        # The thirteen apps name their files alike: the pattern of each is the one of PhotoCraft with its own name.
+        for key in ("lightcraft", "vectorcraft", "designcraft", "figcraft", "filmcraft", "effectcraft", "soundcraft", "pdfcraft", "wordcraft",
+                    "gridcraft", "deckcraft", "cadcraft"):
             own = [name.replace("photocraft", key) for name in photocraft]
             for kind, tail in ((programs.INSTALLER, ".msi"), (programs.PORTABLE, "-portable.zip")):
                 self.assertEqual(craft[key].source(kind)["asset"], craft["photocraft"].source(kind)["asset"].replace("photocraft", key), key)  # type: ignore[index]
                 self.assertEqual(named(craft[key].source(kind)["asset"], own), [f"{key}-0.7.0-windows-x64{tail}"], key)  # type: ignore[index]
+        # FigCraft in its real release: its server, web and cli files are passed by.
+        figcraft = FIGCRAFT_0_6_0.split()
+        self.assertEqual(len(figcraft), 26)
+        self.assertEqual(named(craft["figcraft"].installer["asset"], figcraft), ["figcraft-0.6.0-windows-x64.msi"])  # type: ignore[index]
+        self.assertEqual(named(craft["figcraft"].portable["asset"], figcraft), ["figcraft-0.6.0-windows-x64-portable.zip"])  # type: ignore[index]
+        self.assertEqual(named(craft["figcraft"].installer["sums"], figcraft), ["SHA256SUMS.txt"])  # type: ignore[index]
         # The repository of the launcher is craft-launcher, its files are called artcraft-launcher.
         launcher = [f"artcraft-launcher-0.3.2-windows-{arch}{tail}" for arch in ("arm64", "x64", "x86") for tail in ("-portable.zip", ".msi")] + ["SHA256SUMS.txt"]
         self.assertEqual(named(craft["craft-launcher"].installer["asset"], launcher), ["artcraft-launcher-0.3.2-windows-x64.msi"])  # type: ignore[index]
@@ -242,7 +262,7 @@ class TheFile(unittest.TestCase):
         artcraft = ["ArtCraft_0.41.0_universal.dmg", "ArtCraft_0.41.0_x64-setup.exe", "ArtCraft_0.41.0_x64_en-US.msi", "ArtCraft_universal.app.tar.gz"]
         self.assertEqual(named(craft["artcraft"].installer["asset"], artcraft), ["ArtCraft_0.41.0_x64-setup.exe"])  # type: ignore[index]
         # Nothing of arm64, x86 or the web build is ever named, by any pattern of the shelf.
-        every = photocraft + launcher + artcraft
+        every = photocraft + figcraft + launcher + artcraft
         for program in craft.values():
             for kind in (programs.INSTALLER, programs.PORTABLE):
                 source = program.source(kind)
@@ -250,15 +270,15 @@ class TheFile(unittest.TestCase):
                     for name in named(source["asset"], every):
                         self.assertNotRegex(name, r"arm64|x86(?!_64)|-web-|-cli-|linux|macos|freebsd", (program.key, kind))
 
-    def test_the_page_craft_lists_fourteen_cards_and_thirteen_portable_ones(self) -> None:
+    def test_the_page_craft_lists_fifteen_cards_and_fourteen_portable_ones(self) -> None:
         made = ProgramsProvider(self.path)
         options = vendor_service.program_options(made, "craft", False)
         cards = [option for option in options if option["value"]]
-        self.assertEqual([len(cards), sum(1 for option in options if option.get("header"))], [14, 6])
-        self.assertEqual(sum(1 for card in cards if card.get("portable_id")), 13)
+        self.assertEqual([len(cards), sum(1 for option in options if option.get("header"))], [15, 6])
+        self.assertEqual(sum(1 for card in cards if card.get("portable_id")), 14)
         self.assertTrue(all(card.get("tooltip") and card.get("tooltip_ru") for card in cards))
         portable = [option for option in vendor_service.program_options(made, "craft", True) if option["value"]]
-        self.assertEqual(len(portable), 13)
+        self.assertEqual(len(portable), 14)
         self.assertNotIn("prg:artcraft:installer", [card["value"] for card in portable])
         self.assertTrue(all(card["value"].endswith(":portable") for card in portable))
 
@@ -342,7 +362,7 @@ class TheList(unittest.TestCase):
                                 winget=lambda *args: self.fail("WinGet was called"), show=lambda package: self.fail("WinGet was asked"),
                                 text=lambda url: self.fail("a checksum file was read"))
         self.assertEqual(made.products("Windows"), ["carrier", "utilities", "tests", "games", "craft"])
-        self.assertEqual(sum(len(made.builds(shelf, "Windows")) for shelf in made.products("Windows")), 49)
+        self.assertEqual(sum(len(made.builds(shelf, "Windows")) for shelf in made.products("Windows")), 50)
         self.assertEqual(made.builds("carrier", "Mac OS X"), [])
 
     def test_the_file_is_read_again_when_it_changes(self) -> None:
@@ -674,9 +694,9 @@ pub const LAUNCHER: CraftApp = app(
         keys = [program.key for program in shipped]
         for key in probe_sources.NOT_OF_THE_SUITE:
             self.assertIn(key, keys)
-        # The twelve others are the apps of the suite, each in the repository of its own name - as the launcher lists them.
+        # The thirteen others are the apps of the suite, each in the repository of its own name - as the launcher lists them.
         apps = [program for program in shipped if program.key not in probe_sources.NOT_OF_THE_SUITE]
-        self.assertEqual(len(apps), 12)
+        self.assertEqual(len(apps), 13)
         for program in apps:
             self.assertEqual(program.installer["repo"], f"storytold/{program.key}")  # type: ignore[index]
 

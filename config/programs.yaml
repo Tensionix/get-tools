@@ -251,6 +251,12 @@ shelves:
             about_ru: "Вёрстка страниц и макетов, как в InDesign. Ранняя версия."
             installer: {source: github, repo: "storytold/designcraft", asset: '^designcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
             portable: {source: github, repo: "storytold/designcraft", asset: '^designcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
+          - id: figcraft
+            name: "FigCraft"
+            about: "Interface design and prototyping, as in Figma. An early version."
+            about_ru: "Проектирование интерфейсов и прототипы, как в Figma. Ранняя версия."
+            installer: {source: github, repo: "storytold/figcraft", asset: '^figcraft-[\d.]+-windows-x64\.msi$', sums: '^SHA256SUMS\.txt$'}
+            portable: {source: github, repo: "storytold/figcraft", asset: '^figcraft-[\d.]+-windows-x64-portable\.zip$', sums: '^SHA256SUMS\.txt$'}
       - title: "Video and sound"
         title_ru: "Видео и звук"
         programs:

@@ -500,7 +500,7 @@ BUNDLED COMPONENTS
    Legal documents: L-d7f83bbea326
 
 71. openai
-   Version: 3.31.0
+   Version: 3.35.1
    License: Apache-2.0
    Source type: site-packages
    Provider: not recorded
@@ -1534,7 +1534,7 @@ SOFTWARE.
 [L-154759c1e9eb] LICENSE_2.txt
 SHA256: 154759c1e9eb58e42643ee43ec59d556def4d1d702d911a484c469e02f85dd5d
 Components: openai
-Captured from: openai-3.31.0/LICENSE_2.txt
+Captured from: openai-3.35.1/LICENSE_2.txt
 --------------------------------------------------------------------------------
 Copyright © 2025, Karen Petrosyan.
 All rights reserved.
@@ -12870,7 +12870,7 @@ Captured from: audion-launcher-bundled/NOTICE-Audion-Launcher.md
 [L-fb3496291624] LICENSE_3.txt
 SHA256: fb34962916248c2e011077fb64b82d585814631bd291f2b78e37eccea9a9fe78
 Components: openai
-Captured from: openai-3.31.0/LICENSE_3.txt
+Captured from: openai-3.35.1/LICENSE_3.txt
 --------------------------------------------------------------------------------
 Apache License
                            Version 2.0, January 2004

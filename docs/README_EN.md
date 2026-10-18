@@ -202,8 +202,8 @@ in the archive is dropped.
   its portable build runs without an installation, keeps its settings beside
   itself, in `ArtCraftLauncherData`, and installs and updates the apps of the
   suite itself. Every app is taken as a file too: PhotoCraft, LightCraft,
-  VectorCraft, DesignCraft, FilmCraft, EffectCraft, SoundCraft, PdfCraft,
-  WordCraft, GridCraft, DeckCraft, CADCraft - as a portable build or an
+  VectorCraft, DesignCraft, FigCraft, FilmCraft, EffectCraft, SoundCraft,
+  PdfCraft, WordCraft, GridCraft, DeckCraft, CADCraft - as a portable build or an
   installer, and the studio ArtCraft for images and video by neural networks -
   as an installer. These are early versions with a release almost every day. A
   downloaded file is checked against the checksum file of its release; another

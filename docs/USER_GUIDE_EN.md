@@ -136,7 +136,7 @@ Game Ready drivers have a `Source` switch. `NVIDIA` is the default - NVIDIA's ow
 In NVIDIA's list drivers are picked by chip generation, not by the exact card: one driver file covers several generations, and the list shows what NVIDIA publishes for the chosen one. `My cards` keeps only the versions published for every generation ticked in the `My generations` row that appears under the switch - one driver for every card in the house; the ticks are remembered in `config\vendor_nvidia.yaml` and come back on the next start. Every version carries its date, size and marks:
 
 - `NVENC SDK 13.1` - the nv-codec-headers generation an FFmpeg build was made against: such a build works on this driver and on any newer one; SDK 13.1 wants 610, SDK 13.0 wants 570, SDK 12.2 wants 551.76;
-- `FFmpeg <= 8.0.1` - the newest FFmpeg build from Audion Media Tools whose hardware encoding works on this driver: 9.0.1 wants 610, 8.0.1 and 7.1.1 want 570, 7.1 wants 551.76;
+- `FFmpeg <= 8.0.1` - the newest FFmpeg build the Audion programs install on this driver and have checked hardware encoding with on it: 9.0.2 and newer from the LTS driver 610.88 (a newer build is proved by the installer's NVENC test, or it goes back to 9.0.2), 8.0.1 from 570, 7.1 from 551.76;
 - `CUDA <= 13.0` - the newest CUDA Toolkit the driver supports. CUDA is backwards compatible: the driver also runs every older toolkit, and a program built on CUDA 12.6 works with any driver from 560.76 on;
 - `★ golden` - versions the community treats as keepers; that card is gold.
 
@@ -161,7 +161,7 @@ The page `MEDIA → Craft` is the [Craft App Suite](https://getartcraft.com/apps
 What stands on the page:
 
 - **Launcher** - [ArtCraft Launcher](https://github.com/storytold/craft-launcher). It installs, updates and opens the apps of the suite, and keeps what it installed up to date itself.
-- **Photo and graphics** - [PhotoCraft](https://github.com/storytold/photocraft) (a raster editor that reads PSD), [LightCraft](https://github.com/storytold/lightcraft) (raw development and a photo library), [VectorCraft](https://github.com/storytold/vectorcraft) (vector art), [DesignCraft](https://github.com/storytold/designcraft) (page layout).
+- **Photo and graphics** - [PhotoCraft](https://github.com/storytold/photocraft) (a raster editor that reads PSD), [LightCraft](https://github.com/storytold/lightcraft) (raw development and a photo library), [VectorCraft](https://github.com/storytold/vectorcraft) (vector art), [DesignCraft](https://github.com/storytold/designcraft) (page layout), [FigCraft](https://github.com/storytold/figcraft) (interface design and prototypes).
 - **Video and sound** - [FilmCraft](https://github.com/storytold/filmcraft) (editing), [EffectCraft](https://github.com/storytold/effectcraft) (motion graphics and compositing), [SoundCraft](https://github.com/storytold/soundcraft) (recording and mixing).
 - **Documents** - [PdfCraft](https://github.com/storytold/pdfcraft), [WordCraft](https://github.com/storytold/wordcraft), [GridCraft](https://github.com/storytold/gridcraft), [DeckCraft](https://github.com/storytold/deckcraft): PDF, text, spreadsheets, presentations.
 - **Drafting** - [CADCraft](https://github.com/storytold/cadcraft).

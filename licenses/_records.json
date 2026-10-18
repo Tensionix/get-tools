@@ -916,7 +916,7 @@
   },
   {
     "name": "openai",
-    "version": "3.31.0",
+    "version": "3.35.1",
     "license": "Apache-2.0",
     "source": "site-packages",
     "license_files": [

@@ -386,6 +386,18 @@ class NvidiaTests(unittest.TestCase):
         self.assertEqual(marks.notes("460.79", "x"), [])
         self.assertEqual(DriverMarks.load(None).notes("616.56", "x"), [])
 
+    def test_ffmpeg_marks_follow_the_rule_of_the_programs(self) -> None:
+        # The file of the program itself: 9.0.2 from the LTS driver 610.88, 8.0.1 below it, 7.1 below 570.
+        marks = DriverMarks.load(Path(__file__).resolve().parents[1] / "config" / "vendor_nvidia.yaml")
+        def ffmpeg(version: str) -> list[str]:
+            return [note for note in marks.notes(version, "x") if note.startswith("FFmpeg")]
+        self.assertEqual(ffmpeg("616.92"), ["FFmpeg <= 9.0.2"])
+        self.assertEqual(ffmpeg("610.88"), ["FFmpeg <= 9.0.2"])
+        self.assertEqual(ffmpeg("610.47"), ["FFmpeg <= 8.0.1"])
+        self.assertEqual(ffmpeg("570.0"), ["FFmpeg <= 8.0.1"])
+        self.assertEqual(ffmpeg("566.36"), ["FFmpeg <= 7.1"])
+        self.assertEqual(ffmpeg("531.61"), [])
+
     def test_driver_builds_carry_marks_and_sort(self) -> None:
         http = FakeNvidiaHttp()
         provider = nvidia_with(http, self.marks)

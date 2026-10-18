@@ -199,8 +199,8 @@ Ethernet, Audio, - и на каждой странице ряд производ
   портативная сборка работает без установки, держит настройки рядом с собой, в
   `ArtCraftLauncherData`, и сама ставит и обновляет приложения набора. Файлом
   берётся и каждое приложение: PhotoCraft, LightCraft, VectorCraft, DesignCraft,
-  FilmCraft, EffectCraft, SoundCraft, PdfCraft, WordCraft, GridCraft, DeckCraft,
-  CADCraft - портативной сборкой или установщиком, и студия ArtCraft для
+  FigCraft, FilmCraft, EffectCraft, SoundCraft, PdfCraft, WordCraft, GridCraft,
+  DeckCraft, CADCraft - портативной сборкой или установщиком, и студия ArtCraft для
   картинок и видео нейросетями - установщиком. Это ранние версии, выпуски
   выходят почти каждый день. Скачанный файл сверяется с файлом контрольных сумм
   своего выпуска; не сошёлся или суммы для него нет - файл получает имя
