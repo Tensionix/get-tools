@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import hashlib
 import json
+import locale
 import os
 import re
 import shutil
@@ -2035,7 +2036,10 @@ def parse_pnputil_drivers(text: str) -> list[dict[str, str]]:
         guid_index = next((index for index, line in enumerate(lines) if guid and guid in line.lower()), -1)
         class_name = values[guid_index - 1] if guid_index >= 1 else ""
         provider = values[guid_index - 2] if guid_index >= 2 else ""
-        version = values[guid_index + 1] if 0 <= guid_index < len(values) - 1 else ""
+        # The version follows the class GUID - after the Extension ID in an extension package, so the
+        # first value after the GUID shaped as a version is taken, not simply the next one.
+        after = values[guid_index + 1:] if guid_index >= 0 else []
+        version = next((value for value in after if re.search(r"\d+\.\d+", value) and not re.fullmatch(r"\{[0-9a-f-]{36}\}", value, re.IGNORECASE)), "")
         drivers.append({"published": published, "original": original, "provider": provider, "class": class_name, "guid": guid, "version": version})
     return drivers
 
@@ -2044,8 +2048,91 @@ def list_machine_drivers() -> list[dict[str, str]]:
     pnputil = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "pnputil.exe"
     if not pnputil.exists():
         raise RuntimeError("pnputil.exe not found; driver export works on Windows only.")
-    completed = subprocess.run([str(pnputil), "/enum-drivers"], capture_output=True, text=True, errors="replace", check=False)
-    return parse_pnputil_drivers(completed.stdout or "")
+    completed = subprocess.run([str(pnputil), "/enum-drivers"], capture_output=True, check=False)
+    return parse_pnputil_drivers(pnputil_text(completed.stdout or b""))
+
+
+def pnputil_text(data: bytes, ansi: str | None = None) -> str:
+    """What pnputil wrote into a pipe: the ANSI code page of Windows (cp1251 on a Russian one), whatever `chcp` says.
+
+    The console door runs Python in UTF-8 mode, and read as UTF-8 the Russian names of devices
+    came out as replacement signs (23.10.2026). UTF-8 is taken when the bytes are valid UTF-8 -
+    a later pnputil may switch - otherwise the code page of Windows, not a guess: on a few
+    Russian words among English ones the engine's general decoder took cp1251 for cp866.
+    """
+    try:
+        return data.decode("utf-8")
+    except UnicodeDecodeError:
+        return data.decode(ansi or locale.getencoding(), errors="replace")
+
+
+# The value that opens the record of a device in `pnputil /enum-devices`, its instance id:
+# "USB\VID_8087&PID_0033\5&158e3aec&0&10", "{8e7bd593-...}\...". No other value of a record has this shape.
+_DEVICE_ID = re.compile(r"^(?:[A-Z][A-Z0-9_]*|\{[0-9A-Fa-f-]{36}\})\\\S+$")
+
+
+def parse_pnputil_devices(text: str) -> list[dict[str, Any]]:
+    """`pnputil /enum-devices` -> a record per device: its instance id, its name and the packages it works on.
+
+    Read by the shapes of the values, as the listing of the drivers: the labels are localized. A record
+    opens with the instance id, the name of the device follows it, and every oemNN.inf in it - the
+    driver and the extension drivers - is a package the device works on.
+    """
+    devices: list[dict[str, Any]] = []
+    current: dict[str, Any] | None = None
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        value = line.split(":", 1)[1].strip() if ":" in line else line
+        if _DEVICE_ID.match(value):
+            current = {"id": value, "name": "", "drivers": []}
+            devices.append(current)
+        elif current is not None:
+            if not current["name"]:
+                current["name"] = value
+            current["drivers"] += [found.lower() for found in re.findall(r"\boem\d+\.inf\b", value, re.IGNORECASE)]
+    return devices
+
+
+def machine_devices() -> tuple[list[dict[str, Any]], set[str]]:
+    """Every device Windows knows on this machine, plugged in now or before, and the instance ids of those present now.
+
+    Both listings go at once (about a second each). ([], set()) when Windows does not say:
+    pnputil learned /enum-devices in Windows 10 2004. The bytes are read by `pnputil_text`.
+    """
+    pnputil = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "pnputil.exe"
+    if not pnputil.exists():
+        return [], set()
+    runs: list[subprocess.Popen] = []
+    try:
+        for extra in ([], ["/connected"]):
+            runs.append(subprocess.Popen([str(pnputil), "/enum-devices", *extra], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL))
+        outputs = [pnputil_text(run.communicate(timeout=60)[0] or b"") for run in runs]
+    except (OSError, subprocess.TimeoutExpired):
+        for run in runs:
+            run.kill()
+        return [], set()
+    if any(run.returncode != 0 for run in runs):
+        return [], set()
+    return parse_pnputil_devices(outputs[0]), {device["id"] for device in parse_pnputil_devices(outputs[1])}
+
+
+def driver_hardware_id(published: str) -> str:
+    """The first device a package is written for, from its copy in %SystemRoot%\\INF ("USB\\VID_8087&PID_0026").
+
+    That is what tells apart the packages of one name and one version: Intel puts ibtusb.inf into
+    the driver store once per Bluetooth chip.
+    """
+    inf = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "INF" / published
+    try:
+        raw = inf.read_bytes()
+    except OSError:
+        return ""
+    text = raw.decode("utf-16", errors="replace") if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else raw.decode("utf-8", errors="replace")
+    # A line of a models section: "%Desc% = InstallSection, USB\VID_8087&PID_0026[, more ids]".
+    match = re.search(r"^[^;\[\r\n]*=[^,\r\n]*,\s*([A-Za-z0-9_]+\\[^\s,;]+)", text, re.MULTILINE)
+    return match.group(1) if match else ""
 
 
 DRIVER_CLASS_NAMES = {
@@ -2068,6 +2155,8 @@ DRIVER_CLASS_NAMES = {
     "{e2f84ce7-8efa-411c-aa69-97454ca4cb57}": ("Extension", "Расширение"),
     "{5c4c3332-344d-483c-8739-259e934c9cc8}": ("Software component", "Программный компонент"),
     "{f2e7dd72-6468-4e36-b6f1-6488f42c1b52}": ("Firmware", "Прошивка"),
+    "{53d29ef7-377c-4d14-864b-eb3a85769359}": ("Biometric", "Биометрия"),
+    "{4d36e96e-e325-11ce-bfc1-08002be10318}": ("Monitor", "Монитор"),
 }
 
 
@@ -2084,34 +2173,61 @@ def driver_version_key(version: str) -> tuple[int, ...]:
 
 
 def machine_driver_options(root: Path, values: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-    """Cards for the 'This machine's drivers' window: one per third-party driver, network ones ticked by default.
+    """Cards for the 'This machine's drivers' window: one per package a device of this machine works on.
 
-    Sorted with the network classes first, then by class name, so the ticked
-    ones sit on top. Each card names the class, the original inf and the
-    provider; the tooltip adds the published name and the version.
+    Each card is named by its device, then the original inf, the provider and the version; the
+    network classes come first and are ticked by default. The tooltip names the published package
+    and every device on it with its instance id.
     """
     source = Path(str((values or {}).get("input_path") or "").strip() or (Path(root) / "input" if root else _default_input_root()))
     del values
     drivers = list_machine_drivers()
-    # The driver store keeps older versions of the same inf next to the current one;
-    # only the newest of each network driver is ticked by default.
-    newest: dict[str, dict[str, str]] = {}
+    # The driver store keeps every version Windows ever put in and, for Intel's Bluetooth, a variant
+    # per chip of one version: the owner (23.10.2026) took eight equal cards of ibtusb.inf for a
+    # glitch and could not tell which to take - «только рабочие и с именами устройств». Shown are
+    # the packages a device of this machine works on, plugged in now or before (a USB network card in
+    # a drawer is just what a fresh system needs to get online), each named by its device. When
+    # Windows does not say which (pnputil older than 2004), every package, as before.
+    devices, present = machine_devices() if drivers else ([], set())
+    owners: dict[str, list[dict[str, Any]]] = {}
+    for device in devices:
+        for published in device["drivers"]:
+            owners.setdefault(published, []).append(device)
+    if owners:
+        drivers = [driver for driver in drivers if driver["published"].lower() in owners]
+    families: dict[str, list[dict[str, str]]] = {}
     for driver in drivers:
-        if driver["guid"] not in NETWORK_CLASS_GUIDS:
+        families.setdefault(driver["original"].lower(), []).append(driver)
+
+    def users(driver: dict[str, str]) -> list[dict[str, Any]]:
+        return owners.get(driver["published"].lower(), [])
+
+    def plugged(driver: dict[str, str]) -> bool:
+        return any(device["id"] in present for device in users(driver))
+
+    def caption(driver: dict[str, str]) -> str:
+        names = list(dict.fromkeys(device["name"] for device in users(driver) if device["name"]))
+        return (names[0] + (f" +{len(names) - 1}" if len(names) > 1 else "")) if names else ""
+
+    # Of each network driver the package of a device plugged in now is ticked by default; with none
+    # plugged in (an adapter in a drawer) the newest version.
+    default_names: set[str] = set()
+    for family in families.values():
+        network = [driver for driver in family if driver["guid"] in NETWORK_CLASS_GUIDS]
+        if not network:
             continue
-        family = driver["original"].lower()
-        if family not in newest or driver_version_key(driver.get("version", "")) > driver_version_key(newest[family].get("version", "")):
-            newest[family] = driver
-    default_names = {driver["published"] for driver in newest.values()}
+        used = [driver for driver in network if plugged(driver)]
+        default_names.update(driver["published"] for driver in (used or [max(network, key=lambda d: driver_version_key(d.get("version", "")))]))
 
     class_order = list(DRIVER_CLASS_NAMES)  # network first, then the way the table reads; unknown classes last
 
     def class_names(driver: dict[str, str]) -> tuple[str, str]:
         return DRIVER_CLASS_NAMES.get(driver["guid"], (driver["class"] or "Other", driver["class"] or "Прочее"))
 
-    def rank(driver: dict[str, str]) -> tuple[int, str, str]:
+    def rank(driver: dict[str, str]) -> tuple[int, str, str, bool, tuple[int, ...]]:
         position = class_order.index(driver["guid"]) if driver["guid"] in class_order else len(class_order)
-        return (position, class_names(driver)[0].lower(), driver["original"].lower())
+        newer_first = tuple(-part for part in driver_version_key(driver.get("version", "")))
+        return (position, class_names(driver)[0].lower(), (caption(driver) or driver["original"]).lower(), not plugged(driver), newer_first)
 
     # The cards sit under a header per class: a header is an option without a
     # value, which the grid draws as a caption spanning the row.
@@ -2125,12 +2241,34 @@ def machine_driver_options(root: Path, values: dict[str, Any] | None = None) -> 
             options.append({"value": "", "label": f"{names[0]} ({count})", "label_ru": f"{names[1]} ({count})", "header": True})
         provider = driver["provider"] or "?"
         version = driver.get("version", "")
+        label = f"{driver['original']} · {provider}" + (f" {version}" if version else "")
+        if owners:
+            name = caption(driver)
+            head = f"{name} · " if name else ""
+            away, away_ru = ("", "") if plugged(driver) else (" · not connected", " · не подключено")
+            label, label_ru = head + label + away, head + label + away_ru
+            on = users(driver)[:6]
+            more = len(users(driver)) - len(on)
+            tooltip = driver["published"] + ": " + "; ".join(f"{d['name']} ({d['id']})" + ("" if d["id"] in present else ", not connected") for d in on) + (f"; and {more} more" if more else "")
+            tooltip_ru = driver["published"] + ": " + "; ".join(f"{d['name']} ({d['id']})" + ("" if d["id"] in present else ", не подключено") for d in on) + (f"; и ещё {more}" if more else "")
+        else:
+            # Windows did not say which devices work on what: every package, and two of one name tell
+            # the device they are written for (the revision tells nothing apart and is cut).
+            device = driver_hardware_id(driver["published"])
+            tail = ""
+            if len(families[driver["original"].lower()]) > 1:
+                tail = " · " + (re.sub(r"&REV_[0-9A-F]+", "", device, flags=re.IGNORECASE) if device else driver["published"])
+            label = label_ru = label + tail
+            tooltip = driver["published"] + (f", for {device}" if device else "")
+            tooltip_ru = driver["published"] + (f", для {device}" if device else "")
         options.append({
             "value": driver["published"],
-            "label": f"{driver['original']} · {provider}" + (f" {version}" if version else ""),
-            "label_ru": f"{driver['original']} · {provider}" + (f" {version}" if version else ""),
+            "label": label,
+            "label_ru": label_ru,
             "default": driver["published"] in default_names,
             "tags": [names[0]],
+            "tooltip": tooltip,
+            "tooltip_ru": tooltip_ru,
         })
     if not options:
         options.append(_option("", "No third-party drivers found on this machine", "Сторонних драйверов на этой машине не найдено"))

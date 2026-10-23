@@ -122,7 +122,7 @@ BUNDLED COMPONENTS
    Legal documents: L-0f87aebe0f73
 
 17. certifi
-   Version: 2026.7.22
+   Version: 2026.10.19
    License: MPL-2.0
    Source type: site-packages
    Provider: not recorded
@@ -152,9 +152,9 @@ BUNDLED COMPONENTS
 21. cryptography
    Version: 50.0.2
    License: Apache-2.0 OR BSD-3-Clause
-   Source type: site-packages
+   Source type: wheelhouse
    Provider: not recorded
-   Legal documents: L-3e0c7c091a94, L-602c4c7482de, L-34cb75d73943
+   Legal documents: L-3e0c7c091a94, L-34cb75d73943, L-602c4c7482de
 
 22. distro
    Version: 1.9.0
@@ -178,7 +178,7 @@ BUNDLED COMPONENTS
    Legal documents: L-50e6751797c5
 
 25. google-genai
-   Version: 2.31.0
+   Version: 2.33.0
    License: Apache-2.0
    Source type: site-packages
    Provider: not recorded
@@ -213,7 +213,7 @@ BUNDLED COMPONENTS
    Legal documents: L-fdcb59154c74
 
 30. httpcore2
-   Version: 2.13.1
+   Version: 2.16.0
    License: BSD-3-Clause
    Source type: site-packages
    Provider: not recorded
@@ -227,7 +227,7 @@ BUNDLED COMPONENTS
    Legal documents: L-4ec59d544f12
 
 32. httpx2
-   Version: 2.13.1
+   Version: 2.16.0
    License: BSD-3-Clause
    Source type: site-packages
    Provider: not recorded
@@ -500,7 +500,7 @@ BUNDLED COMPONENTS
    Legal documents: L-d7f83bbea326
 
 71. openai
-   Version: 3.35.1
+   Version: 3.37.0
    License: Apache-2.0
    Source type: site-packages
    Provider: not recorded
@@ -514,7 +514,7 @@ BUNDLED COMPONENTS
    Legal documents: L-cad1ef5bd340, L-b70e7e9b742f, L-bb28c48e3e07
 
 73. pip
-   Version: 26.2.1
+   Version: 26.2.2
    License: MIT
    Source type: site-packages
    Provider: not recorded
@@ -535,7 +535,7 @@ BUNDLED COMPONENTS
    Legal documents: L-07538c4a2098
 
 76. pycparser
-   Version: 3.11
+   Version: 3.12
    License: BSD-3-Clause
    Source type: site-packages
    Provider: not recorded
@@ -605,7 +605,7 @@ BUNDLED COMPONENTS
    Legal documents: L-52bd2f19fdfd
 
 86. setuptools
-   Version: 84.0.0
+   Version: 84.2.1
    License: MIT
    Source type: site-packages
    Provider: not recorded
@@ -913,7 +913,7 @@ BUNDLED COMPONENTS
    Legal documents: L-130e3a64d5fd
 
 130. websockets
-   Version: 16.1.1
+   Version: 17.3
    License: BSD-3-Clause
    Source type: site-packages
    Provider: not recorded
@@ -967,7 +967,7 @@ POSSIBILITY OF SUCH DAMAGE.
 [L-09c9bcea95ca] NOTICE_3.txt
 SHA256: 09c9bcea95ca086f8bc5bed174e40bc835b297d40fb5f86bbbb570fe0a5581a7
 Components: setuptools
-Captured from: setuptools-84.0.0/NOTICE_3.txt
+Captured from: setuptools-84.2.1/NOTICE_3.txt
 --------------------------------------------------------------------------------
 The code contained in this directory was automatically generated using the
 following command:
@@ -1413,7 +1413,7 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 [L-09f1c8c9e941] LICENSE_16.txt
 SHA256: 09f1c8c9e941af3e584d59641ea9b87d83c0cb0fd007eb5ef391a7e2643c1a46
 Components: setuptools
-Captured from: setuptools-84.0.0/LICENSE_16.txt
+Captured from: setuptools-84.2.1/LICENSE_16.txt
 --------------------------------------------------------------------------------
 Copyright (c) 2012 Erik Rose
 
@@ -1505,7 +1505,7 @@ THE SOFTWARE.
 [L-130e3a64d5fd] LICENSE_1txt
 SHA256: 130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686
 Components: pip, urllib3
-Captured from: pip-26.2.1/LICENSE_1txt
+Captured from: pip-26.2.2/LICENSE_1txt
 --------------------------------------------------------------------------------
 MIT License
 
@@ -1534,7 +1534,7 @@ SOFTWARE.
 [L-154759c1e9eb] LICENSE_2.txt
 SHA256: 154759c1e9eb58e42643ee43ec59d556def4d1d702d911a484c469e02f85dd5d
 Components: openai
-Captured from: openai-3.35.1/LICENSE_2.txt
+Captured from: openai-3.37.0/LICENSE_2.txt
 --------------------------------------------------------------------------------
 Copyright © 2025, Karen Petrosyan.
 All rights reserved.
@@ -1608,7 +1608,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 [L-1b22b049b526] LICENSE_11.txt
 SHA256: 1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154
 Components: pip
-Captured from: pip-26.2.1/LICENSE_11.txt
+Captured from: pip-26.2.2/LICENSE_11.txt
 --------------------------------------------------------------------------------
 The MIT License (MIT)
 
@@ -1699,7 +1699,7 @@ documentation is licensed as follows:
 [L-29e0fd62e929] LICENSE_9.txt
 SHA256: 29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6
 Components: pip, setuptools
-Captured from: pip-26.2.1/LICENSE_9.txt
+Captured from: pip-26.2.2/LICENSE_9.txt
 --------------------------------------------------------------------------------
 MIT License
 
@@ -1757,7 +1757,7 @@ SOFTWARE.
 [L-2dddf0881829] NOTICE_2.txt
 SHA256: 2dddf08818297a3b89d43d95ff659d8da85741108c9136dfa3a4d856c0623bd8
 Components: setuptools
-Captured from: setuptools-84.0.0/NOTICE_2.txt
+Captured from: setuptools-84.2.1/NOTICE_2.txt
 --------------------------------------------------------------------------------
 The following files include code from opensource projects
 (either as direct copies or modified versions):
@@ -1775,7 +1775,7 @@ The following files include code from opensource projects
 [L-30c236186791] LICENSE_1txt
 SHA256: 30c23618679108f3e8ea1d2a658c7ca417bdfc891c98ef1a89fa4ff0c9828654
 Components: setuptools, wheel
-Captured from: setuptools-84.0.0/LICENSE_1txt
+Captured from: setuptools-84.2.1/LICENSE_1txt
 --------------------------------------------------------------------------------
 MIT License
 
@@ -1804,7 +1804,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 [L-33be7b7e8fa4] LICENSE_8.txt
 SHA256: 33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca
 Components: pip, truststore
-Captured from: pip-26.2.1/LICENSE_8.txt
+Captured from: pip-26.2.2/LICENSE_8.txt
 --------------------------------------------------------------------------------
 The MIT License (MIT)
 
@@ -1830,10 +1830,10 @@ THE SOFTWARE.
 
 ================================================================================
 
-[L-34cb75d73943] LICENSE_1APACHE
+[L-34cb75d73943] LICENSE.APACHE
 SHA256: 34cb75d73943f10a7f9a3b0e3e7bf8ef271065eedcb0d47481e7c831b637aeae
 Components: cryptography
-Captured from: cryptography-50.0.2/LICENSE_1APACHE
+Captured from: cryptography-50.0.2/LICENSE.APACHE
 --------------------------------------------------------------------------------
 Apache License
                            Version 2.0, January 2004
@@ -2359,7 +2359,7 @@ PERFORMANCE OF THIS SOFTWARE.
 [L-3d6a0c050d8b] LICENSE_1.txt
 SHA256: 3d6a0c050d8bec52fabad502e45fb25bd02bcadbd70dea34d447b6a0ff4e6da8
 Components: websockets
-Captured from: websockets-16.1.1/LICENSE_1.txt
+Captured from: websockets-17.3/LICENSE_1.txt
 --------------------------------------------------------------------------------
 Copyright (c) Aymeric Augustin and contributors
 
@@ -2388,10 +2388,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ================================================================================
 
-[L-3e0c7c091a94] LICENSE_1.txt
+[L-3e0c7c091a94] LICENSE
 SHA256: 3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb
 Components: cryptography
-Captured from: cryptography-50.0.2/LICENSE_1.txt
+Captured from: cryptography-50.0.2/LICENSE
 --------------------------------------------------------------------------------
 This software is made available under the terms of *either* of the licenses
 found in LICENSE.APACHE or LICENSE.BSD. Contributions to cryptography are made
@@ -2691,7 +2691,7 @@ purpose.
 [L-458502e12d97] LICENSE_17.txt
 SHA256: 458502e12d97bbf64438606a20044aa85eb05fb0a8a807bb35dbec253fd1fc04
 Components: setuptools
-Captured from: setuptools-84.0.0/LICENSE_17.txt
+Captured from: setuptools-84.2.1/LICENSE_17.txt
 --------------------------------------------------------------------------------
 Apache License
 Version 2.0, January 2004
@@ -2801,7 +2801,7 @@ SOFTWARE.
 [L-4eb1fb1705e2] AUTHORS.txt
 SHA256: 4eb1fb1705e2def898e81bcba19c3aac80620d27ba3569d6a6df7b4629d1b5c2
 Components: pip
-Captured from: pip-26.2.1/AUTHORS.txt
+Captured from: pip-26.2.2/AUTHORS.txt
 --------------------------------------------------------------------------------
 @Switch01
 A_Rog
@@ -3993,7 +3993,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 [L-5a57cb4db85e] LICENSE_12.txt
 SHA256: 5a57cb4db85e2a2dd88c290628908add57e3451449e0a9a71fdfb38776fd759d
 Components: setuptools
-Captured from: setuptools-84.0.0/LICENSE_12.txt
+Captured from: setuptools-84.2.1/LICENSE_12.txt
 --------------------------------------------------------------------------------
 MIT License
 
@@ -4019,7 +4019,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [L-5be5ebd3dece] LICENSE_1.txt
 SHA256: 5be5ebd3dece39db29ac8d217fa9c4007da6afd676779a0b815bc9ffcdd2818d
 Components: pycparser
-Captured from: pycparser-3.11/LICENSE_1.txt
+Captured from: pycparser-3.12/LICENSE_1.txt
 --------------------------------------------------------------------------------
 pycparser -- A C parser in Python
 
@@ -4184,10 +4184,10 @@ THE SOFTWARE.
 
 ================================================================================
 
-[L-602c4c7482de] LICENSE_1BSD
+[L-602c4c7482de] LICENSE.BSD
 SHA256: 602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb
 Components: cryptography
-Captured from: cryptography-50.0.2/LICENSE_1BSD
+Captured from: cryptography-50.0.2/LICENSE.BSD
 --------------------------------------------------------------------------------
 Copyright (c) Individual contributors.
 All rights reserved.
@@ -4222,7 +4222,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 [L-634300a669d4] LICENSE_3txt
 SHA256: 634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104
 Components: pip
-Captured from: pip-26.2.1/LICENSE_3txt
+Captured from: pip-26.2.2/LICENSE_3txt
 --------------------------------------------------------------------------------
 Copyright (c) 2008-present The pip developers (see AUTHORS.txt file)
 
@@ -4261,7 +4261,7 @@ made under the terms of *both* these licenses.
 [L-6557adc4bc1d] LICENSE_10.txt
 SHA256: 6557adc4bc1d59232e27567a185dd70cf2ecca3154018b0be61ea29cf9e814e2
 Components: setuptools
-Captured from: setuptools-84.0.0/LICENSE_10.txt
+Captured from: setuptools-84.2.1/LICENSE_10.txt
 --------------------------------------------------------------------------------
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
@@ -5784,7 +5784,7 @@ SOFTWARE.
 [L-7e7d6dbaf7fe] LICENSE_1md
 SHA256: 7e7d6dbaf7fe160d39fd6e84fd02c33cab96bcbea34d36998d545bceb4a19c30
 Components: httpx2
-Captured from: httpx2-2.13.1/LICENSE_1md
+Captured from: httpx2-2.16.0/LICENSE_1md
 --------------------------------------------------------------------------------
 Copyright © 2026 to present Pydantic Services Inc. and individual contributors.
 Copyright © 2019, [Encode OSS Ltd](https://www.encode.io/).
@@ -5834,7 +5834,7 @@ SOFTWARE.
 [L-808e10c8a6ab] LICENSE.txt
 SHA256: 808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d
 Components: pip
-Captured from: pip-26.2.1/LICENSE.txt
+Captured from: pip-26.2.2/LICENSE.txt
 --------------------------------------------------------------------------------
 A. HISTORY OF THE SOFTWARE
 ==========================
@@ -6126,7 +6126,7 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 [L-81932e77fef4] LICENSE_5.txt
 SHA256: 81932e77fef4cec306da54caf7d4d221dfd0f6fb6da214c712e36cb95ac47906
 Components: pip, requests
-Captured from: pip-26.2.1/LICENSE_5.txt
+Captured from: pip-26.2.2/LICENSE_5.txt
 --------------------------------------------------------------------------------
 Apache License
                            Version 2.0, January 2004
@@ -6308,7 +6308,7 @@ Apache License
 [L-86da0f01aeae] LICENSE_10.txt
 SHA256: 86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741
 Components: pip, setuptools
-Captured from: pip-26.2.1/LICENSE_10.txt
+Captured from: pip-26.2.2/LICENSE_10.txt
 --------------------------------------------------------------------------------
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
@@ -6333,7 +6333,7 @@ IN THE SOFTWARE.
 [L-86eeee87be2a] LICENSE_2txt
 SHA256: 86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b
 Components: pip
-Captured from: pip-26.2.1/LICENSE_2txt
+Captured from: pip-26.2.2/LICENSE_2txt
 --------------------------------------------------------------------------------
 Copyright 2012-2021  Eric Larson
 
@@ -6494,7 +6494,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 [L-9755a1851966] LICENSE_15.txt
 SHA256: 9755a18519666e5f0f4cae3daad3d7012bcae48a600b31237d75e9fe134e6683
 Components: setuptools
-Captured from: setuptools-84.0.0/LICENSE_15.txt
+Captured from: setuptools-84.2.1/LICENSE_15.txt
 --------------------------------------------------------------------------------
 MIT License
 
@@ -6520,7 +6520,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [L-9e9824923444] COPYING
 SHA256: 9e98249234446e96ab6cd2ac59cbb2f7bfcb15a8e21a00548e1e14da939b6927
 Components: pip
-Captured from: pip-26.2.1/COPYING
+Captured from: pip-26.2.2/COPYING
 --------------------------------------------------------------------------------
 Copyright (C) 2008-2011 INADA Naoki <songofacandy@gmail.com>
 
@@ -6779,7 +6779,7 @@ Apache License
 [L-a9d66f1d526d] LICENSE_4.txt
 SHA256: a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17
 Components: pip, Pygments
-Captured from: pip-26.2.1/LICENSE_4.txt
+Captured from: pip-26.2.2/LICENSE_4.txt
 --------------------------------------------------------------------------------
 Copyright (c) 2006-2022 by the respective authors (see AUTHORS file).
 All rights reserved.
@@ -6990,7 +6990,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 [L-b80816b0d530] LICENSE_1.txt
 SHA256: b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe
 Components: pip, setuptools
-Captured from: pip-26.2.1/LICENSE_1.txt
+Captured from: pip-26.2.2/LICENSE_1.txt
 --------------------------------------------------------------------------------
 MIT License
 
@@ -7373,7 +7373,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 [L-c4df125c807b] LICENSE_1md
 SHA256: c4df125c807b0613501e943a5c92496dd11d2c16604ce396097a8dde396304d9
 Components: httpcore2
-Captured from: httpcore2-2.13.1/LICENSE_1md
+Captured from: httpcore2-2.16.0/LICENSE_1md
 --------------------------------------------------------------------------------
 Copyright © 2026 to present Pydantic Services Inc. and individual contributors.
 Copyright © 2020, [Encode OSS Ltd](https://www.encode.io/).
@@ -8971,7 +8971,7 @@ THE SOFTWARE.
 [L-deed7c17a431] LICENSE
 SHA256: deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15
 Components: pip, rich
-Captured from: pip-26.2.1/LICENSE
+Captured from: pip-26.2.2/LICENSE
 --------------------------------------------------------------------------------
 Copyright (c) 2020 Will McGugan
 
@@ -8998,7 +8998,7 @@ SOFTWARE.
 [L-e93716da6b9c] LICENSE_1.txt
 SHA256: e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7
 Components: certifi, pip
-Captured from: certifi-2026.7.22/LICENSE_1.txt
+Captured from: certifi-2026.10.19/LICENSE_1.txt
 --------------------------------------------------------------------------------
 This package contains a modified version of ca-bundle.crt:
 
@@ -12054,7 +12054,7 @@ mozzconf.h is distributed under the MPL 1.1/GPL 2.0/LGPL 2.1 tri-license.
 [L-f388fd38cad1] LICENSE_7.txt
 SHA256: f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d
 Components: pip
-Captured from: pip-26.2.1/LICENSE_7.txt
+Captured from: pip-26.2.2/LICENSE_7.txt
 --------------------------------------------------------------------------------
 Copyright (c) 2018, Tzu-ping Chung <uranusjr@gmail.com>
 
@@ -12870,7 +12870,7 @@ Captured from: audion-launcher-bundled/NOTICE-Audion-Launcher.md
 [L-fb3496291624] LICENSE_3.txt
 SHA256: fb34962916248c2e011077fb64b82d585814631bd291f2b78e37eccea9a9fe78
 Components: openai
-Captured from: openai-3.35.1/LICENSE_3.txt
+Captured from: openai-3.37.0/LICENSE_3.txt
 --------------------------------------------------------------------------------
 Apache License
                            Version 2.0, January 2004

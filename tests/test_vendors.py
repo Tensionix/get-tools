@@ -688,19 +688,99 @@ class UupDumpTests(unittest.TestCase):
         self.assertEqual(drivers[1], {"published": "oem74.inf", "original": "netwtw6e.inf", "provider": "Intel", "class": "Net", "guid": "{4d36e972-e325-11ce-bfc1-08002be10318}", "version": "24.40.0.4"})
         network = [d for d in drivers if d["guid"] in vendor_service.NETWORK_CLASS_GUIDS]
         self.assertEqual([d["original"] for d in network], ["netwtw6e.inf", "ibtusb.inf", "ibtusb.inf"])
-        original = vendor_service.list_machine_drivers
-        try:
-            vendor_service.list_machine_drivers = lambda: drivers  # type: ignore[assignment]
-            options = vendor_service.machine_driver_options(Path("."), {})
-        finally:
-            vendor_service.list_machine_drivers = original  # type: ignore[assignment]
-        # cards under a header per class, network classes first; of two ibtusb.inf versions only the newest is ticked; firmware last and unticked
-        self.assertEqual([o["value"] for o in options], ["", "oem74.inf", "", "oem22.inf", "oem90.inf", "", "oem41.inf"])
+        # Windows says nothing of the devices (pnputil older than 2004): every package, as before
+        options = self.machine_options(drivers, devices=[], present=set(), hardware={"oem22.inf": "USB\\VID_8087&PID_0033", "oem90.inf": "USB\\VID_8087&PID_0033"})
+        # cards under a header per class, network classes first; of two ibtusb.inf versions the newest stands first and is
+        # the one ticked; firmware last and unticked
+        self.assertEqual([o["value"] for o in options], ["", "oem74.inf", "", "oem90.inf", "oem22.inf", "", "oem41.inf"])
         self.assertEqual([o["label_ru"] for o in options if not o["value"]], ["Сеть (1)", "Bluetooth (2)", "Прошивка (1)"])
         self.assertTrue(all(o.get("header") for o in options if not o["value"]))
-        self.assertEqual([o["default"] for o in options if o["value"]], [True, False, True, False])
+        self.assertEqual([o["default"] for o in options if o["value"]], [True, True, False, False])
+        # a driver alone under its name keeps a short card; two of one name name the device they are for
         self.assertEqual(options[1]["label_ru"], "netwtw6e.inf · Intel 24.40.0.4")
+        self.assertEqual(options[3]["label_ru"], "ibtusb.inf · Intel Corporation 07/02/2026 24.60.0.4 · USB\\VID_8087&PID_0033")
         self.assertEqual(options[6]["label"], "5b10w13975.inf · Lenovo Ltd. 12/26/2022 265.0.0.2")
+        self.assertEqual(options[1]["tooltip_ru"], "oem74.inf")
+
+    def machine_options(self, drivers: list[dict[str, str]], devices: list[dict], present: set[str], hardware: dict[str, str]) -> list[dict]:
+        """The cards of 'This machine's drivers' with the driver store, the devices and the INF copies of this test."""
+        kept = (vendor_service.list_machine_drivers, vendor_service.machine_devices, vendor_service.driver_hardware_id)
+        try:
+            vendor_service.list_machine_drivers = lambda: drivers  # type: ignore[assignment]
+            vendor_service.machine_devices = lambda: (devices, present)  # type: ignore[assignment]
+            vendor_service.driver_hardware_id = lambda published: hardware.get(published, "")  # type: ignore[assignment]
+            return vendor_service.machine_driver_options(Path("."), {})
+        finally:
+            vendor_service.list_machine_drivers, vendor_service.machine_devices, vendor_service.driver_hardware_id = kept  # type: ignore[assignment]
+
+    def test_only_the_packages_a_device_works_on_named_by_the_device(self) -> None:
+        # Intel's Bluetooth: ibtusb.inf of one version once per chip; this machine's chip works on oem121. The USB network
+        # card is in a drawer now; the firmware package of the store has no device at all.
+        def card(published: str, original: str, provider: str, guid: str, version: str) -> dict[str, str]:
+            return {"published": published, "original": original, "provider": provider, "class": "", "guid": guid, "version": version}
+        bluetooth, network = "{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}", "{4d36e972-e325-11ce-bfc1-08002be10318}"
+        drivers = [
+            card("oem120.inf", "ibtusb.inf", "Intel Corporation", bluetooth, "07/31/2026 24.70.0.4"),
+            card("oem121.inf", "ibtusb.inf", "Intel Corporation", bluetooth, "07/31/2026 24.70.0.4"),
+            card("oem113.inf", "ibtusb.inf", "Intel Corporation", bluetooth, "07/31/2026 24.70.0.4"),
+            card("oem131.inf", "netwtw6e.inf", "Intel", network, "07/29/2026 24.70.0.3"),
+            card("oem127.inf", "netwtw6e.inf", "Intel", network, "06/11/2026 24.60.0.3"),
+            card("oem53.inf", "axusbeth.inf", "ASIX", network, "01/05/2026 4.22.1.0"),
+            card("oem41.inf", "5b10w13975.inf", "Lenovo Ltd.", "{f2e7dd72-6468-4e36-b6f1-6488f42c1b52}", "12/26/2022 265.0.0.2"),
+        ]
+        devices = [
+            {"id": "USB\\VID_8087&PID_0033\\5&1", "name": "Intel(R) Wireless Bluetooth(R)", "drivers": ["oem121.inf"]},
+            {"id": "PCI\\VEN_8086&DEV_51F0\\3&1", "name": "Intel(R) Wi-Fi 6E AX211 160MHz", "drivers": ["oem131.inf"]},
+            {"id": "USB\\VID_0B95&PID_1790\\0001", "name": "ASIX USB to Gigabit Ethernet Family Adapter", "drivers": ["oem53.inf"]},
+            {"id": "ROOT\\NET\\0000", "name": "Microsoft Wi-Fi Direct Virtual Adapter", "drivers": []},
+        ]
+        present = {"USB\\VID_8087&PID_0033\\5&1", "PCI\\VEN_8086&DEV_51F0\\3&1"}
+        options = self.machine_options(drivers, devices=devices, present=present, hardware={})
+        self.assertEqual([o["value"] for o in options], ["", "oem53.inf", "oem131.inf", "", "oem121.inf"])
+        self.assertEqual([o["label_ru"] for o in options if not o["value"]], ["Сеть (2)", "Bluetooth (1)"])
+        cards = [o for o in options if o["value"]]
+        self.assertEqual([c["label_ru"] for c in cards], [
+            "ASIX USB to Gigabit Ethernet Family Adapter · axusbeth.inf · ASIX 01/05/2026 4.22.1.0 · не подключено",
+            "Intel(R) Wi-Fi 6E AX211 160MHz · netwtw6e.inf · Intel 07/29/2026 24.70.0.3",
+            "Intel(R) Wireless Bluetooth(R) · ibtusb.inf · Intel Corporation 07/31/2026 24.70.0.4",
+        ])
+        self.assertEqual(cards[0]["label"], "ASIX USB to Gigabit Ethernet Family Adapter · axusbeth.inf · ASIX 01/05/2026 4.22.1.0 · not connected")
+        # the network card in a drawer is what a fresh system needs to get online: ticked with the rest of the network
+        self.assertEqual([c["default"] for c in cards], [True, True, True])
+        self.assertEqual(cards[2]["tooltip_ru"], "oem121.inf: Intel(R) Wireless Bluetooth(R) (USB\\VID_8087&PID_0033\\5&1)")
+        self.assertEqual(cards[0]["tooltip_ru"], "oem53.inf: ASIX USB to Gigabit Ethernet Family Adapter (USB\\VID_0B95&PID_1790\\0001), не подключено")
+
+    def test_an_extension_package_keeps_its_version_past_the_extension_id(self) -> None:
+        listing = ("Published Name:     oem50.inf\nOriginal Name:      icst_extension.inf\nProvider Name:      Intel\n"
+                   "Class Name:         Extension\nClass GUID:         {e2f84ce7-8efa-411c-aa69-97454ca4cb57}\n"
+                   "Extension ID:       {0c1c3de9-f327-4609-bb76-d3b682c27c3a}\nDriver Version:     09/10/2024 2.1.10500.7\n"
+                   "Signer Name:        Microsoft Windows Hardware Compatibility Publisher\n")
+        self.assertEqual(vendor_service.parse_pnputil_drivers(listing)[0]["version"], "09/10/2024 2.1.10500.7")
+
+    def test_the_listing_of_the_devices_is_read_by_the_shapes_of_its_values(self) -> None:
+        # pnputil puts an empty line between the fields as well: a record runs from one instance id to the next
+        listing = ("Microsoft PnP Utility\r\r\n\r\r\n"
+                   "Instance ID:                USB\\VID_8087&PID_0033\\5&158e3aec&0&10\r\r\n\r\r\n"
+                   "Device Description:         Intel(R) Wireless Bluetooth(R)\r\r\n\r\r\nStatus:   Started\r\r\n\r\r\n"
+                   "Driver Name:                oem121.inf\r\r\n\r\r\n"
+                   "ID экземпляра:              {8e7bd593-6e6c-4c52-86a6-77175494dd8e}\\MSVHDHBA\\1&2\r\n"
+                   "Описание устройства:        HID-совместимое устройство: мышь\r\n"
+                   "Имя драйвера:               input.inf\r\nИмена драйверов расширений: OEM117.INF, oem118.inf\r\n\r\n"
+                   "Instance ID:                ROOT\\NET\\0000\r\nDevice Description:  Microsoft Wi-Fi Direct Virtual Adapter\r\n")
+        devices = vendor_service.parse_pnputil_devices(listing)
+        # pnputil writes the ANSI code page of Windows even where Python runs in UTF-8 mode (the console door): a Russian
+        # name comes back whole, and valid UTF-8 is taken as it is
+        written = ("Instance ID:   INTELAUDIO\\FUNC_01\\1&2\r\nDevice Description:   Технология Intel® Smart Sound для аудио Bluetooth®\r\n"
+                   "Driver Name:   oem45.inf\r\n")
+        for data in (written.encode("cp1251"), written.encode("utf-8")):
+            self.assertEqual(vendor_service.parse_pnputil_devices(vendor_service.pnputil_text(data, ansi="cp1251"))[0]["name"],
+                             "Технология Intel® Smart Sound для аудио Bluetooth®")
+        self.assertEqual([(d["name"], d["drivers"]) for d in devices], [
+            ("Intel(R) Wireless Bluetooth(R)", ["oem121.inf"]),
+            ("HID-совместимое устройство: мышь", ["oem117.inf", "oem118.inf"]),
+            ("Microsoft Wi-Fi Direct Virtual Adapter", []),
+        ])
+        self.assertEqual(devices[1]["id"], "{8e7bd593-6e6c-4c52-86a6-77175494dd8e}\\MSVHDHBA\\1&2")
 
     def test_drivers_folder_is_copied_into_the_build_and_the_switch_is_set(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

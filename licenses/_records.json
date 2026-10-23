@@ -209,7 +209,7 @@
   },
   {
     "name": "certifi",
-    "version": "2026.7.22",
+    "version": "2026.10.19",
     "license": "MPL-2.0",
     "source": "site-packages",
     "license_files": [
@@ -263,7 +263,7 @@
     "name": "cryptography",
     "version": "50.0.2",
     "license": "Apache-2.0 OR BSD-3-Clause",
-    "source": "site-packages",
+    "source": "wheelhouse",
     "license_files": [
       "licenses/THIRD_PARTY_NOTICES.txt"
     ],
@@ -315,7 +315,7 @@
   },
   {
     "name": "google-genai",
-    "version": "2.31.0",
+    "version": "2.33.0",
     "license": "Apache-2.0",
     "source": "site-packages",
     "license_files": [
@@ -381,7 +381,7 @@
   },
   {
     "name": "httpcore2",
-    "version": "2.13.1",
+    "version": "2.16.0",
     "license": "BSD-3-Clause",
     "source": "site-packages",
     "license_files": [
@@ -407,7 +407,7 @@
   },
   {
     "name": "httpx2",
-    "version": "2.13.1",
+    "version": "2.16.0",
     "license": "BSD-3-Clause",
     "source": "site-packages",
     "license_files": [
@@ -916,7 +916,7 @@
   },
   {
     "name": "openai",
-    "version": "3.35.1",
+    "version": "3.37.0",
     "license": "Apache-2.0",
     "source": "site-packages",
     "license_files": [
@@ -945,7 +945,7 @@
   },
   {
     "name": "pip",
-    "version": "26.2.1",
+    "version": "26.2.2",
     "license": "MIT",
     "source": "site-packages",
     "license_files": [
@@ -1004,7 +1004,7 @@
   },
   {
     "name": "pycparser",
-    "version": "3.11",
+    "version": "3.12",
     "license": "BSD-3-Clause",
     "source": "site-packages",
     "license_files": [
@@ -1137,7 +1137,7 @@
   },
   {
     "name": "setuptools",
-    "version": "84.0.0",
+    "version": "84.2.1",
     "license": "MIT",
     "source": "site-packages",
     "license_files": [
@@ -1731,7 +1731,7 @@
   },
   {
     "name": "websockets",
-    "version": "16.1.1",
+    "version": "17.3",
     "license": "BSD-3-Clause",
     "source": "site-packages",
     "license_files": [

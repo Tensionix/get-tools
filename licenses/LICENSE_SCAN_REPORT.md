@@ -1,7 +1,7 @@
 # Audion Build Licenses Scan Report
 
 - Project: **Audion Get Tools** (`audion-get-tools`)
-- Run: `20261018T063822Z_audion-get-tools_617fa552`
+- Run: `20261023T022836Z_audion-get-tools_7786984e`
 - Scan root (from the project root): `.`
 - Output (from the project root): `licenses`
 - Status: **PASS**
@@ -33,7 +33,7 @@ No issues detected.
 | Avalonia.Themes.Fluent | `UNCHANGED` | 12.1.3 | 12.1.3 |
 | Avalonia.Win32 | `UNCHANGED` | 12.1.3 | 12.1.3 |
 | Avalonia.X11 | `UNCHANGED` | 12.1.3 | 12.1.3 |
-| certifi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2026.7.22 | 2026.7.22 |
+| certifi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2026.7.22 | 2026.10.19 |
 | cffi | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.1.1 | 2.1.1 |
 | charset-normalizer | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.5.2 | 3.5.2 |
 | colorama | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.6 | 0.4.6 |
@@ -41,14 +41,14 @@ No issues detected.
 | distro | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.9.0 | 1.9.0 |
 | fzf | `UNCHANGED` | bundled | bundled |
 | google-auth | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.62.0 | 2.62.0 |
-| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.31.0 | 2.31.0 |
+| google-genai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.31.0 | 2.33.0 |
 | h11 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.16.0 | 0.16.0 |
 | HarfBuzzSharp | `UNCHANGED` | 8.3.1.3 | 8.3.1.3 |
 | HarfBuzzSharp.NativeAssets.Win32 | `UNCHANGED` | 8.3.1.3 | 8.3.1.3 |
 | httpcore | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.0.9 | 1.0.9 |
-| httpcore2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.13.1 |
+| httpcore2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.16.0 |
 | httpx | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.28.1 | 0.28.1 |
-| httpx2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.13.1 |
+| httpx2 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.13.1 | 2.16.0 |
 | Humanizer.Core | `UNCHANGED` | 2.14.1 | 2.14.1 |
 | idna | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.20 | 3.20 |
 | Inter | `UNCHANGED` | 3.019 | 3.019 |
@@ -87,12 +87,12 @@ No issues detected.
 | Microsoft.WSMan.Management | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Microsoft.WSMan.Runtime | `UNCHANGED` | 7.6.6 | 7.6.6 |
 | Newtonsoft.Json | `UNCHANGED` | 13.0.4 | 13.0.4 |
-| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.31.0 | 3.35.1 |
+| openai | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.35.1 | 3.37.0 |
 | packaging | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.3 | 26.3 |
-| pip | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.2.1 | 26.2.1 |
+| pip | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 26.2.1 | 26.2.2 |
 | pyasn1 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.6.4 | 0.6.4 |
 | pyasn1_modules | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.2 | 0.4.2 |
-| pycparser | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.11 | 3.11 |
+| pycparser | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 3.11 | 3.12 |
 | pydantic | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.14.1 | 2.14.1 |
 | pydantic_core | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.50.1 | 2.50.1 |
 | Pygments | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.21.0 | 2.21.0 |
@@ -102,7 +102,7 @@ No issues detected.
 | rich | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 15.0.0 | 15.0.0 |
 | runtime.native.System.Data.SqlClient.sni | `UNCHANGED` | 4.4.0 | 4.4.0 |
 | runtime.win-x64.runtime.native.System.Data.SqlClient.sni | `UNCHANGED` | 4.4.0 | 4.4.0 |
-| setuptools | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 84.0.0 | 84.0.0 |
+| setuptools | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 84.0.0 | 84.2.1 |
 | SkiaSharp | `UNCHANGED` | 3.119.4 | 3.119.4 |
 | SkiaSharp.NativeAssets.Win32 | `UNCHANGED` | 3.119.4 | 3.119.4 |
 | sniffio | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 1.3.1 | 1.3.1 |
@@ -146,7 +146,7 @@ No issues detected.
 | typing_extensions | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 4.16.0 | 4.16.0 |
 | typing-inspection | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.4.4 | 0.4.4 |
 | urllib3 | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 2.8.0 | 2.8.0 |
-| websockets | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 16.1.1 | 16.1.1 |
+| websockets | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 16.1.1 | 17.3 |
 | wheel | `VERSION_OR_ARTIFACT_CHANGED_LICENSE_SAME` | 0.48.0 | 0.48.0 |
 
 ## Licence rules
