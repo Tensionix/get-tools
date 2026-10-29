@@ -61,7 +61,9 @@ public static class Presets
             {
                 "all" => options,
                 "latest" => options.Take(1),
-                "latest_stable" => options.Where(option => !option.Beta && !Unstable.IsMatch(option.Name)).Take(1),
+                "latest_stable" => options.Any(option => option.Latest)
+                    ? options.Where(option => option.Latest).Take(1)
+                    : options.Where(option => !option.Beta && !Unstable.IsMatch(option.Name)).Take(1),
                 // The star stands wherever its list writes it: before the name of a build of Windows, after
                 // the notes of a driver of NVIDIA ("... - ★ golden"). The window on NiceGUI looked for it
                 // anywhere in the name (pick_options); looked for at the start alone, "Golden" ticked no driver.

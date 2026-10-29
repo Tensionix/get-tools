@@ -279,11 +279,11 @@ public partial class MainWindow
 
     void FillAbout()
     {
-        // Audion is the family of the programs, Tensionix their author. The dark mark carries its own
-        // near-black plate; the light theme takes the light one, as the rules of the brand ask.
+        // Audion is the family of the programs, Tensionix their author. Both logos come from Audion Design: light
+        // letters on the dark theme, dark ones on the light theme.
         SheetBody.Children.Add(Sharp(new Image
         {
-            Source = Brand(_settings.Look == "light" ? "Audion_Lockup_Light_1800.png" : "Audion_Lockup_Dark_1800.png"),
+            Source = Brand(_settings.Look == "light" ? "Audion_Logo_Light_1600.png" : "Audion_Logo_Dark_1600.png"),
             Height = 56, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 10),
         }));
         Head("Get Tools");
@@ -304,15 +304,12 @@ public partial class MainWindow
         Pair("Загрузки", DefaultTarget());
 
         Open(Below(), "АВТОР");
-        // Beside Audion Tensionix takes its amber mark; no amber lockup exists, so the word is set here in the brand face.
-        var author = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 2, 0, 4) };
-        author.Children.Add(Sharp(new Image { Source = Brand("Tensionix_Mark_Amber_256.png"), Height = 32, Width = 32 }));
-        author.Children.Add(new TextBlock
+        // The logo of Tensionix: its mark and its name in curves, not a typeface standing in for the name.
+        Add(Sharp(new Image
         {
-            Text = "Tensionix", FontFamily = new FontFamily("Cascadia Mono, Consolas, monospace"),
-            FontSize = 18, FontWeight = FontWeight.SemiBold, VerticalAlignment = VerticalAlignment.Center,
-        });
-        Add(author);
+            Source = Brand(_settings.Look == "light" ? "Tensionix_Logo_Light_1600.png" : "Tensionix_Logo_Dark_1600.png"),
+            Height = 40, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 2, 0, 4),
+        }));
         var links = new StackPanel { Orientation = Orientation.Horizontal };
         links.Children.Add(Link("audion.dev"));
         links.Children.Add(Link("tensionix.com"));

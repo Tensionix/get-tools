@@ -122,7 +122,7 @@ BUNDLED COMPONENTS
    Legal documents: L-0f87aebe0f73
 
 17. certifi
-   Version: 2026.10.19
+   Version: 2026.10.23
    License: MPL-2.0
    Source type: site-packages
    Provider: not recorded
@@ -152,9 +152,9 @@ BUNDLED COMPONENTS
 21. cryptography
    Version: 50.0.2
    License: Apache-2.0 OR BSD-3-Clause
-   Source type: wheelhouse
+   Source type: site-packages
    Provider: not recorded
-   Legal documents: L-3e0c7c091a94, L-34cb75d73943, L-602c4c7482de
+   Legal documents: L-3e0c7c091a94, L-602c4c7482de, L-34cb75d73943
 
 22. distro
    Version: 1.9.0
@@ -262,7 +262,7 @@ BUNDLED COMPONENTS
    Legal documents: L-c1ab7c666206
 
 37. jiter
-   Version: 0.17.0
+   Version: 0.18.0
    License: MIT
    Source type: site-packages
    Provider: not recorded
@@ -381,7 +381,7 @@ BUNDLED COMPONENTS
    Legal documents: L-6b39d18b4151
 
 54. Microsoft.NETCore.App.Runtime.win-x64
-   Version: 10.0.13
+   Version: 10.0.14
    License: MIT
    Source type: dotnet-package
    Provider: Microsoft
@@ -500,7 +500,7 @@ BUNDLED COMPONENTS
    Legal documents: L-d7f83bbea326
 
 71. openai
-   Version: 3.37.0
+   Version: 3.41.0
    License: Apache-2.0
    Source type: site-packages
    Provider: not recorded
@@ -521,7 +521,7 @@ BUNDLED COMPONENTS
    Legal documents: L-deed7c17a431, L-b80816b0d530, L-a8ad31b1c3f4, L-e93716da6b9c, L-1a9a4f0e3d47, L-a9d66f1d526d, L-81932e77fef4, L-cad1ef5bd340, L-f388fd38cad1, L-33be7b7e8fa4, L-808e10c8a6ab, L-130e3a64d5fd, L-29e0fd62e929, L-b70e7e9b742f, L-86da0f01aeae, L-1b22b049b526, L-86eeee87be2a, L-bb28c48e3e07, L-634300a669d4, L-9e9824923444, L-4eb1fb1705e2
 
 74. pyasn1
-   Version: 0.6.4
+   Version: 0.6.5
    License: BSD-2-Clause
    Source type: site-packages
    Provider: not recorded
@@ -935,7 +935,7 @@ CONSOLIDATED LEGAL DOCUMENTS
 [L-07538c4a2098] LICENSE_1rst
 SHA256: 07538c4a209865151151b3269321cb1fc327dca522d0fc848e620d876e67ecab
 Components: pyasn1, pyasn1_modules
-Captured from: pyasn1-0.6.4/LICENSE_1rst
+Captured from: pyasn1-0.6.5/LICENSE_1rst
 --------------------------------------------------------------------------------
 Copyright (c) 2005-2020, Ilya Etingof <etingof@gmail.com>
 All rights reserved.
@@ -1534,7 +1534,7 @@ SOFTWARE.
 [L-154759c1e9eb] LICENSE_2.txt
 SHA256: 154759c1e9eb58e42643ee43ec59d556def4d1d702d911a484c469e02f85dd5d
 Components: openai
-Captured from: openai-3.37.0/LICENSE_2.txt
+Captured from: openai-3.41.0/LICENSE_2.txt
 --------------------------------------------------------------------------------
 Copyright © 2025, Karen Petrosyan.
 All rights reserved.
@@ -1830,10 +1830,10 @@ THE SOFTWARE.
 
 ================================================================================
 
-[L-34cb75d73943] LICENSE.APACHE
+[L-34cb75d73943] LICENSE_1APACHE
 SHA256: 34cb75d73943f10a7f9a3b0e3e7bf8ef271065eedcb0d47481e7c831b637aeae
 Components: cryptography
-Captured from: cryptography-50.0.2/LICENSE.APACHE
+Captured from: cryptography-50.0.2/LICENSE_1APACHE
 --------------------------------------------------------------------------------
 Apache License
                            Version 2.0, January 2004
@@ -2388,10 +2388,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ================================================================================
 
-[L-3e0c7c091a94] LICENSE
+[L-3e0c7c091a94] LICENSE_1.txt
 SHA256: 3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb
 Components: cryptography
-Captured from: cryptography-50.0.2/LICENSE
+Captured from: cryptography-50.0.2/LICENSE_1.txt
 --------------------------------------------------------------------------------
 This software is made available under the terms of *either* of the licenses
 found in LICENSE.APACHE or LICENSE.BSD. Contributions to cryptography are made
@@ -4184,10 +4184,10 @@ THE SOFTWARE.
 
 ================================================================================
 
-[L-602c4c7482de] LICENSE.BSD
+[L-602c4c7482de] LICENSE_1BSD
 SHA256: 602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb
 Components: cryptography
-Captured from: cryptography-50.0.2/LICENSE.BSD
+Captured from: cryptography-50.0.2/LICENSE_1BSD
 --------------------------------------------------------------------------------
 Copyright (c) Individual contributors.
 All rights reserved.
@@ -5755,7 +5755,7 @@ IN THE SOFTWARE.
 [L-7c7134b9f7b9] LICENSE_1.txt
 SHA256: 7c7134b9f7b978c03fca875517cf398db91f19bbb8109b6685e742aa3f57468e
 Components: jiter
-Captured from: jiter-0.17.0/LICENSE_1.txt
+Captured from: jiter-0.18.0/LICENSE_1.txt
 --------------------------------------------------------------------------------
 The MIT License (MIT)
 
@@ -8880,7 +8880,7 @@ under the terms of *both* these licenses.
 [L-cfc21f5e8bd6] LICENSE.TXT
 SHA256: cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310
 Components: Microsoft.NETCore.App.Runtime.win-x64, runtime.native.System.Data.SqlClient.sni, System.Drawing.Common, System.ServiceModel.Http, System.ServiceModel.NetFramingBase, System.ServiceModel.NetTcp, System.ServiceModel.Primitives, System.Web.Services.Description
-Captured from: nuget/Microsoft.NETCore.App.Runtime.win-x64/10.0.13/LICENSE.TXT
+Captured from: nuget/Microsoft.NETCore.App.Runtime.win-x64/10.0.14/LICENSE.TXT
 --------------------------------------------------------------------------------
 The MIT License (MIT)
 
@@ -8998,7 +8998,7 @@ SOFTWARE.
 [L-e93716da6b9c] LICENSE_1.txt
 SHA256: e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7
 Components: certifi, pip
-Captured from: certifi-2026.10.19/LICENSE_1.txt
+Captured from: certifi-2026.10.23/LICENSE_1.txt
 --------------------------------------------------------------------------------
 This package contains a modified version of ca-bundle.crt:
 
@@ -12870,7 +12870,7 @@ Captured from: audion-launcher-bundled/NOTICE-Audion-Launcher.md
 [L-fb3496291624] LICENSE_3.txt
 SHA256: fb34962916248c2e011077fb64b82d585814631bd291f2b78e37eccea9a9fe78
 Components: openai
-Captured from: openai-3.37.0/LICENSE_3.txt
+Captured from: openai-3.41.0/LICENSE_3.txt
 --------------------------------------------------------------------------------
 Apache License
                            Version 2.0, January 2004

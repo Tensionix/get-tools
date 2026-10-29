@@ -306,7 +306,10 @@ def machine_standing(provider: VendorProvider, product: str, builds: list[Vendor
     def line_of(version: str) -> str:
         return str(line(product, version) or "") if callable(line) else ""
 
-    own = line_of(shown)
+    # The line of the device itself goes first where the provider knows it: Intel's 101.70xx came out
+    # before the split for every GPU, and an Arc card that runs it is not on the line of Iris Xe.
+    machine_line = getattr(provider, "machine_line", None)
+    own = (str(machine_line(product) or "") if callable(machine_line) else "") or line_of(shown)
     finals = [build for build in builds if not (build.beta or build.preview or PREVIEW_WORDS.search(build.label))]
     pool = [build for build in finals if not own or line_of(build.version) == own]
     if not pool:
@@ -442,12 +445,20 @@ def vendor_build_options(root: Path | str | None = None, values: dict[str, Any] 
     for option, build in zip(options, builds):
         if build.preview:
             option["beta"] = True  # type: ignore[assignment]
-    # The newest final release is marked so its card stands out from the rest of the list.
+    # The newest final release is marked so its card stands out from the rest of the list - of the line
+    # this PC's device is on, where the product has lines (Intel graphics: Iris Xe is not on Arc's line).
+    # "The latest stable" of the window takes the card marked so.
+    machine_line = getattr(provider, "machine_line", None)
+    line = getattr(provider, "line", None)
+    own = str(machine_line(product) or "") if callable(machine_line) and callable(line) else ""
     for option, build in zip(options, builds):
         if build.beta or build.preview or PREVIEW_WORDS.search(build.label):
             continue
+        if own and line(product, build.version) != own:  # type: ignore[misc]
+            continue
         if not re.search(r"\blatest\b", build.label):
             option["label"] = option["label_ru"] = f"{option['label']} - latest"
+        option["latest"] = True  # type: ignore[assignment]
         break
     # What the provider ticks by itself - the driver this PC's device wants - and its line over the list.
     for option, build in zip(options, builds):

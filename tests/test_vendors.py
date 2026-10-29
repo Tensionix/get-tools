@@ -1571,6 +1571,121 @@ class TechPowerUpVendorTests(unittest.TestCase):
         self.assertFalse(same_version("32.0.21025.1024", "26.9.1"))
         self.assertFalse(same_version("24.70.0.3", "24"))
 
+    def test_files_for_other_systems_never_stand_on_a_windows_card(self) -> None:
+        from system_core.services.techpowerup_service import TechPowerUpFile
+        from system_core.vendors.techpowerup import TechPowerUpProvider, for_windows
+
+        for name in ("Cinebench2026_macOS.dmg", "p95v307b2.linux64.tar.gz", "Unigine_Heaven-4.0.run", "nvflash_5.692_linux.zip", "LinpackXtreme_1.0.0_Linux.tgz"):
+            self.assertFalse(for_windows(name), name)
+        for name in ("Cinebench2026_win_x86_64.zip", "Cinebench2026_win_arm64.zip", "p95v307b2.win64.zip", "Unigine_Heaven-4.0.exe"):
+            self.assertTrue(for_windows(name), name)
+        # The page of Cinebench names no kind: the .dmg was taken for the installer of the Windows card.
+        files = [TechPowerUpFile("2026", "December 9th, 2025", "", "Cinebench2026_win_x86_64.zip", "3067", "2.5 GB", ""),
+                 TechPowerUpFile("2026", "December 9th, 2025", "", "Cinebench2026_win_arm64.zip", "3068", "765.6 MB", ""),
+                 TechPowerUpFile("2026", "December 9th, 2025", "", "Cinebench2026_macOS.dmg", "3069", "3.0 GB", ""),
+                 TechPowerUpFile("R23", "November 11th, 2020", "", "Cinebench_R23.zip", "3060", "249.8 MB", ""),
+                 TechPowerUpFile("R23", "November 11th, 2020", "", "Cinebench_R23.dmg", "3061", "278.6 MB", "")]
+        provider = TechPowerUpProvider(tpu_list=lambda slug: list(files), tpu_resolve=lambda slug, file_id: "", devices=lambda: [])
+        builds = provider.builds("Cinebench", "Windows")
+        self.assertEqual([(build.version, build.download_id.rsplit(":", 1)[-1], build.portable_id == build.download_id, "arm64" in build.notes) for build in builds],
+                         [("2026", "3067", True, False), ("2026", "3068", True, True), ("R23", "3060", True, False)])
+        self.assertTrue(builds[0].ticked)
+
+    def test_intel_graphics_is_offered_the_newest_of_its_own_line(self) -> None:
+        from system_core.core import pc_devices
+        from system_core.services.techpowerup_service import TechPowerUpFile
+        from system_core.vendors.techpowerup import INTEL_GRAPHICS, TechPowerUpProvider, intel_graphics_device_line, intel_graphics_line
+
+        self.assertEqual([intel_graphics_line(v) for v in ("101.9150 WHQL", "101.8992 Beta", "101.7092 WHQL", "32.0.101.7026", "101.2145 WHQL", "101.6739")],
+                         ["arc", "arc", "core11-14", "core11-14", "core7-10", ""])
+        self.assertEqual(intel_graphics_device_line("Intel(R) Iris(R) Xe Graphics", "32.0.101.7026"), "core11-14")
+        self.assertEqual(intel_graphics_device_line("Intel(R) UHD Graphics 770", ""), "core11-14")
+        # 101.70xx came out before the split for every GPU: an Arc card that runs it is still on Arc's line.
+        self.assertEqual(intel_graphics_device_line("Intel(R) Arc(TM) A770 Graphics", "32.0.101.7026"), "arc")
+        self.assertEqual(intel_graphics_device_line("Intel(R) UHD Graphics 630", "32.0.101.2145"), "core7-10")
+        # The 6th gen (Skylake, HD 5xx) is on none of the lines: 101.2xxx is for Core 7th-10th gen.
+        self.assertEqual(intel_graphics_device_line("Intel(R) HD Graphics 520", ""), "")
+        self.assertEqual(intel_graphics_device_line("Intel(R) Graphics", "32.0.101.9150"), "arc")
+        self.assertEqual(intel_graphics_device_line("Intel(R) Graphics", "32.0.101.7026"), "")
+
+        versions = ["101.9150 WHQL", "101.9030 Beta", "101.7092 WHQL", "101.8974 WHQL", "101.2145 WHQL", "101.7026 WHQL", "101.2100 WHQL"]
+        files = [TechPowerUpFile(v, "2026", "", f"gfx_win_{i}.exe", str(9000 + i), "800 MB", "") for i, v in enumerate(versions)]
+
+        def made(name: str, driver: str) -> TechPowerUpProvider:
+            card = pc_devices.Device(r"PCI\VEN_8086&DEV_9A49&SUBSYS_0A1F1028&REV_01\3&11583659&0&10", name,
+                                     (r"PCI\VEN_8086&CC_030000", r"PCI\CC_0300"), driver)
+            return TechPowerUpProvider(tpu_list=lambda slug: list(files), tpu_resolve=lambda slug, file_id: "", devices=lambda: [card])
+
+        saved = TechPowerUpProvider._instance
+        try:
+            for name, driver, newest in (("Intel(R) Iris(R) Xe Graphics", "32.0.101.7026", "101.7092 WHQL"),
+                                         ("Intel(R) Arc(TM) A770 Graphics", "32.0.101.7026", "101.9150 WHQL"),
+                                         ("Intel(R) UHD Graphics 630", "32.0.101.2100", "101.2145 WHQL")):
+                provider = TechPowerUpProvider._instance = made(name, driver)
+                builds = provider.builds(INTEL_GRAPHICS, "Windows")
+                self.assertEqual([build.version for build in builds if build.ticked], [newest], name)
+                options = vendor_service.vendor_build_options(None, {"vendor": "techpowerup", "tpu_kind": "drivers", "tpu_driver": INTEL_GRAPHICS})
+                over, cards = options[0], options[1:]
+                self.assertEqual(over["newest"], newest, name)
+                self.assertEqual([card["label"].split(" - ")[0] for card in cards if card.get("latest")], [newest], name)
+                self.assertTrue(next(card for card in cards if card.get("latest"))["label"].endswith("- latest"), name)
+            # Iris Xe on 101.7026: behind the newest of its line, and the badge says the line's number.
+            provider = TechPowerUpProvider._instance = made("Intel(R) Iris(R) Xe Graphics", "32.0.101.7026")
+            told = vendor_service.machine_standing(provider, INTEL_GRAPHICS, provider.builds(INTEL_GRAPHICS, "Windows"))
+            self.assertEqual((told["running"], told["newest"], told["behind"]), ("101.7026 WHQL", "101.7092 WHQL", True))
+        finally:
+            TechPowerUpProvider._instance = saved
+
+    def test_amd_graphics_is_offered_the_packages_of_its_own_line(self) -> None:
+        from system_core.core import pc_devices
+        from system_core.services.techpowerup_service import TechPowerUpFile
+        from system_core.vendors.techpowerup import AMD_GRAPHICS, TechPowerUpProvider, amd_graphics_device_line, amd_package_line
+
+        for name, line in (("AMD Radeon RX 9070 XT", "rdna3-4"), ("AMD Radeon RX 7900 XTX", "rdna3-4"), ("AMD Radeon 780M Graphics", "rdna3-4"),
+                           ("AMD Radeon(TM) 8060S Graphics", "rdna3-4"), ("AMD Radeon RX 6600", "rdna1-2"), ("AMD Radeon RX 5700 XT", "rdna1-2"),
+                           ("AMD Radeon(TM) 680M", "rdna1-2"), ("Radeon RX 580 Series", "polaris-vega"), ("Radeon (TM) RX 480 Graphics", "polaris-vega"),
+                           ("Radeon RX Vega", "polaris-vega"), ("AMD Radeon VII", "polaris-vega"), ("AMD Radeon(TM) Vega 8 Graphics", "polaris-vega")):
+            self.assertEqual(amd_graphics_device_line(name, ""), line, name)
+        # The graphics of a Ryzen named "AMD Radeon(TM) Graphics" alone: by the chip - Cezanne is Vega, Raphael RDNA 2.
+        self.assertEqual(amd_graphics_device_line("AMD Radeon(TM) Graphics", r"PCI\VEN_1002&DEV_1638&SUBSYS_88EE103C&REV_C5"), "polaris-vega")
+        self.assertEqual(amd_graphics_device_line("AMD Radeon(TM) Graphics", r"PCI\VEN_1002&DEV_164E&SUBSYS_88771043&REV_C1"), "rdna1-2")
+        self.assertEqual(amd_graphics_device_line("AMD Radeon(TM) Graphics", r"PCI\VEN_1002&DEV_0000"), "")
+        self.assertEqual(amd_package_line("whql-amd-software-adrenalin-edition-26.9.2-win11-b.exe", ""), "rdna3-4")
+        self.assertEqual(amd_package_line("whql-amd-software-adrenalin-edition-26.9.2-win11-c.exe", "For older GPUs"), "all")
+        self.assertEqual(amd_package_line("whql-amd-software-adrenalin-edition-25.10.2-win10-win11-oct-rdna3.exe", ""), "rdna3-4")
+        self.assertEqual(amd_package_line("whql-amd-software-adrenalin-edition-25.9.1-win10-win11-sep-rdna.exe", ""), "all")
+
+        # 26.9.3 came out for RDNA 3-4 only; 26.9.2 has both packages.
+        files = [TechPowerUpFile("26.9.3 WHQL", "October 2026", "", "whql-amd-software-adrenalin-edition-26.9.3-win11-b.exe", "1", "950 MB", ""),
+                 TechPowerUpFile("26.9.2 WHQL", "September 2026", "", "whql-amd-software-adrenalin-edition-26.9.2-win11-b.exe", "2", "954 MB", ""),
+                 TechPowerUpFile("26.9.2 WHQL", "September 2026", "For older GPUs", "whql-amd-software-adrenalin-edition-26.9.2-win11-c.exe", "3", "1.6 GB", ""),
+                 TechPowerUpFile("26.8.1 WHQL", "August 2026", "", "whql-amd-software-adrenalin-edition-26.8.1-win11-c.exe", "4", "1.6 GB", "")]
+
+        def made(*names: str) -> TechPowerUpProvider:
+            cards = [pc_devices.Device(rf"PCI\VEN_1002&DEV_73FF&SUBSYS_0000&REV_C7\4&{index}", name, (r"PCI\VEN_1002&CC_030000", r"PCI\CC_0300"), "32.0.21025.1024")
+                     for index, name in enumerate(names)]
+            return TechPowerUpProvider(tpu_list=lambda slug: list(files), tpu_resolve=lambda slug, file_id: "", devices=lambda: cards)
+
+        def ids(builds) -> list[str]:
+            return [build.download_id.rsplit(":", 1)[-1] for build in builds]
+
+        saved = TechPowerUpProvider._instance
+        try:
+            for names, listed, ticked in ((("AMD Radeon RX 9070 XT",), ["1", "2", "3", "4"], ["1"]),
+                                          (("AMD Radeon RX 6600",), ["3", "4"], ["3"]),
+                                          # RDNA 2 beside RDNA 3: the combined package installs both.
+                                          (("AMD Radeon RX 6600", "AMD Radeon RX 7900 XTX"), ["3", "4"], ["3"]),
+                                          (("Radeon RX 580 Series",), ["1", "2", "3", "4"], [])):
+                provider = TechPowerUpProvider._instance = made(*names)
+                builds = provider.builds(AMD_GRAPHICS, "Windows")
+                self.assertEqual((ids(builds), ids(build for build in builds if build.ticked)), (listed, ticked), names)
+                options = vendor_service.vendor_build_options(None, {"vendor": "techpowerup", "tpu_kind": "drivers", "tpu_driver": AMD_GRAPHICS})
+                latest = [card["value"].rsplit(":", 1)[-1] for card in options[1:] if card.get("latest")]
+                self.assertEqual(latest, ticked, names)
+            self.assertIn("AMD's site only, nothing ticked", provider.note(AMD_GRAPHICS)[0])
+        finally:
+            TechPowerUpProvider._instance = saved
+
     def test_portable_files_are_told_apart_and_the_switch_flips_the_list(self) -> None:
         from system_core.vendors.techpowerup import TechPowerUpProvider, is_portable_file
         from system_core.services.techpowerup_service import parse_versions

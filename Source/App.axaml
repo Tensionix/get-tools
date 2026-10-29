@@ -13,6 +13,14 @@
              Everything uses DynamicResource, so switching the theme variant repaints the live window. -->
         <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
+                    <!-- The filled main button of a card. On the dark themes (CodeDark and Vault take these too) at half the
+                         brightness of the light theme's: at full it stood out of the page like a searchlight. -->
+                    <SolidColorBrush x:Key="FillBlue" Color="#0e3f80"/>
+                    <SolidColorBrush x:Key="FillBlueOver" Color="#1c4983"/>
+                    <SolidColorBrush x:Key="FillBlueDown" Color="#0c366d"/>
+                    <SolidColorBrush x:Key="FillBurn" Color="#772e11"/>
+                    <SolidColorBrush x:Key="FillBurnOver" Color="#7e381a"/>
+                    <SolidColorBrush x:Key="FillBurnDown" Color="#68270b"/>
                     <!-- Audion Sync Tools: the kinds of button groups, the dots of state, the journal. -->
                     <SolidColorBrush x:Key="KindKeys" Color="#cbab55"/>
                     <SolidColorBrush x:Key="KindNet" Color="#5f92c9"/>
@@ -94,6 +102,13 @@
                     <SolidColorBrush x:Key="FlyoutBorderThemeBrush" Color="#33414a"/>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Light">
+                    <!-- The filled main button of a card: on the light page the full accents. -->
+                    <SolidColorBrush x:Key="FillBlue" Color="#1a73e8"/>
+                    <SolidColorBrush x:Key="FillBlueOver" Color="#3384ee"/>
+                    <SolidColorBrush x:Key="FillBlueDown" Color="#1663c7"/>
+                    <SolidColorBrush x:Key="FillBurn" Color="#d9541e"/>
+                    <SolidColorBrush x:Key="FillBurnOver" Color="#e5662f"/>
+                    <SolidColorBrush x:Key="FillBurnDown" Color="#bd4614"/>
                     <!-- Audion Sync Tools: the kinds of button groups, the dots of state, the journal. -->
                     <SolidColorBrush x:Key="KindKeys" Color="#8f6f22"/>
                     <SolidColorBrush x:Key="KindNet" Color="#345f92"/>
@@ -354,14 +369,8 @@
         <!-- The program font and the panel font: SETTINGS swaps them at run time. -->
         <FontFamily x:Key="FontUi">fonts:JetBrainsMono#JetBrains Mono</FontFamily>
         <FontFamily x:Key="FontGrid">fonts:JetBrainsMono#JetBrains Mono</FontFamily>
-        <!-- Audion Get Tools: the filled main button of a card. The same in every theme - a fill
-             under white letters reads on dark and on light alike. -->
-        <SolidColorBrush x:Key="FillBlue" Color="#1a73e8"/>
-        <SolidColorBrush x:Key="FillBlueOver" Color="#3384ee"/>
-        <SolidColorBrush x:Key="FillBlueDown" Color="#1663c7"/>
-        <SolidColorBrush x:Key="FillBurn" Color="#d9541e"/>
-        <SolidColorBrush x:Key="FillBurnOver" Color="#e5662f"/>
-        <SolidColorBrush x:Key="FillBurnDown" Color="#bd4614"/>
+        <!-- Audion Get Tools: the filled main button of a card - white letters on its fill in every theme; the fills
+             themselves are per theme (FillBlue, FillBurn above). -->
         <SolidColorBrush x:Key="FillInk" Color="#ffffff"/>
 
         <!-- Every text size is a resource: SETTINGS rewrites them all at once

@@ -345,6 +345,9 @@ public sealed class Option
     public bool Default { get; set; }
     /// <summary>A preview, whatever its card says: "the latest stable" passes it by.</summary>
     public bool Beta { get; set; }
+    /// <summary>The newest release for this PC, marked by the service: "the latest stable" takes it over the
+    /// first stable of the list - of Intel's graphics drivers the first may be of another line.</summary>
+    public bool Latest { get; set; }
     public string Tone { get; set; } = "";
     /// <summary>The packages a group button adds to its list or takes off it.</summary>
     public List<string> Apps { get; set; } = new();
